@@ -1,5 +1,5 @@
 class FacialRecognition {
-    constructor(el = document.body, width = 640, height = 480) {
+    constructor(el = document.body, width = 640, height = 480, config={}) {
         this.el = el;
         this.width = width;
         this.height = height;
@@ -111,7 +111,7 @@ class FacialRecognition {
      */
     compareFacial() {
         $.ajax({
-            url: `${mainDir}/compareFacial.php`,
+            url: `${mainDir}/facials/compareFacial.php`,
             type: 'GET',
             contentType: 'application/json',
             success: (response) => {
@@ -193,6 +193,7 @@ class FacialRecognition {
                                 filename,
                                 score: similarityScore,
                                 percentage: `${similarityScore.toFixed(2)}%`,
+                                isSimilar: (similarityScore > (parseInt(JSON.parse(sessionStorage.getItem('facialRecognitionState')).threshold) || 28)) // default threshold
                             };
                         });
 
@@ -345,7 +346,7 @@ class FacialRecognition {
 
             // Send via AJAX
             $.ajax({
-                url: `${mainDir}/savePicture.php`,
+                url: `${mainDir}/facials/savePicture.php`,
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ image: faceImageData }),
@@ -372,6 +373,7 @@ class FacialRecognition {
             canvasElementId: this.canvasElement.id,
             width: this.width,
             height: this.height,
+            config: this.config || {} // Store any additional config if needed
             // Add other properties if needed
         };
         sessionStorage.setItem('facialRecognitionState', JSON.stringify(state));

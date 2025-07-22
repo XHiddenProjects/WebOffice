@@ -60,7 +60,8 @@ $f = new Files();
 
 if(!file_exists(TEMP_PATH)) $f->createFolder('temp');
 if(!file_exists(BACKUP_PATH)) $f->createFolder('backups');
-if(!file_exists('facials')) $f->createFolder('facials');
+# Change permissions for files/folder
+@chmod(dirname(__FILE__).'/files',0777);
 # Temp
 if (!isset($_SESSION['last_cleanup'])) $_SESSION['last_cleanup'] = time();
 

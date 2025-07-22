@@ -17,7 +17,5 @@ $addon = new Addons(); // Instantiate the concrete subclass
         echo $addon->hook('footer');
         echo $addon->hook('scripts');
         ?>
-        <button id="snapFacial">Take Picture</button>
-        <button id="checkFacial">Check</button>
     </body>
 </html>

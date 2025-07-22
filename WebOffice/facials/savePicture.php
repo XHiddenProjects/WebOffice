@@ -4,7 +4,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $dataUrl = $data['image']; // truncated for example
 
 // Specify the folder where you want to save the image
-$folderPath = 'facials/'; // ensure this folder exists and is writable
+$folderPath = dirname(__DIR__).'/facials/';
 
 // Generate a unique filename
 $filename = 'image_' . time() . '.png';

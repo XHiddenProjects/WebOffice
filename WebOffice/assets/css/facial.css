@@ -13,27 +13,3 @@
     z-index: 10;
     pointer-events: none; /* Prevents canvas from blocking interactions */
 }
-#snapFacial{
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 20;
-    padding: 10px 20px;
-    background-color: #f44336; /* Red */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-#checkFacial{
-    position: absolute;
-    top: 120px;
-    right: 10px;
-    z-index: 20;
-    padding: 10px 20px;
-    background-color: #4CAF50; /* Green */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
