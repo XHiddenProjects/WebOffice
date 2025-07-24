@@ -54,10 +54,17 @@ class Security{
         if(preg_match($pattern,$input,$matches)) return htmlspecialchars($matches[0],ENT_QUOTES);
         else return '';
     }
+    /**
+     * Checks the version of the application against the latest version
+     * @return bool|int Returns true if the current version is less than the latest version, false otherwise
+     */
+    public function checkVersion(): bool{
+        $v1 = file_get_contents(VERSION);
+        $v2 = (new Utils())->request('https://raw.githubusercontent.com/XHiddenProjects/WebOffice/refs/heads/master/VERSION',
+        'GET',
+        ['headers'=>['User-Agent'=>'WebOffice/1.0']]);
+        return @version_compare(trim($v1), trim($v2['response']), '<');
+
     
-    public function MFA($code):bool{
-        $config = new Config();
-        return true;
-        
     }
 }

@@ -20,6 +20,7 @@ define('LANGUAGE_PATH',BASE.DS.'languages');
 define('ADDONS_PATH',BASE.DS.'addons');
 define('ASSETS_PATH',BASE.DS.'assets');
 define('ASSETS_URL',URL.'/assets');
+define('VERSION', file_exists(BASE . DS . 'VERSION') ? BASE . DS . 'VERSION' : '1.0.0');
 
 
 use WebOffice\Security, WebOffice\Config, WebOffice\Files;
@@ -29,7 +30,11 @@ define('LANGUAGE',array_map(fn($e): string=>strtolower($e),explode(',',$config->
 
 date_default_timezone_set($config->read('settings','timezone') ?? 'UTC');
 
-(new Security())->setSecurityHeaders();
+$sec = new Security();
+$sec->setSecurityHeaders();
+
+if($sec->checkVersion()) die('Your WebOffice version is outdated. Please update to the latest version.');
+
 function getBaseUrl(): string {
     // Check if HTTPS is used
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || 

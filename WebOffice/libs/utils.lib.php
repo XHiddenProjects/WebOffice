@@ -66,7 +66,7 @@ class Utils{
      * @throws \Exception
      * @return array{response: bool|string, status_code: mixed}
      */
-    public function request(string $url, string $method='GET', array $headers=[], ?string $body=null): array{
+    public function request(string $url, string $method='GET', array $headers=[], ?string $body=null): array {
         $ch = curl_init();
 
         // Set URL
@@ -87,18 +87,40 @@ class Utils{
             case 'DELETE':
             case 'PATCH':
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-                if ($body !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-            break;
-            case 'GET':break;
-            default:
+                if ($body !== null) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+                }
+                break;
+            case 'GET':
                 // GET is default, no additional setting needed
-            break;
+                break;
+            default:
+                // For any other methods, set custom request
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+                if ($body !== null) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+                }
+                break;
         }
 
         // Set headers if provided
         if (!empty($headers)) {
             $formattedHeaders = [];
-            foreach ($headers as $key => $value) $formattedHeaders[] = is_int($key) ? $value : "$key: $value";
+            foreach ($headers as $key => $value) {
+                if (is_int($key)) {
+                    // When headers are just values without keys
+                    $formattedHeaders[] = $value;
+                } else {
+                    // When headers are key-value pairs
+                    if (is_array($value)) {
+                        // If a header value is an array, join its elements
+                        $valueString = implode(', ', $value);
+                        $formattedHeaders[] = "$key: $valueString";
+                    } else {
+                        $formattedHeaders[] = "$key: $value";
+                    }
+                }
+            }
             curl_setopt($ch, CURLOPT_HTTPHEADER, $formattedHeaders);
         }
 
@@ -117,7 +139,7 @@ class Utils{
 
         curl_close($ch);
 
-        return ['status_code' => $statusCode,'response' => $response];
+        return ['status_code' => $statusCode, 'response' => $response];
     }
     /**
      * Generates a UUID
@@ -161,6 +183,14 @@ class Utils{
         $returnVar = 0;
         exec($command, $output, $returnVar);
         return ['output'=>$output, 'return_var'=>$returnVar];
+    }
+    /**
+     * Escape a shell command
+     * @param string $command Command to escape
+     * @return string Escaped command
+     */
+    public function escapeShell(string $command): string {
+        return escapeshellcmd($command);
     }
     /**
      * Convert bytes to a human-readable format

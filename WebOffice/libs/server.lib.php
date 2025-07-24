@@ -222,22 +222,6 @@ class Server{
         ];
         return $status;
     }
-    /**
-     * Pings the server or a specified host
-     * @param string $host Host to ping, defaults to 'localhost'
-     * @param int $timeout Timeout in seconds
-     * @return array|array{output: array, return_var: int} Ping results
-     */
-    public function ping(string $host = 'localhost', int $timeout=3): array {
-        $cmd = (strncasecmp(OS, 'WIN', 3) === 0)
-            ? "ping -n $timeout $host"
-            : "ping -c $timeout $host";
-        $result = $this->utils->executeCommand($cmd);
-        if (isset($result['output']) && is_array($result['output'])) {
-            return $result['output'];
-        }
-        return is_array($result) ? $result : [];
-    }
 
     public function backup(string $backup='backup'): void {
         $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? getcwd();
