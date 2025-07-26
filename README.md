@@ -11,5 +11,10 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 
 ***
 
+## Required Libraries
+
+**Python**
+* PIP
+* PSUTIL
 
 
