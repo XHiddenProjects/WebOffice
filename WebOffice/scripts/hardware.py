@@ -65,7 +65,7 @@ class Hardware:
                 fan_info[name] = speed
             return fan_info
         else:
-            return {}
+            return {'error':'No fan information'}
     def temperature(self, fahrenheit: bool=True):
         temps = psutil.sensors_temperatures(fahrenheit)
         temperature_dict = {}

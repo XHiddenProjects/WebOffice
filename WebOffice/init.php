@@ -182,4 +182,21 @@ $db->createTable('attempts', [
     'user_agent' => 'TEXT NOT NULL',
     'attempt' => 'INT NOT NULL',
 ]);
+$db->createTable('devices', [
+    'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
+    'name' => 'VARCHAR(255)',            // Name or model of the device
+    'type' => 'VARCHAR(100)',            // Type of device (e.g., smartphone, tablet)
+    'manufacturer' => 'VARCHAR(100)',    // Manufacturer or brand
+    'serial_number' => 'VARCHAR(255)',   // Unique serial number
+    'purchase_date' => 'DATE',           // Date of purchase
+    'warranty_expiry' => 'DATE',         // Warranty expiry date
+    'status' => 'VARCHAR(50)',           // Current status (e.g., active, inactive, maintenance)
+    'location' => 'VARCHAR(255)',        // Physical location or assigned user
+    'ip_address' => 'VARCHAR(45)',       // IP address if networked
+    'mac_address' => 'VARCHAR(17)',      // MAC address
+    'os' => 'VARCHAR(100)',              // Operating system
+    'asset_tag' => 'VARCHAR(100) NOT NULL', // Asset tag identifier
+    'history'=>'JSON NULL',              // Devices History
+    'notes' => 'TEXT'                    // Additional notes
+]);
 

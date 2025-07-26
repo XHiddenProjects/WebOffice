@@ -1,6 +1,9 @@
 <?php
 namespace WebOffice;
-use WebOffice\Config;
+
+use ErrorException;
+use WebOffice\CSRF;
+
 class Security{
     public const SANITIZE_DEFAULT = "/[^a-zA-Z0-9\s!@#$%^&*()\-_=+\[\]{}|;:\'\",.<>\/?`~]/",
     SANITIZE_EMAIL = "/[^a-zA-Z0-9._@]/",
@@ -64,7 +67,19 @@ class Security{
         'GET',
         ['headers'=>['User-Agent'=>'WebOffice/1.0']]);
         return @version_compare(trim($v1), trim($v2['response']), '<');
-
-    
+    }
+    /**
+     * Creates/Verifies CSRF token
+     * @param string $action Actions: "Load" or "verify"
+     * @param string $token Token input, **if verify**
+     * @return bool|string Returns token if loaded, else TRUE/FALSE on verify
+     * @throws ErrorException Invalid action
+     */
+    public function CSRF(string $action='load', string $token=''): bool|string{
+        $c = new CSRF();
+        $action = strtolower($action);
+        if($action==='load') return $c->getToken();
+        elseif($action==='verify') return $c->verify($token);
+        else throw new ErrorException('Must be a load or verify action');
     }
 }

@@ -176,20 +176,19 @@ class Utils{
      * Execute a shell command
      * @param string $command Command to execute
      * @throws \RuntimeException If the command fails
-     * @return array{output: array, return_var: int} Output and return status
+     * @return bool|string|null Output and return status
      */
-    public function executeCommand(string $command): array {
-        $output = [];
-        $returnVar = 0;
-        exec($command, $output, $returnVar);
-        return ['output'=>$output, 'return_var'=>$returnVar];
+    public function executeCommand(string $command): bool|string|null{
+        $command = $this->escapeShell($command);
+        $output = shell_exec($command);
+        return $output;
     }
     /**
      * Escape a shell command
      * @param string $command Command to escape
      * @return string Escaped command
      */
-    public function escapeShell(string $command): string {
+    private function escapeShell(string $command): string {
         return escapeshellcmd($command);
     }
     /**

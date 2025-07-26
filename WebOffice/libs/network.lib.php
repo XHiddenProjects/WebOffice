@@ -18,20 +18,81 @@ class Network {
     }
 
     /**
-     * Pings the server or a specified host
+     * Pings the server or a specified host and returns detailed statistics.
      * @param string $host Host to ping, defaults to 'localhost'
      * @param int $timeout Timeout in seconds
-     * @return array|array{output: array, return_var: int} Ping results
+     * @return array Ping results
      */
     public function ping(string $host = 'localhost', int $timeout=3): array {
         $os = $this->getOsShortName();
         $cmd = strpos($os, 'WIN') === 0 ? 
             "ping -n 1 -w " . ($timeout * 1000) . " $host" :
             "ping -c 1 -W $timeout $host";
-        $result = $this->utils->executeCommand($cmd);
-        if (isset($result['output']) && is_array($result['output'])) return $result['output'];
 
-        return is_array($result) ? $result : [];
+        $result = $this->utils->executeCommand($cmd);
+        // For debugging:
+        // echo $result;
+
+        $output = [
+            'host' => $host,
+            'ip' => null,       // Added for IP address
+            'bytes' => null,
+            'time' => null,
+            'icmp_seq' => null,
+            'ttl' => null,
+            'transmitted' => null,
+            'received' => null,
+            'loss' => null,
+            'min' => null,
+            'avg' => null,
+            'max' => null,
+            'mdev' => null,
+        ];
+
+        if (strpos($os, 'WIN') === 0) {
+            // Windows parsing
+            // Example: Reply from 8.8.8.8: bytes=32 time=14ms TTL=117
+            if (preg_match('/Reply from ([^:]+): bytes=\d+ .*?time[=<]*([\d]+)ms TTL=(\d+)/i', $result, $matches)) {
+                $output['ip'] = $matches[1];
+                $output['bytes'] = null; // Not extracted in this pattern, but can be added if needed
+                $output['time'] = (int)$matches[2];
+                $output['ttl'] = (int)$matches[3];
+            }
+            // Additional parsing for IP
+            if (!$output['ip']) {
+                // Try to extract IP from other lines if necessary
+                if (preg_match('/Pinging ([^ ]+) \[([^\]]+)\]/i', $result, $matches)) {
+                    $output['ip'] = $matches[2];
+                }
+            }
+        } else {
+            // Unix/Linux parsing
+            // Example: 64 bytes from 8.8.8.8: icmp_seq=1 ttl=117 time=14.2 ms
+            if (preg_match('/(\d+) bytes from ([^:]+): .*?icmp_seq=(\d+) .*?ttl=(\d+) .*?time=([\d\.]+) ms/', $result, $matches)) {
+                $output['bytes'] = (int)$matches[1];
+                $output['ip'] = trim(preg_replace("/$host|\(|\)/",'',$matches[2]));
+                $output['icmp_seq'] = (int)$matches[3];
+                $output['ttl'] = (int)$matches[4];
+                $output['time'] = (float)$matches[5];
+            }
+
+            // Parse summary line: '--- host ping statistics ---'
+            if (preg_match('/(\d+) packets transmitted, (\d+) received, ([\d]+)% packet loss/', $result, $matches)) {
+                $output['transmitted'] = (int)$matches[1];
+                $output['received'] = (int)$matches[2];
+                $output['loss'] = (int)$matches[3];
+            }
+
+            // Parse min/avg/max/mdev from the rtt line
+            if (preg_match('/rtt min\/avg\/max\/mdev = ([\d\.]+)\/([\d\.]+)\/([\d\.]+)\/([\d\.]+) ms/', $result, $matches)) {
+                $output['min'] = (float)$matches[1];
+                $output['avg'] = (float)$matches[2];
+                $output['max'] = (float)$matches[3];
+                $output['mdev'] = (float)$matches[4];
+            }
+        }
+
+        return $output;
     }
 
     /**
@@ -46,77 +107,79 @@ class Network {
             "netsh interface ipv4 show interfaces" :
             "ifconfig";
 
+        // Execute command and validate result
         $result = $this->utils->executeCommand($cmd);
 
+        if (!is_string($result)) {
+            // If result is not a string, return empty array or handle error
+            return [];
+        }
+
+        $outputLines = preg_split('/\r?\n/', $result);
         $interfaces = [];
 
-        if (isset($result['output']) && is_array($result['output'])) {
-            $outputLines = $result['output'];
+        // Initialize variables to hold current interface data
+        $currentInterface = null;
 
-            // Initialize variables to hold current interface data
-            $currentInterface = null;
-
-            foreach ($outputLines as $line) {
-                // For Linux, parse 'ifconfig' output
-                if (strpos($cmd, 'ifconfig') !== false) {
-                    // Detect interface name line (starts without indentation)
-                    if (preg_match('/^(\S+):/', $line, $matches)) {
-                        // Save previous interface data if any
-                        if ($currentInterface !== null) {
-                            $interfaces[] = $currentInterface;
-                        }
-                        $currentInterface = [
-                            'name' => $matches[1],
-                            'rx_packets' => 0,
-                            'rx_bytes' => 0,
-                            'tx_packets' => 0,
-                            'tx_bytes' => 0,
-                        ];
-                    }
-
-                    // Parse RX and TX packets/bytes
+        foreach ($outputLines as $line) {
+            // For Linux, parse 'ifconfig' output
+            if (strpos($cmd, 'ifconfig') !== false) {
+                // Detect interface name line (starts without indentation)
+                if (preg_match('/^(\S+):/', $line, $matches)) {
+                    // Save previous interface data if any
                     if ($currentInterface !== null) {
-                        if (preg_match('/RX packets (\d+)\s+bytes (\d+)/', $line, $matches)) {
-                            $currentInterface['rx_packets'] = (int)$matches[1];
-                            $currentInterface['rx_bytes'] = (int)$matches[2];
-                        }
-                        if (preg_match('/TX packets (\d+)\s+bytes (\d+)/', $line, $matches)) {
-                            $currentInterface['tx_packets'] = (int)$matches[1];
-                            $currentInterface['tx_bytes'] = (int)$matches[2];
-                        }
+                        $interfaces[] = $currentInterface;
+                    }
+                    $currentInterface = [
+                        'name' => $matches[1],
+                        'rx_packets' => 0,
+                        'rx_bytes' => 0,
+                        'tx_packets' => 0,
+                        'tx_bytes' => 0,
+                    ];
+                }
+
+                // Parse RX and TX packets/bytes
+                if ($currentInterface !== null) {
+                    if (preg_match('/RX packets (\d+)\s+bytes (\d+)/', $line, $matches)) {
+                        $currentInterface['rx_packets'] = (int)$matches[1];
+                        $currentInterface['rx_bytes'] = (int)$matches[2];
+                    }
+                    if (preg_match('/TX packets (\d+)\s+bytes (\d+)/', $line, $matches)) {
+                        $currentInterface['tx_packets'] = (int)$matches[1];
+                        $currentInterface['tx_bytes'] = (int)$matches[2];
                     }
                 }
-                // For Windows, parsing 'netsh' output
-                elseif (strpos($cmd, 'netsh') !== false) {
-                    // Example line:
-                    // "Enabled Interface Name : Ethernet"
-                    if (preg_match('/^Enabled Interface Name\s*:\s*(.+)$/', $line, $matches)) {
-                        $currentInterface = [
-                            'name' => trim($matches[1]),
-                            'rx_packets' => 0,
-                            'rx_bytes' => 0,
-                            'tx_packets' => 0,
-                            'tx_bytes' => 0,
-                        ];
-                    }
-                    // Parsing may vary; you might need to adjust based on actual output
-                    // Since 'netsh' does not directly show RX/TX packets, you might need a different command
+            }
+            // For Windows, parsing 'netsh' output
+            elseif (strpos($cmd, 'netsh') !== false) {
+                // Example line:
+                // "Enabled Interface Name : Ethernet"
+                if (preg_match('/^Enabled Interface Name\s*:\s*(.+)$/', $line, $matches)) {
+                    $currentInterface = [
+                        'name' => trim($matches[1]),
+                        'rx_packets' => 0,
+                        'rx_bytes' => 0,
+                        'tx_packets' => 0,
+                        'tx_bytes' => 0,
+                    ];
                 }
+                // Additional parsing logic for RX/TX stats may be required here
             }
-            // Save last interface if any
-            if ($currentInterface !== null) {
-                $interfaces[] = $currentInterface;
-            }
+        }
+        // Save last interface if any
+        if ($currentInterface !== null) {
+            $interfaces[] = $currentInterface;
         }
 
         // Escape output for security
-        return array_map(fn($iface): array =>[
-                'name' => htmlspecialchars($iface['name'], ENT_QUOTES, 'UTF-8'),
-                'rx_packets' => $iface['rx_packets'],
-                'rx_bytes' => $iface['rx_bytes'],
-                'tx_packets' => $iface['tx_packets'],
-                'tx_bytes' => $iface['tx_bytes']
-            ], $interfaces);
+        return array_map(fn($iface): array => [
+            'name' => htmlspecialchars($iface['name'], ENT_QUOTES, 'UTF-8'),
+            'rx_packets' => $iface['rx_packets'],
+            'rx_bytes' => $iface['rx_bytes'],
+            'tx_packets' => $iface['tx_packets'],
+            'tx_bytes' => $iface['tx_bytes']
+        ], $interfaces);
     }
     /**
      * Gets the total bytes sent and received
@@ -209,14 +272,13 @@ class Network {
             }
         } else {
             // Linux/Mac: Check for wireless interfaces
-            $result = $this->utils->executeCommand('iwconfig');
-            if (isset($result['output']) && is_array($result['output'])) {
-                foreach ($result['output'] as $line) {
+            $result = explode('\n',$this->utils->executeCommand('iwconfig'));
+                foreach ($result as $line) {
                     if (stripos($line, 'IEEE 802.11') !== false) {
                         return true;
                     }
                 }
-            }
+            
         }
         return false;
     }
@@ -229,20 +291,17 @@ class Network {
         $os = $this->getOsShortName();
         if (strpos($os, 'WIN') === 0) {
             // Windows: Use netsh to get the connection name
-            $result = $this->utils->executeCommand('netsh wlan show interfaces');
-            if (isset($result['output']) && is_array($result['output'])) {
-                foreach ($result['output'] as $line) {
+            $result = explode('\n',$this->utils->executeCommand('netsh wlan show interfaces'));
+                foreach ($result as $line) {
                     if (stripos($line, 'SSID') !== false) {
                         return trim(explode(':', $line)[1] ?? '');
                     }
                 }
-            }
+            
         } else {
             // Linux/Mac: Use iwgetid to get the SSID
-            $result = $this->utils->executeCommand('iwgetid -r');
-            if (isset($result['output']) && is_array($result['output'])) {
-                return trim(implode('', $result['output']));
-            }
+            $result = explode('\n',$this->utils->executeCommand('iwgetid -r'));
+            return trim(implode('', $result));
         }
         return null;
     }
@@ -255,9 +314,9 @@ class Network {
         $os = $this->getOsShortName();
         if (strpos($os, 'WIN') === 0) {
             // Windows: Use netsh to get the security type
-            $result = $this->utils->executeCommand('netsh wlan show interfaces');
-            if (isset($result['output']) && is_array($result['output'])) {
-                foreach ($result['output'] as $line) {
+            $result = explode('\n',$this->utils->executeCommand('netsh wlan show interfaces'));
+            if (isset($result) && is_array($result)) {
+                foreach ($result as $line) {
                     if (stripos($line, 'Authentication') !== false) {
                         return true;
                     }
@@ -265,9 +324,9 @@ class Network {
             }
         } else {
             // Linux/Mac: Use iwconfig to get the security type
-            $result = $this->utils->executeCommand(' nmcli -f SSID,SECURITY dev wifi list | grep "'.$this->utils->escapeShell($this->internetName()).'"');
-            if (isset($result['output']) && is_array($result['output'])) {
-                foreach ($result['output'] as $line) {
+            $result = explode('\n',$this->utils->executeCommand(' nmcli -f SSID,SECURITY dev wifi list | grep "'.$this->internetName().'"'));
+            if (isset($result) && is_array($result)) {
+                foreach ($result as $line) {
                     if (stripos($line, 'WPA') !== false || 
                     stripos($line, 'WPA2') !== false ||
                     stripos($line, 'WPA3') !== false) {
