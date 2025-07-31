@@ -1,15 +1,17 @@
 <?php
 namespace WebOffice;
-use WebOffice\Utils, WebOffice\Device;
+use WebOffice\Utils, WebOffice\Device, WebOffice\Server;
 
 class Network {
     private Utils $utils; 
     private Device $device;
     private int $bytesSent = 0, $bytesReceived = 0;
+    private Server $server;
 
     public function __construct() {
         $this->utils = new Utils();
         $this->device = new Device();
+        $this->server = new Server();
     }
     
     private function getOsShortName(): string {
@@ -336,5 +338,233 @@ class Network {
             }
         }
         return false;
+    }
+    /**
+     * Returns the connected devices to the network with IP, MAC, Hostname, Interface, Type, and Device
+     * @return array{ip: string, mac: string, name: string, interface: string, type: string, device: string} Connected Devices
+     */
+    public function connectedDevices(): array {
+        $devices = [];
+
+        // Detect the operating system
+        $os = $this->getOsShortName();
+
+        // Helper function to identify device type
+        // Moved outside of main method for proper scope
+        function identifyDevice($hostname, $mac): string {
+            // Define device pattern categories with regex patterns
+            $deviceLanPatterns = [
+                'TV' => [
+                    '/tivo.*\.lan/i',
+                    '/samsung.*tv\.lan|Samsung\.lan/i',
+                    '/lg.*-tv\.lan/i',
+                    '/sony.*bravia\.lan/i',
+                    '/smart.*tv\.lan/i',
+                    '/android.*tv\.lan/i'
+                ],
+                'Router' => [
+                    '/gateway.*\.lan|_gateway/i',
+                    '/router.*\.lan/i',
+                    '/netgear.*\.lan/i',
+                    '/tplink.*\.lan/i',
+                    '/dlink.*\.lan/i',
+                    '/cisco.*\.lan/i'
+                ],
+                'Amazon' => [
+                    '/amazon.*echo\.lan/i',
+                    '/alexa\.lan/i',
+                    '/amazon.*device\.lan/i'
+                ],
+                'Phones' => [
+                    '/iphone.*\.lan/i',
+                    '/android.*\.lan/i',
+                    '/galaxy.*\.lan/i',
+                    '/pixel.*\.lan/i'
+                ],
+                'Tablets' => [
+                    '/ipad.*\.lan/i',
+                    '/tablet.*\.lan/i',
+                    '/galaxytab.*\.lan/i'
+                ],
+                'Speakers' => [
+                    '/sonos.*\.lan/i',
+                    '/googlehome.*\.lan/i',
+                    '/amazonecho.*\.lan/i',
+                    '/bose.*\.lan/i'
+                ],
+                'Cameras' => [
+                    '/nestcam.*\.lan/i',
+                    '/ringcamera.*\.lan/i',
+                    '/hikvision.*\.lan/i'
+                ],
+                'Computers' => [
+                    '/laptop.*\.lan/i',
+                    '/desktop.*\.lan/i',
+                    '/macbook.*\.lan/i',
+                    '/pc.*\.lan/i'
+                ],
+                'Ethernet'=>[
+                    '/amazon.*\.lan/',
+                    '/Ethernet/',
+                    '/eth\d+/',               
+                    '/LAN/',                  
+                    '/CAT\d+/',               
+                    '/GigabitEthernet/',
+                    '/10G Ethernet/',
+                    '/RJ45/',    
+                    '/Network Cable/',
+                    '/Ethernet Cable/',
+                    '/Patch Cable/',
+                    '/UTP/',
+                    '/STP/',
+                ]
+                // Add more categories and regex patterns as needed
+            ];
+
+            $hostnameLower = strtolower($hostname);
+            $macLower = strtolower($mac);
+
+            // Check hostname patterns against device categories using regex
+            foreach ($deviceLanPatterns as $category => $patterns) {
+                foreach ($patterns as $pattern) {
+                    if (preg_match($pattern, $hostnameLower)) {
+                        return $category;
+                    }
+                }
+            }
+
+            // Basic heuristic checks for common device types
+            if (strpos($hostnameLower, 'tv') !== false || strpos($hostnameLower, 'smart') !== false) {
+                return 'TV';
+            } elseif (
+                strpos($hostnameLower, 'phone') !== false || 
+                strpos($hostnameLower, 'mobile') !== false || 
+                strpos($hostnameLower, 'android') !== false || 
+                strpos($hostnameLower, 'ios') !== false
+            ) {
+                return 'Phone';
+            } elseif (
+                strpos($hostnameLower, 'camera') !== false || 
+                strpos($hostnameLower, 'cam') !== false
+            ) {
+                return 'Camera';
+            } elseif (
+                strpos($hostnameLower, 'laptop') !== false || 
+                strpos($hostnameLower, 'notebook') !== false || 
+                strpos($hostnameLower, 'desktop') !== false || 
+                strpos($hostnameLower, 'pc') !== false
+            ) {
+                return 'Computer';
+            } elseif (strpos($hostnameLower, 'tablet') !== false) {
+                return 'Tablet';
+            }
+
+            // MAC address prefix heuristics for known vendors (optional)
+            $ouiPrefixes = [
+                '00:1a:2b' => 'Apple',
+                '00:1b:63' => 'Apple',
+                'd4:3a:11' => 'Samsung',
+            ];
+
+            foreach ($ouiPrefixes as $prefix => $vendor) {
+                if (strpos($macLower, $prefix) === 0) {
+                    if ($vendor === 'Apple') {
+                        return 'Apple Device';
+                    } elseif ($vendor === 'Samsung') {
+                        return 'Samsung Device';
+                    }
+                    // Add more vendor-based classifications as needed
+                }
+            }
+
+            // Default fallback
+            return 'Unknown';
+        }
+
+        if (stripos($os, 'WIN') === 0) {
+            // Windows: Use 'arp -a'
+            $output = $this->utils->executeCommand('arp -a');
+
+            if ($output !== null) {
+                preg_match_all('/\s*(\d+\.\d+\.\d+\.\d+)\s+([\w-]+)\s+(\w+)/', $output, $matches);
+                if (isset($matches[1])) {
+                    foreach ($matches[1] as $index => $ip) {
+                        $mac = $matches[2][$index];
+                        $type = $matches[3][$index]; // 'dynamic' or 'static'
+                        $interface = 'N/A'; // Could be improved with additional commands
+                        $name = $this->server->hostname($ip);
+                        $deviceType = identifyDevice($name, $mac);
+
+                        $devices[] = [
+                            'ip' => $ip,
+                            'mac' => $mac,
+                            'name' => $name,
+                            'interface' => $interface,
+                            'type' => $type,
+                            'device' => $deviceType
+                        ];
+                    }
+                }
+            }
+        } elseif (stripos($os, 'DAR') === 0 || stripos($os, 'FREE') === 0 || stripos($os, 'LIN') === 0) {
+            // Mac/Linux: Use 'arp -a'
+            $output = $this->utils->executeCommand('arp -a');
+
+            if ($output !== null) {
+                preg_match_all('/\((\d+\.\d+\.\d+\.\d+)\)\s+at\s+([0-9a-f:]{17})\s+(?:\[.*\])?\s+on\s+(\w+)/i', $output, $matches);
+
+                if (isset($matches[1])) {
+                    foreach ($matches[1] as $index => $ip) {
+                        $mac = $matches[2][$index];
+                        $interface = $matches[3][$index];
+                        $name = $this->server->hostname($ip);
+                        $deviceType = identifyDevice($name, $mac);
+
+                        $devices[] = [
+                            'ip' => $ip,
+                            'mac' => $mac,
+                            'name' => $name,
+                            'interface' => $interface,
+                            'type' => 'dynamic', // Default assumption
+                            'device' => $deviceType
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $devices;
+    }
+    /**
+     * Looks up the hostname based on IP address
+     * @param string $ip IP address
+     * @return string|null Hostname else NULL
+     */
+    public function lookup(string $ip): string|null {
+        // Filter IP for security
+        $ip = (new Security())->filter($ip, Security::FILTER_IPV4);
+        
+        // Check if nslookup is available
+        if ($this->utils->executeCommand('which nslookup')) {
+            $command = "nslookup $ip";
+        } else {
+            // Fallback if nslookup is not available
+            return null;
+        }
+
+        // Execute command
+        $output = $this->utils->executeCommand($command);
+
+        // Parse output to extract hostname
+        if (strpos($output, 'name =') !== false) {
+            // For nslookup output
+            preg_match('/name = (.+)/', $output, $matches);
+            if (!empty($matches[1])) {
+                return trim($matches[1]);
+            }
+        }
+
+        // Hostname not found or output format not recognized
+        return null;
     }
 }

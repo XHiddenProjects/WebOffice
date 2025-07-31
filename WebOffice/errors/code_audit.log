@@ -1,0 +1,12 @@
+[2025-07-30 19:46:39.000000] Error reporting not configured in: /opt/lampp/htdocs/WebOffice/addons/core/core.plg.php
+[2025-07-30 19:46:39.000000] Error reporting not configured in: /opt/lampp/htdocs/WebOffice/addons/core/core.plg.php
+[2025-07-30 19:48:30.000000] Code audit completed: No issues found.
+[2025-07-30 19:49:27.000000] Potential unsafe eval() usage in: /opt/lampp/htdocs/WebOffice/addons/core/core.plg.php
+[2025-07-30 19:49:27.000000] Potential unsafe eval() usage in: /opt/lampp/htdocs/WebOffice/addons/core/core.plg.php
+[2025-07-30 19:49:51.000000] Code audit completed: No issues found.
+[2025-07-30 20:07:53.000000] Code audit completed: No issues found.
+[2025-07-30 20:08:26.000000] Code audit completed: No issues found.
+[2025-07-30 20:08:51.000000] Code audit completed: No issues found.
+[2025-07-30 20:19:44.000000] Code audit completed: No issues found.
+[2025-07-30 20:20:29.000000] Code audit completed: No issues found.
+[2025-07-30 20:20:39.000000] Code audit completed: No issues found.

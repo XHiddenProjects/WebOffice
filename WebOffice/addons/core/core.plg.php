@@ -6,6 +6,7 @@ class Core extends addons{
     private string $name = 'core';
     public function __construct() {
         parent::__construct();
+        error_reporting(E_ALL);
         $this->config = new Config($this->name);
         $lang = new Language(implode('-',LANGUAGE), dirname(__FILE__).DS.'languages');
         $this->config->create([
@@ -44,7 +45,7 @@ class Core extends addons{
         if($this->isEnabled()){
             return '<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-            <script src="'.ASSETS_URL.DS.'js'.DS.'facial.js" type="text/javascript"></script>
+            <script src="'.ASSETS_URL.DS.'js'.DS.'definitions.js?base='.urlencode(URL).'" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'scanner.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'main.js" type="text/javascript"></script>';
         }else return '';

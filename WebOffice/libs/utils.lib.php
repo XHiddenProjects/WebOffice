@@ -131,7 +131,7 @@ class Utils{
         if (curl_errno($ch)) {
             $error_msg = curl_error($ch);
             curl_close($ch);
-            throw new \Exception("cURL error: $error_msg");
+            return ['error'=>$error_msg];
         }
 
         // Get info (e.g., status code)
@@ -184,6 +184,22 @@ class Utils{
         return $output;
     }
     /**
+     * Executes command
+     * @param string $command Command to execute
+     * @return array{exec_output: bool|string, output: array|null, result_code: int|null} Outputs the results
+     */
+    public function exec(string $command): array {
+        $command = $this->escapeShell($command);
+        $output = [];
+        $result_code = 0;
+        $exec_output = exec($command, $output, $result_code);
+        return [
+            'output' => $output,
+            'result_code' => $result_code,
+            'exec_output' => $exec_output,
+        ];
+    }
+    /**
      * Escape a shell command
      * @param string $command Command to escape
      * @return string Escaped command
@@ -205,9 +221,9 @@ class Utils{
     /**
      * Convert a human-readable size to bytes
      * @param string $size Human-readable size (e.g., "10MB", "2.5GB")
-     * @return int Size in bytes
+     * @return int|float Size in bytes
      */
-    public function readable2bytes(string $size): int {
+    public function readable2bytes(string $size): int|float {
         $units=['B'=>0,'KB'=>1,'MB'=>2,'GB'=>3,'TB'=>4,'PB'=>5,'EB'=>6,'ZB'=>7,'YB'=>8,'K'=>1,'M'=>2,'G'=>3,'T'=>4,'P'=>5,'E'=>6,'Z'=>7,'Y'=>8];
         $size = trim($size);
         $unit = strtoupper(preg_replace('/[0-9.]/', '', $size));
@@ -218,6 +234,6 @@ class Utils{
             $unit.='B';
         
         $value = floatval(preg_replace('/[^\d.]/', '', $size));
-        return isset($units[$unit]) ? (int)($value * pow(1024, $units[$unit])) : (int)$value;
+        return isset($units[$unit]) ? (float)($value * pow(1024, $units[$unit])) : (float)$value;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace WebOffice;
+namespace WebOffice\Security;
 use WebOffice\Config, WebOffice\Cryptography;
 class MFA{
     private string $label, $issuer, $algo, $secret, $user;
@@ -28,7 +28,7 @@ class MFA{
         return $this->secret;
     }
     /**
-     * Returs the TOTP(Time-Based One-Time Password) URL
+     * Returns the TOTP(Time-Based One-Time Password) URL
      * @return string URL
      */
     public function getTOTP(): string{

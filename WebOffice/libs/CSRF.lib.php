@@ -1,5 +1,5 @@
 <?php
-namespace WebOffice;
+namespace WebOffice\Security;
 
 use WebOffice\Storage;
 use WebOffice\Config;

@@ -4,6 +4,10 @@ use WebOffice\Database;
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 include_once 'vendor/autoloader.php';
+
+error_reporting(E_ALL); 
+
+
 # Definitions
 define('BASE',dirname(__FILE__));
 define('URL', getBaseUrl());
@@ -21,7 +25,7 @@ define('ADDONS_PATH',BASE.DS.'addons');
 define('ASSETS_PATH',BASE.DS.'assets');
 define('ASSETS_URL',URL.'/assets');
 define('VERSION', file_exists(BASE . DS . 'VERSION') ? BASE . DS . 'VERSION' : '1.0.0');
-
+define('ERROR_LOG',BASE.DS.'errors');
 
 use WebOffice\Security, WebOffice\Config, WebOffice\Files;
 $config = new Config();
@@ -32,6 +36,9 @@ date_default_timezone_set($config->read('settings','timezone') ?? 'UTC');
 
 $sec = new Security();
 $sec->setSecurityHeaders();
+$sec->enforceHTTPS();
+
+
 
 if($sec->checkVersion()) die('Your WebOffice version is outdated. Please update to the latest version.');
 
@@ -63,8 +70,9 @@ function getBaseUrl(): string {
 
 $f = new Files();
 
-if(!file_exists(TEMP_PATH)) $f->createFolder('temp');
-if(!file_exists(BACKUP_PATH)) $f->createFolder('backups');
+if(!$f->exists(TEMP_PATH)) $f->createFolder('temp');
+if(!$f->exists(BACKUP_PATH)) $f->createFolder('backups');
+if(!$f->exists(ERROR_LOG)) $f->createFolder('errors');
 # Change permissions for files/folder
 @chmod(dirname(__FILE__).'/files',0777);
 # Temp
@@ -198,5 +206,24 @@ $db->createTable('devices', [
     'asset_tag' => 'VARCHAR(100) NOT NULL', // Asset tag identifier
     'history'=>'JSON NULL',              // Devices History
     'notes' => 'TEXT'                    // Additional notes
+]);
+$db->createTable('passkeys',[
+    'id'=>'INT AUTO_INCREMENT PRIMARY KEY',
+    'user_id'=>'INT NOT NULL',
+    'credential_id'=>'VARCHAR(255) NOT NULL UNIQUE KEY',
+    'public_key'=>'TEXT NOT NULL',
+    'sign_count'=>'INT DEFAULT 0',
+    'transports'=>'VARCHAR(255)',
+    'attestation_object'=>'BLOB',
+    'created_at'=>'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+    'updated_at'=>'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+]);
+
+$db->createTable('rate',[
+    'id'=>'INT AUTO_INCREMENT PRIMARY KEY',
+    'ip_address' => 'VARCHAR(45) NOT NULL',
+    'timestamp'=>'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+    'requests'=>'INT DEFAULT 0',
+    'path'=>'VARCHAR(250) NOT NULL'
 ]);
 

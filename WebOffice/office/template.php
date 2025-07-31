@@ -3,6 +3,7 @@ use WebOffice\Addons;
 
 $addon = new Addons(); // Instantiate the concrete subclass
 ?>
+<!DOCTYPE html>
 <html>
     <head>
         <?php

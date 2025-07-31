@@ -1,6 +1,6 @@
 <?php
 namespace WebOffice;
-use WebOffice\Utils, WebOffice\Database, WebOffice\Config, WebOffice\Zip, WebOffice\Files;
+use WebOffice\Utils, WebOffice\Database, WebOffice\Config, WebOffice\Zip, WebOffice\Files, WebOffice\Security;
 include_once dirname(__DIR__).'/init.php';
 class Server{
     private Utils $utils;
@@ -114,14 +114,15 @@ class Server{
         $this->stopPhpBuiltIn();
         $this->startPhpBuiltIn();
     }
-
     /**
-     * Check if the server is running (XAMPP/WAMP/MAMP or PHP built-in)
+     * Checks if the server is running
+     * @return bool TRUE if server is running, else FALSE
      */
     public function isRunning(): bool {
         if (strncasecmp(OS, 'WIN', 3) === 0) {
             // Check for XAMPP/WAMP processes
-            $output = $this->utils->executeCommand('tasklist')['output'];
+            $outputString = $this->utils->executeCommand('tasklist');
+            $output = preg_split('/\r?\n/', $outputString);
             foreach ($output as $line) {
                 if (stripos($line, 'xampp-control.exe') !== false || stripos($line, 'wampmanager.exe') !== false) {
                     return true;
@@ -129,13 +130,15 @@ class Server{
             }
         } elseif (file_exists('/Applications/MAMP/bin/start.sh')) {
             // Mac: Check for MAMP Apache process
-            $output = $this->utils->executeCommand('ps aux | grep "/Applications/MAMP/Library/bin/httpd" | grep -v grep')['output'];
+            $result = $this->utils->executeCommand('ps aux | grep "/Applications/MAMP/Library/bin/httpd" | grep -v grep');
+            $output = $result['output']??'';
             if (!empty($output)) {
                 return true;
             }
         } elseif (file_exists('/opt/lampp/lampp')) {
             // Linux: Check for XAMPP Apache process
-            $output = $this->utils->executeCommand('ps aux | grep "/opt/lampp/bin/httpd" | grep -v grep')['output'];
+            $result = $this->utils->executeCommand('ps aux | grep "/opt/lampp/bin/httpd" | grep -v grep');
+            $output = $result['output']??'';
             if (!empty($output)) {
                 return true;
             }
@@ -185,24 +188,28 @@ class Server{
             $pid = (int)file_get_contents($pidFile);
             if ($pid > 0) {
                 if (strncasecmp(OS, 'WIN', 3) === 0) {
-                    $output = $this->utils->executeCommand("wmic process where ProcessId=$pid get ProcessId")['output'];
-                    foreach ($output as $line) {
-                        if (preg_match("/^\s*{$pid}\s*$/", $line)) {
-                            return true;
-                        }
+                    // Execute command and get output as string
+                    $output = $this->utils->executeCommand("wmic process where ProcessId=$pid get ProcessId");
+                    // Check if output contains the PID
+                    if (strpos($output, (string)$pid) !== false) {
+                        return true;
                     }
                 } else {
-                    $output = $this->utils->executeCommand("ps -p $pid")['output'];
-                    foreach ($output as $line) {
-                        if (preg_match("/\s*{$pid}\s*/", $line) && strpos($line, (string)$pid) !== false) {
-                            return true;
-                        }
+                    // Execute command and get output as string
+                    $output = $this->utils->executeCommand("ps -p $pid");
+                    // Check if output contains the PID
+                    if (strpos($output, (string)$pid) !== false) {
+                        return true;
                     }
                 }
             }
         }
         return false;
     }
+    /**
+     * Returns the servers health information
+     * @return array{database_connected: bool, memory: array{limit: bool|string, peak_usage: string, status: string, usage: string, request_method: string, run_time: int, server_name: string, server_port: int, server_protocol: string, server_running: bool, server_software: string}} Servers health
+     */
     public function health(): array {
         $status = [
             'server_running' => $this->isRunning(),
@@ -222,7 +229,11 @@ class Server{
         ];
         return $status;
     }
-
+    /**
+     * Backs up a the servers data
+     * @param string $backup Backup name
+     * @return void
+     */
     public function backup(string $backup='backup'): void {
         $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? getcwd();
 
@@ -254,12 +265,21 @@ class Server{
 
 
         // Optionally backup database if needed
-        if ($this->db !== null) {
-            $dbDumpFile = $backupPath.DS.'db_backup.sql';
+        if ($this->db !== null) 
             $this->db->backup($backupPath);
-        }
 
         $zip->save();
         $this->db->close();
+    }
+    /**
+     * Resolve hostname from IP address
+     * @param string $ipName IP Address or name
+     * @return string Returns the hostname
+     */
+    public function hostname(string $ipName): string {
+        $isIP = (new Security())->filter($ipName,Security::FILTER_IPV4);
+        $sel = !empty($isIP) ? $isIP : $ipName;
+        $hostname = $isIP ? getHostByAddr($sel) : getHostByName($sel);
+        return $hostname !== false ? $hostname : '';
     }
 }
