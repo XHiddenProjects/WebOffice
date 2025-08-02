@@ -13,12 +13,15 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 
 ## Required Libraries
 
-**Python**
+**Python(>13.3)**
 * PIP
 * PSUTIL
 
-**PHP**
+**PHP(>8.2)**
 * PDO
 * mySQL
+
+**Softwares**
+* MS Powershell (>7.5.2)
 
 
