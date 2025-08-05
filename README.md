@@ -15,7 +15,7 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 
 **Python (13.3+)**
 * [PIP](https://github.com/pypa/pip)
-* [PSUTIL](https://github.com/giampaolo/psutil)
+* [PSUtil](https://github.com/giampaolo/psutil)
 * [browser_history](https://github.com/browser-history/browser-history/)
 
 **PHP (8.2+)**
