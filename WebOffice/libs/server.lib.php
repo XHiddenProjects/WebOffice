@@ -282,4 +282,33 @@ class Server{
         $hostname = $isIP ? getHostByAddr($sel) : getHostByName($sel);
         return $hostname !== false ? $hostname : '';
     }
+    /**
+     * Checks if one or multiple ports are open
+     * @param string $host Host to check
+     * @param int|int[] $ports Port number(s) to check
+     * @param int $timeout
+     * @return array{port:int, status:string}[]
+     */
+    public function checkPort(string $host, int|array $ports, int $timeout = 2): array {
+        $results = [];
+
+        // Ensure $ports is an array
+        if (!is_array($ports)) $ports = [$ports];
+        
+
+        foreach ($ports as $port) {
+            $connection = @fsockopen($host, $port, $errno, $errstr, $timeout);
+            if ($connection) {
+                fclose($connection);
+                $status = 'Open';
+            } else $status = 'Closed';
+            
+            $results[] = [
+                'port' => $port,
+                'status' => $status
+            ];
+        }
+
+        return $results;
+    }
 }

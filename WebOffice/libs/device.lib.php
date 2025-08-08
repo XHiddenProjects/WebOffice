@@ -1,10 +1,12 @@
 <?php
 namespace WebOffice;
-use DeviceDetector\ClientHints;
-use DeviceDetector\DeviceDetector;
-use DeviceDetector\Parser\Device\AbstractDeviceParser;
+use DeviceDetector\ClientHints,
+DeviceDetector\DeviceDetector,
+DeviceDetector\Parser\Device\AbstractDeviceParser,
+WebOffice\Utils;
 class Device {
     private DeviceDetector $dd;
+    private Utils $utils;
     /**
      * Constructor to initialize DeviceDetector with ClientHints
      * @param string $userAgent User agent string, defaults to $_SERVER['HTTP_USER_AGENT']
@@ -15,27 +17,20 @@ class Device {
         // Initialize DeviceDetector with ClientHints
         $this->dd = new DeviceDetector($userAgent,ClientHints::factory($_SERVER));
         $this->dd->parse();
-    }
-    /**
-     * Get the device type
-     * @param string $attr Optional attribute to retrieve from the device type
-     * @return array|string|null Returns the device type or null if not detected
-     */
-    public function getDeviceType(string $attr=''): array|string|null {
-        return $this->dd->getOs($attr);
+        $this->utils = new Utils();
     }
     /**
      * Get the device brand
      * @return string Returns the device brand name or an empty string if not detected
      */
-    public function getDeviceBrand(): string {
+    public function deviceBrand(): string {
         return $this->dd->getBrandName();
     }
     /**
      * Get the device model
      * @return string Returns the device model name or an empty string if not detected
      */
-    public function getDeviceModel(): string {
+    public function deviceModel(): string {
         return $this->dd->getModel();
     }
     /**
@@ -70,6 +65,44 @@ class Device {
     public function getOs(string $attr=''): array|string|null {
         return $this->dd->getOs($attr);
     }
-    
+    /**
+     * Returns the users devices manufacturer
+     * @return string Manufacturers name
+     */
+    public function getManufacturer(): string{
+        $manufacturer = 'Unknown';
+        // Detect OS
+        $os = strtoupper($this->getOs('short_name'));
+
+        if (stripos($os, 'LIN') !== false) {
+            // Linux - try to read from DMI data
+            $output = shell_exec('cat /sys/class/dmi/id/sys_vendor 2>/dev/null');
+            if ($output) {
+                $manufacturer = trim($output);
+            }
+        } elseif (stripos($os, 'DAR') !== false) {
+            // macOS - no straightforward way, but system_profiler can help
+            $output = shell_exec('system_profiler SPHardwareDataType | grep "Manufacturer"');
+            $manufacturer = $output ? trim($output) : 'Apple';
+        } elseif (stripos($os, 'WIN') !== false) {
+            // Windows - use wmic command
+            $output = shell_exec('wmic computersystem get manufacturer 2>&1');
+            if ($output) {
+                // Parse output
+                $lines = preg_split('/\r?\n/', trim($output));
+                if (isset($lines[1])) {
+                    $manufacturer = trim($lines[1]);
+                }
+            }
+        }
+        return $manufacturer;
+    }
+    /**
+     * Returns the devices screen information
+     * @return array Device screen information
+     */
+    public function getScreen(): array{
+        return (new Storage())->session('device_info', action:'Get')??[];
+    }
 }
 

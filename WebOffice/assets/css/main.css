@@ -8,3 +8,17 @@ html,body{
     width: 100%;
     height: 100%;
 }
+.blockquote {
+    padding: 0.5em 1em;
+    border-left: .25em solid #ccc;
+    background-color: #f9f9f9;
+    position: relative;
+}
+.blockquote-footer{
+    padding: 0.5em 1em;
+    background-color: #f9f9f9;
+    position: relative;
+}
+.language-none{
+    color: var(--bs-code-color)!important;
+}

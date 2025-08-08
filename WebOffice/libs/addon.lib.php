@@ -1,11 +1,12 @@
 <?php
 namespace WebOffice;
-use WebOffice\Config;
+use WebOffice\Config, WebOffice\Security;
 class Addons{
     private $validAddonFiles = [];
     public function __construct() {
         // Scan all PHP files in the addons directory and check their namespaces
         $addonsDir = dirname(__DIR__).'/addons/';
+        (new Security())->auditCode($addonsDir);
         $allowedNamespaces = [
             'WebOffice\\Addons\\Office',
             'WebOffice\\Addons\\PowerPoint',
@@ -28,7 +29,9 @@ class Addons{
         }
 
         $forbiddenNamespaces = [
-            'WebOffice\\Database'
+            'WebOffice\\Database',
+            'WebOffice\\Server',
+            'WebOffice\\Network'
         ];
         foreach ($this->validAddonFiles as $file) {
             $contents = file_get_contents($file);
@@ -63,7 +66,7 @@ class Addons{
         preg_match('/namespace\s+([a-zA-Z0-9\\\\]+);/', $contents, $nsMatch);
         preg_match('/class\s+([a-zA-Z0-9_]+)/', $contents, $classMatch);
         if (isset($nsMatch[1]) && isset($classMatch[1])) {
-            return $nsMatch[1] . '\\' . $classMatch[1];
+            return "$nsMatch[1]\\$classMatch[1]";
         }
         return '';
     }

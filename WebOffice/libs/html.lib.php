@@ -2,24 +2,21 @@
 namespace WebOffice;
 
 class HTML {
-    private $elements = []; // Store all elements
-    private $stack = [];    // Stack to manage current context
-    private $current = null; // Current element being operated on
-    private $doctype = '';   // Store doctype based on version
-
+    private $elements = [];
+    private $stack = [];
+    private $current = null;
+    private $doctype = '';
     /**
      * Set the HTML version
      * @param int $version 5 for HTML5 or 4 for HTML4
      */
     public function __construct(int $version=5) {
-        if ($version === 5) {
+        if ($version === 5)
             $this->doctype = '<!DOCTYPE html>';
-        } elseif ($version === 4) {
+        elseif ($version === 4) 
             $this->doctype = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
-        } else {
-            // Default to HTML5 doctype if an unknown version is provided
+        else 
             $this->doctype = '<!DOCTYPE html>';
-        }
     }
 
     // Helper method to create a new element array

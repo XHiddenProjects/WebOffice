@@ -1,10 +1,10 @@
 <?php
 
 use WebOffice\Database;
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
 
 include_once 'vendor/autoloader.php';
-
+ini_set('display_errors', '1');
 error_reporting(E_ALL); 
 
 
@@ -22,10 +22,13 @@ define('BACKUP_PATH',BASE.DS.'backups');
 define('OS',strtoupper(PHP_OS));
 define('LANGUAGE_PATH',BASE.DS.'languages');
 define('ADDONS_PATH',BASE.DS.'addons');
+define('ADDONS_URL',URL.DS.'addons');
 define('ASSETS_PATH',BASE.DS.'assets');
 define('ASSETS_URL',URL.'/assets');
 define('VERSION', file_exists(BASE . DS . 'VERSION') ? BASE . DS . 'VERSION' : '1.0.0');
 define('ERROR_LOG',BASE.DS.'errors');
+define('DATA_PATH',BASE.DS.'data');
+
 
 use WebOffice\Security, WebOffice\Config, WebOffice\Files;
 $config = new Config();
@@ -37,6 +40,7 @@ date_default_timezone_set($config->read('settings','timezone') ?? 'UTC');
 $sec = new Security();
 $sec->setSecurityHeaders();
 $sec->enforceHTTPS();
+$sec->sessionStart();
 
 
 
@@ -73,6 +77,7 @@ $f = new Files();
 if(!$f->exists(TEMP_PATH)) $f->createFolder('temp');
 if(!$f->exists(BACKUP_PATH)) $f->createFolder('backups');
 if(!$f->exists(ERROR_LOG)) $f->createFolder('errors');
+if(!$f->exists(DATA_PATH)) $f->createFolder('data');
 # Change permissions for files/folder
 @chmod(dirname(__FILE__).'/files',0777);
 # Temp

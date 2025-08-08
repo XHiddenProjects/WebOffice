@@ -91,6 +91,7 @@ class Database{
         if (!empty($conditions)) $fullSql .= " WHERE $conditions";
         $stmt = $this->db->prepare($fullSql);
         $stmt->execute($params);
+        
         return $stmt->fetch();
     }
 

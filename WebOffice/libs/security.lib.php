@@ -6,6 +6,7 @@ use WebOffice\Security\JWT;
 use WebOffice\Security\MFA;
 use WebOffice\Security\CSRF;
 use WebOffice\Security\Rate;
+use WebOffice\Server;
 
 class Security{
     public const SANITIZE_DEFAULT = "/[^a-zA-Z0-9\s!@#$%^&*()\-_=+\[\]{}|;:\'\",.<>\/?`~]/",
@@ -26,7 +27,10 @@ class Security{
     FILTER_IPV4 = "/^(?:(?:25[0-5]|2[0-4]\d|1?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|1?\d{1,2})$/",
     FILTER_IPV6 = "/^((?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|:(?::[0-9a-fA-F]{1,4}){1,7}|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:(:|[0-9a-fA-F]{1,4}(:[0-9a-fA-F]{1,4}){0,5})|fe80:(?::[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(?:ffff:(?:25[0-5]|2[0-4]\d|1?\d{1,2})(?:\.(?:25[0-5]|2[0-4]\d|1?\d{1,2})){3})|(?:[0-9a-fA-F]{1,4}:){1,4}:(?:25[0-5]|2[0-4]\d|1?\d{1,2})(?:\.(?:25[0-5]|2[0-4]\d|1?\d{1,2})){3})$/i",
     FILTER_ADDR = "/(?:(?:\d+\s+[A-Za-z0-9\s.,'-]+)\s*,?\s*)?(?:[A-Za-z\s]+)?\s*,?\s*(?:[A-Za-z\s]+)?\s*,?\s*(?:[A-Z]{2,}|[A-Za-z\s]+)?\s*,?\s*(?:\d{5}|\d{4,6}|[A-Za-z0-9\s-]+)?\s*,?\s*(?:[A-Za-z\s]+)?/",
-    FILTER_URL = "/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/";
+    FILTER_SSN = "/^(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}$/",
+    FILTER_URL = "/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/",
+    MASK_SSN = "/(\d{3})-(\d{2})/",
+    MASK_CARD_PAN = "/(\d{12})|(\d{4}) ?(\d{4}) ?(\d{4})/";
     public function __construct() {
         
     }
@@ -41,6 +45,7 @@ class Security{
         header("X-Frame-Options: DENY");
         header("X-XSS-Protection: 1; mode=block");
         header("Referrer-Policy: no-referrer");
+        header("Content-Security-Policy: frame-ancestors 'none'");
         if(!empty($headers)){
             foreach($headers as $header){
                 $header = $this->preventXSS($header);
@@ -64,12 +69,26 @@ class Security{
         foreach ($iterator as $file) {
             if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) === 'php') {
                 $content = file_get_contents($file->getRealPath());
+                
+                $dangerousFunctions = [
+                    'shell_exec(',
+                    'eval(',
+                    'exec(',
+                    'system(',
+                    'passthru(',
+                    'popen(',
+                    'proc_open(',
+                    'create_function(',
+                    'assert('
+                ];
 
-                // Check for usage of eval()
-                if (strpos($content, 'eval(') !== false) {
-                    $issueMsg = "Potential unsafe eval() usage in: " . $file->getRealPath();
-                    $issues[] = $issueMsg;
-                    $this->logSecurityEvent('code_audit', $issueMsg);
+                foreach ($dangerousFunctions as $func) {
+                    if (strpos($content, $func) !== false) {
+                        $issueMsg = "Potential unsafe usage of '{$func}' in: " . $file->getRealPath();
+                        $issues[] = $issueMsg;
+                        $this->logSecurityEvent('code_audit', $issueMsg);
+                        break;
+                    }
                 }
 
                 // Check for usage of $_GET, $_POST without sanitization
@@ -291,5 +310,101 @@ class Security{
             'samesite'=>'Strict'
         ]);
     }
-    
+    /**
+     * Performing a penetration test
+     * @return array{disabled_functions: bool|string, php_version: string, port_443_open: string, port_80_open: string}
+     */
+    public function penTest(): array{
+        $server = new Server();
+        $results = [
+            'port_80_open'=>$server->checkPort('127.0.0.1', 80)[0]['status'],
+            'port_443_open'=>$server->checkPort('127.0.0.1', 443)[0]['status'],
+            'php_version'=>PHP_VERSION,
+            'disabled_functions'=>ini_get('disable_functions')
+        ];
+        return $results;
+    }
+    /**
+     * Generate an SRI hash for a local file.
+     *
+     * @param string $filePath Path to the file
+     * @param string $algorithm Hash algorithm (default: 'sha384')
+     * @return string|false The SRI hash string or false on failure
+     */
+    public function generateSRI($filePath, $algorithm = 'sha384'): bool|string {
+        if (!file_exists($filePath)) {
+            return false; // File does not exist
+        }
+        // Get the file contents
+        $fileData = file_get_contents($filePath);
+        if ($fileData === false) {
+            return false;
+        }
+        $hash = hash($algorithm, $fileData, true);
+        $base64Hash = base64_encode($hash);
+        return "$algorithm-$base64Hash";
+    }
+    /**
+     * Masks a specific part of the string based on a regex, replacing only the matched digits with mask characters.
+     * @param string $input String to mask
+     * @param string $regExp RegExp to match and mask
+     * @param string $mask Mask character (default: *)
+     * @return string|null Masked string or null if no match
+     */
+    public function mask(string $input, string $regExp, string $mask='*'): ?string {
+        // Use preg_replace_callback to process each match
+        $result = preg_replace_callback($regExp, function($matches) use ($mask): mixed {
+            // $matches[0] is the full match, $matches[1], $matches[2], ... are groups
+            // We'll replace only the groups (e.g., digits) with the mask, keeping the original parts intact
+            $maskedGroups = [];
+            for ($i = 1; $i < count($matches); $i++) {
+                // For each group, replace its characters with the mask character
+                if (is_string($matches[$i])) {
+                    $maskedGroups[$i] = str_repeat($mask, strlen($matches[$i]));
+                } else {
+                    // In case the group is not a string (unlikely), just keep it
+                    $maskedGroups[$i] = $matches[$i];
+                }
+            }
+            $maskedString = $matches[0];
+            foreach ($maskedGroups as $index => $maskedPart) {
+                $originalGroup = $matches[$index];
+                $maskedString = str_replace($originalGroup, $maskedPart, $maskedString);
+            }
+
+            return $maskedString;
+        }, $input);
+        if ($result !== $input) {
+            return $result;
+        } else {
+            return null; // no match found
+        }
+    }
+    /**
+     * Hash your password
+     * @param string $input Password
+     * @param string $algo Algorithm
+     * @param array $options Options
+     * @return string Hashed password
+     */
+    public function hashPsw(string $input, string $algo=PASSWORD_DEFAULT, array $options=[]): string{
+        return password_hash($input,$algo,$options);
+    }
+    /**
+     * Verifies the raw password with the hashed password 
+     * @param string $input Password
+     * @param string $hash Hashed password
+     * @return bool TRUE if password matches, else FALSE
+     */
+    public function verify(string $input, string $hash): bool{
+        return password_verify($input,$hash);
+    }
+    /**
+     * Starts the session
+     * @return bool
+     */
+    public function sessionStart(): bool{
+        if (session_status() !== PHP_SESSION_ACTIVE) return session_start();
+        else return true;
+    }
 }

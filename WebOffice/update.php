@@ -45,10 +45,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Extract zip to parent directory of TEMP_PATH
             $zip = new ZipArchive();
             if ($zip->open(ZIP_FILE) === TRUE) {
-                // Determine extraction path (one level up from TEMP_PATH)
                 $extractPath = dirname(TEMP_PATH);
-                // Extract only the files, replacing existing ones
-                $zip->extractTo($extractPath);
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $fileName = $zip->getNameIndex($i);
+                    // Skip extracting .htaccess files
+                    if (strpos($fileName, '.htaccess') !== false||
+                        strpos($fileName, '.venv') !== false) continue;
+                    
+                    // Extract individual file
+                    $fileInfo = pathinfo($fileName);
+                    $destPath = $extractPath . DIRECTORY_SEPARATOR . $fileName;
+                    // Create directory if needed
+                    if (!$zip->extractTo($extractPath, $fileName)) {
+                        // Handle error
+                        error_log("Failed to extract $fileName");
+                    }
+                }
                 $zip->close();
                 $response['status'] = 'success';
                 $response['message'] = 'Extraction completed.';
@@ -73,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         default:
             $response['status'] = 'fail';
             $response['message'] = 'Invalid step.';
-            break;
+        break;
     }
     echo json_encode($response);
     exit;

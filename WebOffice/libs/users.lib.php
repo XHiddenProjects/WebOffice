@@ -1,10 +1,12 @@
 <?php
 namespace WebOffice;
-use WebOffice\Security, WebOffice\Server;
+use WebOffice\Security, WebOffice\Server, WebOffice\Database, WebOffice\Config, WebOffice\Storage;
 class Users{
     private string $user;
     private Security $security;
     private Server $server;
+    private Database $database;
+    private Storage $storage;
     /**
      * Select the user to get information, else uses the current user
      * @param string $username Username (optional)
@@ -13,6 +15,12 @@ class Users{
         $this->user = $username;
         $this->security = new Security();
         $this->server = new Server();
+        $config = new Config();
+        $this->database = new Database($config->read('mysql','host'),
+    $config->read('mysql','user'),
+    $config->read('mysql','psw'),
+    $config->read('mysql','db'));
+        $this->storage = new Storage();
     }
     /**
      * Returns the users IP address
@@ -45,5 +53,45 @@ class Users{
                 return 'UNKNOWN';
             }
         }
+    }
+    /**
+     * Returns the username
+     * @return string Current or searched username
+     */
+    public function getUsername(): string{
+        return $this->user==='' ? 
+        $this->storage->session('weboffice_auth')??$this->storage->cookie('weboffice_auth',action:'Load') : 
+        $this->database->fetch("SELECT * FROM users",['user'=>$this->user],'username = :user')['username']??'';
+    }
+    /**
+     * Returns the users language
+     * @return string
+     */
+    public function getLanguage():string{
+        $langs = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $primary_lang = $langs[0];
+        $lang_code = substr($primary_lang, 0, 2);
+        return $lang_code??'';
+    }
+    public function create(string $password, string $email, array $permissions=[], string $status='inactive', string $bio='', string $pfp='', string $timezone=''): bool{
+        if($this->user==='') throw new \ErrorException('You must have user in the root parameter');
+        if($this->getUsername()) return false;
+        $device = new Device();
+        $security = new Security();
+        return $this->database->insert('users',[
+            'username'=>$this->user,
+            'password'=>$security->hashPsw($password,PASSWORD_BCRYPT,[
+                'cost'=>12
+            ]),
+            'email'=>$security->filter($email,Security::FILTER_EMAIL),
+            'permissions'=>json_encode($permissions,JSON_UNESCAPED_SLASHES),
+            'ip_address'=>$this->getIP(),
+            'user_agent'=>$device->getUserAgent(),
+            'status'=>$status,
+            'bio'=>$bio,
+            'profile_picture'=>$pfp,
+            'language'=>$this->getLanguage(),
+            'timezone'=>$timezone
+        ]);
     }
 }
