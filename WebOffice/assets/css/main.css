@@ -8,6 +8,9 @@ html,body{
     width: 100%;
     height: 100%;
 }
+body{
+    overflow-x: hidden;
+}
 .blockquote {
     padding: 0.5em 1em;
     border-left: .25em solid #ccc;
@@ -21,4 +24,26 @@ html,body{
 }
 .language-none{
     color: var(--bs-code-color)!important;
+}
+.bg-main-nav{
+    background-color: #282828;
+    color: #cbcbcb;
+}
+.bg-main-nav .navbar-toggler-icon{
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28235, 235, 235, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.bg-main-nav .navbar-toggler{
+    border:0;
+    color: rgb(235, 235, 235);
+}
+.main-title{
+    font-size: 7vh;
+}
+.features-icon{
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
 }

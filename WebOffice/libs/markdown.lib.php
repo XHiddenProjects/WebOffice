@@ -330,50 +330,7 @@ class Markdown {
             }
             return "<ol class=\"list-group list-group-numbered\">$listItems</ol>";
         }, $html);
-
-        
-        
-
-        // Wrap paragraphs
-        // Final paragraph wrapping: wrap only blocks that are not table, blockquote, pre, code, etc.
-        // Define a regex to match elements that should NOT be wrapped
-        // We'll split by block-level tags and wrap the rest
-
-        $finalHtml = '';
-        $pattern = '/(<!--.*?-->|<pre.*?>.*?<\/pre>|<table.*?>.*?<\/table>|<blockquote.*?>.*?<\/blockquote>|<h\d.*?>.*?<\/h\d>|<hr\s*\/?>|<ul.*?>.*?<\/ul>|<ol.*?>.*?<\/ol>|<li.*?>.*?<\/li>|<p>.*?<\/p>|<div.*?>.*?<\/div>)/is';
-
-        $pos = 0;
-        while (preg_match($pattern, $html, $match, PREG_OFFSET_CAPTURE, $pos)) {
-            $matchStart = $match[0][1];
-            $matchText = $match[0][0];
-
-            // Wrap the text before the match if needed
-            if ($matchStart > $pos) {
-                $before = substr($html, $pos, $matchStart - $pos);
-                // Wrap in <p> if not empty
-                $before = trim($before);
-                if ($before !== '') {
-                    $finalHtml .= "<p>$before</p>";
-                }
-            }
-
-            // Append the matched element as is
-            $finalHtml .= $matchText;
-
-            // Update position
-            $pos = $matchStart + strlen($matchText);
-        }
-
-        // Wrap remaining part if any
-        if ($pos < strlen($html)) {
-            $remaining = substr($html, $pos);
-            $remaining = trim($remaining);
-            if ($remaining !== '') {
-                $finalHtml .= "<p>$remaining</p>";
-            }
-        }
-
-        return $finalHtml;
+        return $html;
     }
     
     /**

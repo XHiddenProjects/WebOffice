@@ -194,44 +194,6 @@ class BBCode{
             $text = preg_replace_callback($bbcode['pattern'],$bbcode['callback'],$text);
         }
 
-        // Define block-level tags where paragraph wrapping should NOT occur
-        $blockTags = ['table', 'blockquote', 'pre', 'code', 'iframe'];
-
-        // Use regex to split the HTML into segments: inside or outside these blocks
-        $pattern = '/(<('.implode('|', $blockTags).')[^>]*>.*?<\/\2>)/is';
-
-        $parts = preg_split($pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-        // Process each segment
-        for ($i = 0; $i < count($parts); $i++) {
-            // If the segment is outside a block, wrap in <p>
-            if ($i % 2 == 0) {
-                // Outside block tags
-                $parts[$i] = $this->wrapParagraphs($parts[$i]);
-            }
-            // Inside block tags, leave untouched
-        }
-
-        // Reassemble the text
-        return implode('', $parts);
-    }
-
-    /**
-     * Wrap standalone lines or blocks with <p> if not already wrapped
-     */
-    private function wrapParagraphs(string $html): string {
-        // Simple approach: wrap lines that are not already in tags
-        // This is a naive implementation; for more robust, consider parsing DOM
-        $lines = preg_split('/(\r?\n)/', $html);
-        $wrappedLines = [];
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
-            if ($trimmed !== '' && !preg_match('/^<\s*(h\d|p|ul|ol|li|table|blockquote|pre|code|img|iframe|a|tr|td|th|tbody|thead|tfoot|figure)/i', $trimmed)) {
-                $wrappedLines[] = "<p>$line</p>";
-            } else {
-                $wrappedLines[] = $line;
-            }
-        }
-        return implode('', $wrappedLines);
+        return $text;
     }
 }

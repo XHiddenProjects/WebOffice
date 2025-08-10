@@ -2,6 +2,19 @@
 include_once 'init.php';
 const ZIP_URL = 'https://github.com/XHiddenProjects/WebOffice/raw/refs/heads/master/WebOffice.zip';
 define('ZIP_FILE', TEMP_PATH . DS . 'WebOffice.zip');
+// Function to get remote file size
+function getRemoteFileSize($url):int|false {
+    $headers = get_headers($url, 1);
+    if ($headers && isset($headers['Content-Length'])) {
+        // 'Content-Length' might be an array if multiple headers exist
+        if (is_array($headers['Content-Length'])) {
+            return (int)end($headers['Content-Length']);
+        } else {
+            return (int)$headers['Content-Length'];
+        }
+    }
+    return false;
+}
 $response = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $step = $_POST['step'] ?? '';
@@ -10,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Check if there's enough space (simple check, e.g., 100MB free)
             $freeSpace = disk_free_space(TEMP_PATH);
             // Assuming ZIP size is around 10MB, adjust as needed
-            $requiredSpace = 100 * 1024 * 1024; // 100MB
-            if ($freeSpace >= $requiredSpace) {
+            $requiredSpace = (int)getRemoteFileSize(ZIP_URL);
+            if (($freeSpace >= $requiredSpace)&&$requiredSpace) {
                 $response['status'] = 'success';
                 $response['message'] = 'Enough space available.';
             } else {

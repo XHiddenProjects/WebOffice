@@ -232,3 +232,13 @@ $db->createTable('rate',[
     'path'=>'VARCHAR(250) NOT NULL'
 ]);
 
+$db->createTable('version_history', [
+    'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
+    'item_id' => 'INT NOT NULL',
+    'version_number' => 'INT NOT NULL',
+    'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+    'author_id' => 'INT NOT NULL',
+    'description' => 'TEXT DEFAULT NULL',
+    'content' => 'TEXT DEFAULT NULL',
+    'additional_metadata' => 'TEXT DEFAULT NULL'
+]);

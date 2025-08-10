@@ -38,7 +38,9 @@ class Core extends addons{
         if($this->isEnabled()){
             return "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr\" crossorigin=\"anonymous\">
             <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."prism.min.css\" type=\"text/css\"/>
-            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."main.css\" type=\"text/css\"/>";
+            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."main.css\" type=\"text/css\"/>
+            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."all.min.css\" type=\"text/css\"/>
+            <link href=\"https://unpkg.com/aos@2.3.1/dist/aos.css\" rel=\"stylesheet\">";
         } 
         else return '';
     }
@@ -52,7 +54,8 @@ class Core extends addons{
             <script src="'.ASSETS_URL.DS.'js'.DS.'main.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'requests.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'prism.min.js" type="text/javascript"></script>
-            <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>';
+            <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>
+            <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>';
         }else return '';
     }
 }

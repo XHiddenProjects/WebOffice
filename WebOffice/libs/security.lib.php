@@ -40,7 +40,7 @@ class Security{
      * @return void Sets the header of the website
      */
     public function setSecurityHeaders(array $headers=[]): void{
-        header("Content-Security-Policy: default-src 'self' https://cdn.jsdelivr.net; script-src 'self' https://code.jquery.com/jquery-3.7.1.min.js https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js; object-src 'none';");
+        header("Content-Security-Policy: img-src 'self' data:; default-src 'self'; script-src 'self' https://code.jquery.com/jquery-3.7.1.min.js https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js; object-src 'none';");
         header("X-Content-Type-Options: nosniff");
         header("X-Frame-Options: DENY");
         header("X-XSS-Protection: 1; mode=block");

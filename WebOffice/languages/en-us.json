@@ -1,8 +1,57 @@
 {
     "name":"WebOffice",
-    "description":" A web-based office suite",
+    "description":"**WebOffice** is a comprehensive, integrated platform designed to streamline and unify your organization's administrative, network, and server management needs. This all-in-one Office suite empowers teams with powerful tools to enhance productivity, collaboration, and operational efficiency in a single, web-based environment.",
     "version":" 1.0.0",
     "author":" XHiddenProjects",
     "license": "MIT",
-    "keywords": ["office", "web", "suite", "productivity"]
+    "keywords": ["office", "web", "suite", "productivity"],
+    "features":"Features",
+    "features_security": {
+        "_title": "Security",
+        "_description":"We use encryption for all of your data and saved in a secured database. Handling secured authorization and keeping you computers and other devices in one container."
+    },
+    "features_privacy": {
+        "_title":"Privacy",
+        "_description":"We use masking important and other types of algorithms to protect users privacy in the domain."
+    },
+    "features_network":{
+        "_title":"Network",
+        "_description":"You can manage and maintain your network with in-app tools and control panels"
+    },
+    "features_server":{
+        "_title":"Server",
+        "_description":"Become a server administrator without the hassle with our in-built system to manage through your server"
+    },
+    "features_ad":{
+        "_title":"Active Directory Domain Service(AD DS)",
+        "_description":"Manage your AD DS under one application without having to check for all computers. We list all the devices for you."
+    },
+    "features_backup":{
+        "_title":"Backup",
+        "_description":"We have a backup tools to prevent any loss in data if your server crashes."
+    },
+    "features_updates":{
+        "_title":"Updates",
+        "_description":"We provided remote updates so that you do not have to continually download and extract the updates. It just takes 1-click."
+    },
+    "features_hr":{
+        "_title":"HR/Administrative tools",
+        "_description":"WebOffice can also manage HR tools and Administrative tools to keep things managed and organized for business."
+    },
+    "features_terminal":{
+        "_title":"Terminals/Consoles",
+        "_description":"Lunch terminals and consoles from the browsers"
+    },
+    "features_addons_themes":{
+        "_title":"Addons/Themes",
+        "_description":"Supports addons and themes with security checks"
+    },
+    "features_multilingual":{
+        "_title":"Multilingual",
+        "_description":"Supports multiple languages"
+    },
+    "features_office_suite":{
+        "_title":"Office Suite",
+        "_description":"We have in-apps office suite ie. documents, spreadsheets, mail, and powerpoint"
+    }
 }
