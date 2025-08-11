@@ -38,7 +38,7 @@ $addon = new Addons(); // Instantiate the concrete subclass
                     </div>
                 </div>
             </section>
-            <section class="pt-4">
+            <section class="features pt-4">
                 <h2 class="text-center mb-4"><?php echo $lang->load('features');?></h2>
                 <div class="ms-auto w-50" data-aos="fade-left">
                     <div class="card">

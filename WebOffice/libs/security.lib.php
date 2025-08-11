@@ -104,8 +104,6 @@ class Security{
                     $issues[] = $issueMsg;
                     $this->logSecurityEvent('code_audit', $issueMsg);
                 }
-
-                // Add more checks as needed...
             }
         }
 
@@ -247,18 +245,38 @@ class Security{
      * @return void
      */
     public function logSecurityEvent(string $name='security', string $event): void {
-        if (error_reporting() === 0) {
-            // Error reporting is disabled; do not log
+        if (error_reporting() === 0) return;
+        if (!ini_get('log_errors')) return;
+        
+        $log = ERROR_LOG.DS."$name.log";
+
+        // Read entire log file content
+        $content = '';
+        if (file_exists($log)) $content = file_get_contents($log);
+        // Get the last line
+        $lines = explode("\n", trim($content));
+        $lastLine = end($lines);
+
+        // Extract the timestamp from the last log line
+        $lastTimestamp = null;
+        if (!empty($lastLine)) {
+            // Assuming log format: [YYYY-MM-DD HH:MM:SS.ssssss] message
+            if (preg_match('/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)\]/', $lastLine, $matches)) {
+                $lastTimestamp = $matches[1];
+            }
+        }
+
+        // Get the current timestamp with microseconds
+        $currentTimestamp = date('Y-m-d H:i:s.u');
+
+        // Compare the timestamps
+        if ($lastTimestamp === $currentTimestamp) {
+            // Last log entry is at the same timestamp; skip logging
             return;
         }
 
-        // Check if errors are being logged
-        if (!ini_get('log_errors')) {
-            // Logging is disabled; optionally, you can enable it or skip
-            return;
-        }
-        $log = ERROR_LOG.DS."$name.log";
-        error_log("[".date('Y-m-d H:i:s.u')."] $event".PHP_EOL,3,$log);
+        // Log the event
+        error_log("[".$currentTimestamp."] $event".PHP_EOL, 3, $log);
     }
     /**
      * Hits the user base on the rate limit

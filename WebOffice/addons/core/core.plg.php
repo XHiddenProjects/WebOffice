@@ -6,6 +6,7 @@ class Core extends addons{
     private string $name = 'core';
     public function __construct() {
         parent::__construct();
+        ini_set('display_errors','1');
         error_reporting(E_ALL);
         $this->config = new Config($this->name);
         $lang = new Language(implode('-',LANGUAGE), dirname(__FILE__).DS.'languages');

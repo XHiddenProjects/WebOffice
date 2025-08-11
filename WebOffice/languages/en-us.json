@@ -8,50 +8,50 @@
     "features":"Features",
     "features_security": {
         "_title": "Security",
-        "_description":"We use encryption for all of your data and saved in a secured database. Handling secured authorization and keeping you computers and other devices in one container."
+        "_description":"WebOffice prioritizes your data security with robust encryption protocols, ensuring all your information is protected both in transit and at rest. Our secure database safeguards your data from unauthorized access, while advanced authorization mechanisms ensure only authorized users can access sensitive information. Additionally, WebOffice consolidates your computers and devices within a secure container, providing a unified and protected environment for seamless management. Rest assured, your work environment is fortified with the latest security practices to keep your data safe and confidential."
     },
     "features_privacy": {
         "_title":"Privacy",
-        "_description":"We use masking important and other types of algorithms to protect users privacy in the domain."
+        "_description":"We prioritize user privacy by implementing advanced masking techniques and sophisticated algorithms to protect sensitive data within the domain. Our privacy features ensure that personal and confidential information remains secure, maintaining compliance with data protection standards while providing a seamless user experience."
     },
     "features_network":{
         "_title":"Network",
-        "_description":"You can manage and maintain your network with in-app tools and control panels"
+        "_description":"Easily manage and maintain your network infrastructure using integrated in-app tools and intuitive control panels. WebOffice provides comprehensive network configuration, monitoring, and troubleshooting features to ensure your connectivity is secure, reliable, and optimized for performance."
     },
     "features_server":{
         "_title":"Server",
-        "_description":"Become a server administrator without the hassle with our in-built system to manage through your server"
+        "_description":"Streamline your server management with WebOffice`s built-in administrative tools. Easily become a server administrator and maintain full control over your server environment without the hassle. Our intuitive system simplifies server configuration, monitoring, and maintenance, empowering you to manage your infrastructure efficiently and effectively."
     },
     "features_ad":{
         "_title":"Active Directory Domain Service(AD DS)",
-        "_description":"Manage your AD DS under one application without having to check for all computers. We list all the devices for you."
+        "_description":"No more tedious manual checks—our integrated solution provides a comprehensive overview of all your devices in one centralized application. Instantly view, monitor, and manage your computers, servers, and user accounts with ease. Simplify administrative tasks, improve security, and enhance efficiency across your network—all from a single, user-friendly interface."
     },
     "features_backup":{
         "_title":"Backup",
-        "_description":"We have a backup tools to prevent any loss in data if your server crashes."
+        "_description":"Our robust backup tools ensure the safety and integrity of your data by providing reliable and automated backups. In the event of server crashes or data loss, you can quickly restore your information with ease, minimizing downtime and safeguarding your critical business operations."
     },
     "features_updates":{
         "_title":"Updates",
-        "_description":"We provided remote updates so that you do not have to continually download and extract the updates. It just takes 1-click."
+        "_description":"We`ve streamlined the update process with our remote update feature, allowing you to stay current effortlessly. No more manual downloads or extracting files—simply click once to apply the latest updates instantly. This ensures your WebOffice suite remains secure, efficient, and feature-rich with minimal effort on your part."
     },
     "features_hr":{
         "_title":"HR/Administrative tools",
-        "_description":"WebOffice can also manage HR tools and Administrative tools to keep things managed and organized for business."
+        "_description":"WebOffice includes comprehensive HR management tools designed to streamline employee administration, payroll, leave tracking, and performance management. With these features, businesses can efficiently handle personnel records, automate HR processes, and ensure compliance—all within a centralized platform. This integration helps keep your HR operations organized, accessible, and efficient."
     },
     "features_terminal":{
-        "_title":"Terminals/Consoles",
-        "_description":"Lunch terminals and consoles from the browsers"
+        "_title":"Terminals and Remote access",
+        "_description":"Launch terminals and establish remote access directly from your web browser, enabling seamless management and control of your systems without the need for additional software. Supports secure connections, real-time command execution, and multi-user access for efficient administrative workflows."
     },
     "features_addons_themes":{
         "_title":"Addons/Themes",
-        "_description":"Supports addons and themes with security checks"
+        "_description":"Supports add-ons and themes with robust security checks, enabling users to customize and extend WebOffice`s functionality and appearance safely."
     },
     "features_multilingual":{
         "_title":"Multilingual",
-        "_description":"Supports multiple languages"
+        "_description":"WebOffice offers comprehensive multilingual support, enabling users to seamlessly switch between various languages. This feature ensures a localized experience for diverse users, improves accessibility, and facilitates international collaboration within your organization."
     },
     "features_office_suite":{
         "_title":"Office Suite",
-        "_description":"We have in-apps office suite ie. documents, spreadsheets, mail, and powerpoint"
+        "_description":"WebOffice includes a comprehensive in-app office suite featuring essential productivity tools such as Documents, Spreadsheets, Mail, and Presentations (PowerPoint). These integrated applications enable users to create, edit, and collaborate on files seamlessly within a unified platform. With real-time collaboration, cloud storage, and secure sharing options, WebOffice ensures your team stays productive and connected anywhere, anytime."
     }
 }

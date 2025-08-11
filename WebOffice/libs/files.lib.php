@@ -11,7 +11,7 @@ class Files{
      * @return array|bool
      */
     public function scan(string $path): array|bool{
-        return array_diff(scandir($path),['.','..']);
+        return array_values(array_diff(scandir($path),['.','..']));
     }
     /**
      * Creates a file
@@ -29,10 +29,12 @@ class Files{
     /**
      * Creates a folder
      * @param string $name Folder name
+     * @param int $permissions Folder permission
+     * @param bool $recursive Can be created inside a created folder
      * @return bool TRUE if the folder is created, else FALSE
      */
-    public function createFolder(string $name): bool{
-        return @mkdir($name,0777,true);
+    public function createFolder(string $name, int $permissions=0777, bool $recursive=true): bool{
+        return @mkdir($name,$permissions,$recursive);
     }
     /**
      * Deletes file

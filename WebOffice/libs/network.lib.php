@@ -30,11 +30,7 @@ class Network {
         $cmd = strpos($os, 'WIN') === 0 ? 
             "ping -n 1 -w " . ($timeout * 1000) . " $host" :
             "ping -c 1 -W $timeout $host";
-
         $result = $this->utils->executeCommand($cmd);
-        // For debugging:
-        // echo $result;
-
         $output = [
             'host' => $host,
             'ip' => null,       // Added for IP address
