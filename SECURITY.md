@@ -26,7 +26,7 @@ Please include as much detail as possible, including:
 - Use secure coding practices.
 - Regularly review and update access controls.
 - Implement input validation and sanitization.
-- Do **NOT** publically host this software. It should be use in a secured enviroment(lab).
+- Do **NOT** publicly host this software. It should be use in a secured enviroment(lab).
 
 ## Security Updates
 
