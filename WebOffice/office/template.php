@@ -34,14 +34,14 @@ $addon = new Addons(); // Instantiate the concrete subclass
                 <div class="row p-5 bg-main-nav text-center">
                     <div class="col">
                         <h1 class="main-title"><?php echo $lang->load('name');?></h1>
-                        <p class="text-secondary"><?php echo $lang->load('description');?></p>
+                        <p class="text-light"><?php echo $lang->load('description');?></p>
                     </div>
                 </div>
             </section>
             <section class="features pt-4">
                 <h2 class="text-center mb-4"><?php echo $lang->load('features');?></h2>
-                <div class="ms-auto w-50" data-aos="fade-left">
-                    <div class="card">
+                <div class="ms-auto w-50" data-animate="fade-left">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_security','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -51,8 +51,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="me-auto w-50 mt-5" data-aos="fade-right">
-                    <div class="card">
+                <div class="me-auto w-50 mt-5" data-animate="fade-right">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_privacy','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -62,8 +62,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="ms-auto w-50 mt-5" data-aos="fade-left">
-                    <div class="card">
+                <div class="ms-auto w-50 mt-5" data-animate="fade-left">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             
                             <h5 class="card-title"><?php echo $lang->load(['features_network','_title']);?></h5>
@@ -74,8 +74,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="me-auto w-50 mt-5" data-aos="fade-right">
-                    <div class="card">
+                <div class="me-auto w-50 mt-5" data-animate="fade-right">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_server','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -85,8 +85,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="ms-auto w-50 mt-5" data-aos="fade-left">
-                    <div class="card">
+                <div class="ms-auto w-50 mt-5" data-animate="fade-left">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_ad','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -96,8 +96,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="me-auto w-50 mt-5" data-aos="fade-right">
-                    <div class="card">
+                <div class="me-auto w-50 mt-5" data-animate="fade-right">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_backup','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -107,8 +107,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="ms-auto w-50 mt-5" data-aos="fade-left">
-                    <div class="card">
+                <div class="ms-auto w-50 mt-5" data-animate="fade-left">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_updates','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -118,8 +118,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="me-auto w-50 mt-5" data-aos="fade-right">
-                    <div class="card">
+                <div class="me-auto w-50 mt-5" data-animate="fade-right">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_hr','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -129,8 +129,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="ms-auto w-50 mt-5" data-aos="fade-left">
-                    <div class="card">
+                <div class="ms-auto w-50 mt-5" data-animate="fade-left">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_terminal','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -140,8 +140,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="me-auto w-50 mt-5" data-aos="fade-right">
-                    <div class="card">
+                <div class="me-auto w-50 mt-5" data-animate="fade-right">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_addons_themes','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -151,8 +151,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="ms-auto w-50 mt-5" data-aos="fade-left">
-                    <div class="card">
+                <div class="ms-auto w-50 mt-5" data-animate="fade-left">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_multilingual','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -162,8 +162,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
                         </div>
                     </div>
                 </div>
-                <div class="me-auto w-50 mt-5" data-aos="fade-right">
-                    <div class="card">
+                <div class="me-auto w-50 mt-5" data-animate="fade-right">
+                    <div class="card text-bg-secondary">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $lang->load(['features_office_suite','_title']);?></h5>
                             <div class="features-icon bg-primary text-light rounded mx-auto bg-gradient">
@@ -174,6 +174,7 @@ $addon = new Addons(); // Instantiate the concrete subclass
                     </div>
                 </div>
             </section>
+
             <?php
             echo $addon->hook('afterMain');
             echo $addon->hook('footer');

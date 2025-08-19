@@ -120,9 +120,7 @@ $(document).ready(()=>{
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(screenInfo),
-            success: function(data) {
-                console.log(data);
-            },
+            success: function() {},
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error('Error:', textStatus, errorThrown);
             }

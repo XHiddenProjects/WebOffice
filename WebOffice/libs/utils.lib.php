@@ -2,7 +2,9 @@
 namespace WebOffice;
 class Utils{
     public function __construct() {
-        
+        $config = new Config();
+        if(!defined('USERS_DESKTOP_PSW')) 
+            define('USERS_DESKTOP_PSW', $config->read('device','password'));
     }
     /**
      * Parse type to a different type
@@ -173,14 +175,18 @@ class Utils{
         }
     }
     /**
-     * Execute a shell command
+     * Execute a shell command with optional password
      * @param string $command Command to execute
+     * @param string|null $password Password for sudo or other privileged commands
      * @throws \RuntimeException If the command fails
-     * @return bool|string|null Output and return status
+     * @return bool|string|null Output of the command
      */
-    public function executeCommand(string $command): bool|string|null{
+    public function executeCommand(string $command, ?string $password = null): bool|string|null {
         $command = $this->escapeShell($command);
-        $output = shell_exec($command);
+        $fullCommand = $password!==null ? "echo " . $this->escapeShell($password) . " | sudo -S " . $command : $command;
+        $output = shell_exec($fullCommand);
+        if ($output === null) 
+            throw new \RuntimeException("Command execution failed: {$fullCommand}");
         return $output;
     }
     /**

@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 import psutil
 import sys
 import json
+import GPUtil
+import cpuinfo
 class Hardware:
-    
     def __init__(self):
         pass
     def __secs2hours(self,secs:int|float)->str:
@@ -34,6 +34,27 @@ class Hardware:
             'status': psutil.cpu_stats(),
             'times': psutil.cpu_times(config.get('percpu',False)),
             'times_percent':psutil.cpu_times_percent(config.get('interval',1),config.get('percpu',False))
+        }
+    def Processor(self):
+        """Returns the processor information
+
+        Returns:
+            dict: A dictionary containing CPU info
+        """
+        cpu_info = cpuinfo.get_cpu_info()
+        return {
+            'brand': cpu_info.get('brand_raw', 'Unknown'),
+            'hz_advertised': cpu_info.get('hz_advertised', 'Unknown'),
+            'hz_actual': cpu_info.get('hz_actual', 'Unknown'),
+            'arch': cpu_info.get('arch', 'Unknown'),
+            'bits': cpu_info.get('bits', 'Unknown'),
+            'count': cpu_info.get('count', 'Unknown'),
+            'vendor_id': cpu_info.get('vendor_id_raw', 'Unknown'),
+            'l1_data_cache_size': cpu_info.get('l1_data_cache_size', 'Unknown'),
+            'l1_instruction_cache_size': cpu_info.get('l1_instruction_cache_size', 'Unknown'),
+            'l2_cache_size': cpu_info.get('l2_cache_size', 'Unknown'),
+            'l3_cache_size': cpu_info.get('l3_cache_size', 'Unknown'),
+            'flags': cpu_info.get('flags', [])
         }
     def battery(self)->dict[str,bool,float,str]:
         """Returns devices battery information
@@ -80,6 +101,56 @@ class Hardware:
                     'critical': entry.critical
                 })
         return temperature_dict
+    def GPU(self):
+        """Returns GPU information using GPUtil"""
+        gpus = GPUtil.getGPUs()
+        gpu_list = []
+        if not gpus:
+            return {'error': 'No GPU found'}
+        for gpu in gpus:
+            gpu_info = {
+                'id': gpu.id,
+                'name': gpu.name,
+                'load': gpu.load * 100,  # convert to percentage
+                'free_memory': gpu.memoryFree,
+                'used_memory': gpu.memoryUsed,
+                'total_memory': gpu.memoryTotal,
+                'temperature': gpu.temperature,
+                'driver': gpu.driver,
+            }
+            gpu_list.append(gpu_info)
+        return gpu_list
+    def Memory(self):
+        """Returns the memory information
+
+        Returns:
+            dict: Memory information with keys 'memory' and 'swap_memory'
+                Each contains a dict with details like total, available, used, free, etc.
+        """
+        mem = psutil.virtual_memory()
+        swap = psutil.swap_memory()
+
+        return {
+            'memory': {
+                'total': mem.total,
+                'available': mem.available,
+                'used': mem.used,
+                'free': mem.free,
+                'active': getattr(mem, 'active', None),
+                'inactive': getattr(mem, 'inactive', None),
+                'buffers': getattr(mem, 'buffers', None),
+                'cached': getattr(mem, 'cached', None),
+                'shared': getattr(mem, 'shared', None),
+                'slab': getattr(mem, 'slab', None),
+            },
+            'swap_memory': {
+                'total': swap.total,
+                'used': swap.used,
+                'free': swap.free,
+                'sin': swap.sin,
+                'sout': swap.sout,
+            }
+        }
 def main():
     hardware = Hardware()
     args = sys.argv[1:]
@@ -102,6 +173,15 @@ def main():
         isF = False if '--celsius' in args else True
         temp = hardware.temperature(isF)
         print(json.dumps(temp))
+    elif '--gpu' in args:
+        gpu = hardware.GPU()
+        print(json.dumps(gpu))
+    elif '--memory' in args:
+        memory_info = hardware.Memory()
+        print(json.dumps(memory_info))
+    elif '--processor' in args:
+        processor_info = hardware.Processor()
+        print(json.dumps(processor_info))
     else:
         print("Invalid method")
 if __name__ == '__main__':

@@ -104,5 +104,143 @@ class Device {
     public function getScreen(): array{
         return (new Storage())->session('device_info', action:'Get')??[];
     }
+
+    public function getSerial(): string {
+        $os = $this->dd->getOs('short_name');
+        $serial = null;
+        $password = USERS_DESKTOP_PSW; // or get this from a secure place
+
+        if ($os === 'WIN') {
+            // Use WMIC command on Windows
+            $command = 'wmic bios get serialnumber 2>&1';
+            $output = $this->utils->executeCommand($command, $password);
+            if ($output) {
+                // Parse the output
+                $lines = preg_split('/\r?\n/', trim($output));
+                if (isset($lines[1])) {
+                    $serial = trim($lines[1]);
+                }
+            }
+        } elseif ($os === 'DAR') {
+            // macOS
+            $command = 'system_profiler SPHardwareDataType | grep "Serial Number"';
+            $output = $this->utils->executeCommand($command, $password);
+            if ($output) {
+                // Output format: "Serial Number (system): XYZ"
+                if (preg_match('/Serial Number.*: (.+)$/', $output, $matches)) {
+                    $serial = trim($matches[1]);
+                }
+            }
+        } elseif ($os === 'LIN') {
+            // Linux - try dmidecode (requires root)
+            $command = 'dmidecode -s system-serial-number';
+            $output = $this->utils->executeCommand($command, $password);
+            if ($output) {
+                $serial = trim($output);
+                if (strpos($serial, 'Permission denied') !== false) {
+                    $serial = 'Permission denied. Run as root or check permissions.';
+                }
+            }
+        } else {
+            $serial = 'Unsupported OS';
+        }
+
+        return $serial ?? 'Serial number not found';
+    }
+    /**
+     * Reboots your device or a specified device
+     * @param string|null $device Device to reboot (hostname or IP)
+     * @return string
+     */
+    public function reboot(?string $device = null): string {
+        $osShortName = strtolower($this->dd->getOs('short_name'));
+        $command = '';
+
+        if ($device) {
+            // Reboot remote device via SSH (assuming SSH keys are configured)
+            switch ($osShortName) {
+                case 'win':
+                    // For Windows remote reboot, you might use psexec or similar tools
+                    // Example: psexec \\$device shutdown /r /t 0
+                    $command = "psexec \\\\$device shutdown /r /t 0";
+                    break;
+                case 'lin':
+                case 'dar':
+                    // For Linux/macOS remote reboot via SSH
+                    $command = "ssh $device sudo reboot";
+                    break;
+                default:
+                    return "Reboot command not supported for remote device on this OS.";
+            }
+        } else {
+            // Reboot local device
+            $command = match ($osShortName) {
+                'win' => 'shutdown /r /t 0',
+                'lin', 'dar' => 'sudo reboot',
+                default => ''
+            };
+            if (empty($command)) {
+                return "Reboot command not supported on this OS.";
+            }
+        }
+
+        if (empty($command)) {
+            return "Reboot command could not be constructed.";
+        }
+
+        try {
+            $this->utils->executeCommand($command);
+            return $device ? "Reboot command executed for device $device." : "Reboot command executed.";
+        } catch (\Exception $e) {
+            return "Failed to reboot" . ($device ? " device $device: " : " device: ") . $e->getMessage();
+        }
+    }
+    /**
+     * Shuts down your device or a specified device
+     * @param string|null $device Device to shutdown (hostname or IP)
+     * @return string
+     */
+    public function shutdown(?string $device = null): string {
+        $osShortName = strtolower($this->dd->getOs('short_name'));
+        $command = '';
+
+        if ($device) {
+            // Shutdown remote device via SSH or other remote management tools
+            switch ($osShortName) {
+                case 'win':
+                    // For Windows remote shutdown, using psexec
+                    $command = "psexec \\\\$device shutdown /s /t 0";
+                    break;
+                case 'lin':
+                case 'dar':
+                    // For Linux/macOS remote shutdown via SSH
+                    $command = "ssh $device sudo shutdown -h now";
+                    break;
+                default:
+                    return "Shutdown command not supported for remote device on this OS.";
+            }
+        } else {
+            // Shutdown local device
+            $command = match ($osShortName) {
+                'win' => 'shutdown /s /t 0',
+                'lin', 'dar' => 'sudo shutdown -h now',
+                default => ''
+            };
+            if (empty($command)) {
+                return "Shutdown command not supported on this OS.";
+            }
+        }
+
+        if (empty($command)) {
+            return "Shutdown command could not be constructed.";
+        }
+
+        try {
+            $this->utils->executeCommand($command);
+            return $device ? "Shutdown command executed for device $device." : "Shutdown command executed.";
+        } catch (\Exception $e) {
+            return "Failed to shutdown" . ($device ? " device $device: " : " device: ") . $e->getMessage();
+        }
+    }
 }
 

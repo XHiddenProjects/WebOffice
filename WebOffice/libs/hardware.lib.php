@@ -7,7 +7,7 @@ use WebOffice\Utils;
 class Hardware {
     private Device $device;
     private Utils $utils;
-    private string $cmd = "python3 ./scripts/hardware.py";
+    private string $cmd = "./.venv/bin/python ./scripts/hardware.py";
 
     public function __construct() {
         $this->device = new Device();
@@ -42,6 +42,25 @@ class Hardware {
     public function temperature(bool $Fahrenheit=True):array{
         return json_decode($this->utils->executeCommand("$this->cmd --temperature".(!$Fahrenheit ? ' --celsius' : '')),true);
     }
-
-    
+    /**
+     * Returns the GPU _(Graphic Processing Unit)_ information
+     * @return array GPU Information
+     */
+    public function  GPU(): array{
+        return json_decode($this->utils->executeCommand("$this->cmd --gpu"),true);
+    }
+    /**
+     * Returns the Memory information
+     * @return array Memory Information
+     */
+    public function  Memory(): array{
+        return json_decode($this->utils->executeCommand("$this->cmd --memory"),true);
+    }
+    /**
+     * Returns the Processors information
+     * @return array Processors Information
+     */
+    public function  Processor(): array{
+        return json_decode($this->utils->executeCommand("$this->cmd --processor"),true);
+    }
 }

@@ -19,9 +19,10 @@ class Language {
     /**
      * Loads the language file and processes it with Markdown
      * @param string|string[] $index Optional index to retrieve specific entry
+     * @param bool $parse Parses text to Markdown (Default: true)
      * @return array|string|null Processed array or string
      */
-    public function load(string|array $index=''): array|string|null {
+    public function load(string|array $index='', bool $parse=true): array|string|null {
         if (!file_exists($this->path)) {
             throw new \Exception("Language file not found: $this->path");
         }
@@ -46,13 +47,11 @@ class Language {
 
         $current = $data;
         foreach ($keys as $key) {
-            if (!is_array($current) || !isset($current[$key])) {
-                return null; // Key not found at this level
-            }
+            if (!is_array($current) || !isset($current[$key])) return null;
             $current = $current[$key];
         }
 
-        return $this->process($current);
+        return $parse ? $this->process($current) : $current;
     }
 
     /**

@@ -174,13 +174,15 @@ class Markdown {
 
         // Bold
         $html = preg_replace_callback($this->patterns['bold'], function ($matches): string {
-            $content = $matches[1] ?? $matches[2];
+            $matches = array_values(array_filter($matches, fn($m): bool => $m !== ''));
+            $content = $matches[1];
             return "<strong>$content</strong>";
         }, $html);
 
         // Italic
         $html = preg_replace_callback($this->patterns['italic'], function ($matches): string {
-            $content = $matches[1] ?? $matches[2];
+            $matches = array_values(array_filter($matches, fn($m): bool => $m !== ''));
+            $content = $matches[1];
             return "<em>$content</em>";
         }, $html);
 

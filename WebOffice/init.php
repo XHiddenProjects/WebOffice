@@ -31,6 +31,7 @@ define('ERROR_LOG',BASE.DS.'errors');
 define('DATA_PATH',BASE.DS.'data');
 
 
+
 use WebOffice\Security, WebOffice\Config, WebOffice\Files;
 $config = new Config();
 define('LANGUAGE',array_map(fn($e): string=>strtolower($e),explode(',',$config->read('settings','lang'))) ?? ['en','us']);

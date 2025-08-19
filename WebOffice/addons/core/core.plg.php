@@ -41,7 +41,7 @@ class Core extends addons{
             <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."prism.min.css\" type=\"text/css\"/>
             <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."main.css\" type=\"text/css\"/>
             <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."all.min.css\" type=\"text/css\"/>
-            <link href=\"https://unpkg.com/aos@2.3.1/dist/aos.css\" rel=\"stylesheet\">";
+            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."animation.css\" type=\"text/css\"/>";
         } 
         else return '';
     }
@@ -51,12 +51,12 @@ class Core extends addons{
             return '<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'definitions.js?base='.urlencode(URL).'" type="text/javascript"></script>
+            <script src="'.ASSETS_URL.DS.'js'.DS.'animate.js"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'scanner.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'main.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'requests.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'prism.min.js" type="text/javascript"></script>
-            <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>
-            <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>';
+            <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>';
         }else return '';
     }
 }

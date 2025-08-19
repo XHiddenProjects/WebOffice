@@ -51,3 +51,12 @@ body{
 .features p.card-text{
     text-indent: 1em;
 }
+
+.features [data-animate="fade-left"]{
+    opacity: 0;
+    transform: translateX(40px);
+}
+.features [data-animate="fade-right"]{
+    opacity: 0;
+    transform: translateX(-40px);
+}
