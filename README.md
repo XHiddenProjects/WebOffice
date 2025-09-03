@@ -1,5 +1,5 @@
 # WebOffice
-WebOffice is an all-in-one adminstrative/network/server tool including high security a controls and manages all of your connected devices.
+WebOffice is an all-in-one adminstrative/network/server tool including high security a controls and manages all of your connected devices. It also contains office suite software which can manage all of your work without problems.
 
 ***
 
