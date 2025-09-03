@@ -16,7 +16,7 @@ class Markdown {
             // Emoji
             'emoji' => '/:([a-z_]*):/',
             // Headers with optional custom ID
-            'headers' => '/^(#{1,6})\s*(.+?)(?:\s*\{#([\w\-]+)\})?\s*$/m',
+            'headers' => '/(#{1,6})\s+(.+?)(?:\s*\{#([\w\-]+)\})?\s*$/m',
 
             // Blockquote
             'blockquote' => '/(?<=\s|^)>(?:.*(?:\n>.*)*)/',
@@ -30,10 +30,10 @@ class Markdown {
             'table' => '/^(?:\|.*\|.*\n)+(?:^\|(?:\s*-+\s*\|)+\s*\n)(?:^\|.*\|.*\n)*/m',
 
             // Inline code
-            'inline_code' => '/`([^`]+)`/',
+            'inline_code' => '/`(?:([\w+-]+)\|)?([^`]+)`/',
 
             // Fenced code block
-            'fenced_code' => '/```(\w+)?\n([\s\S]*?)```/',
+            'fenced_code' => '/```(\w+)?\n?([\s\S]*?)```/',
 
             // Highlight
             'highlight' => '/==(.+?)==/',
@@ -82,7 +82,7 @@ class Markdown {
      */
     public function parse(string $text): string {
         // Escape HTML entities
-        $html = $text;
+        $html = htmlspecialchars($text,ENT_QUOTES);
 
         $html = preg_replace_callback($this->patterns['emoji'], fn($matches): string=>$this->emoji[$matches[1]], $html);
         // Horizontal rule
@@ -250,14 +250,22 @@ class Markdown {
         // Fenced code blocks
         $html = preg_replace_callback($this->patterns['fenced_code'], function ($matches) {
             $language = $matches[1] ?? '';
-            $code = htmlspecialchars($matches[2]);
-            return "<pre class=\"language-$language line-numbers\"><code>$code</code></pre>";
+            $code = trim(htmlspecialchars($matches[2]));
+            return "<pre><code class=\"language-$language line-numbers\">$code</code></pre>";
         }, $html);
 
         // Inline code
-        $html = preg_replace_callback($this->patterns['inline_code'], fn($matches): string=>
-            "<code class=\"language-none\">" . htmlspecialchars($matches[1]) . "</code>"
-        , $html);
+        $html = preg_replace_callback(
+            $this->patterns['inline_code'],
+            function($matches): string {
+                // $matches[1]: optional language
+                // $matches[2]: code content
+                $language = isset($matches[1]) && $matches[1] !== '' ? htmlspecialchars($matches[1]) : 'none';
+                $codeContent = htmlspecialchars($matches[2]);
+                return "<code class=\"language-{$language}\">{$codeContent}</code>";
+            },
+            $html
+        );
 
         // Highlight
         $html = preg_replace_callback($this->patterns['highlight'], function ($matches) {
@@ -315,7 +323,7 @@ class Markdown {
             $listItems = '';
             foreach ($lines as $line) {
                 if (preg_match('/^\s*[-\*\+]\s+(.*)$/', $line, $m)) {
-                    $listItems .= '<li class="list-group-item">' . htmlspecialchars($m[1]) . '</li>';
+                    $listItems .= "<li class=\"list-group-item\">$m[1]</li>";
                 }
             }
             return "<ul class=\"list-group\">$listItems</ul>";
@@ -327,7 +335,7 @@ class Markdown {
             $listItems = '';
             foreach ($lines as $line) {
                 if (preg_match('/^\s*\d+\.\s+(.*)$/', $line, $m)) {
-                    $listItems .= '<li class="list-group-item">' . htmlspecialchars($m[1]) . '</li>';
+                    $listItems .= "<li class=\"list-group-item\">$m[1]</li>";
                 }
             }
             return "<ol class=\"list-group list-group-numbered\">$listItems</ol>";
@@ -344,4 +352,5 @@ class Markdown {
         $this->emoji = array_merge($this->emoji, array_map(fn($e): string=>strtolower($e),$emoji));
         return $this;
     }
+    
 }

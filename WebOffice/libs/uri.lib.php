@@ -99,6 +99,14 @@ class URI{
         return $components['path'] ?? '';
     }
     /**
+     * Converts the path to array
+     * @param string $url URL
+     * @return string[] Array pth
+     */
+    public function arrPath(string $url): array{
+        return array_values(array_filter(explode('/',$url),fn($i)=>$i!==''));
+    }
+    /**
      * Gets the query of a URL
      * @param string $url URL to parse
      * @return string Query

@@ -55,6 +55,26 @@
         "_description":"WebOffice includes a comprehensive in-app office suite featuring essential productivity tools such as Documents, Spreadsheets, Mail, and Presentations (PowerPoint). These integrated applications enable users to create, edit, and collaborate on files seamlessly within a unified platform. With real-time collaboration, cloud storage, and secure sharing options, WebOffice ensures your team stays productive and connected anywhere, anytime."
     },
     "documentation":{
-        "_title":"- Documentation"
+        "_tab": "Documentation",
+        "_title":"- Documentation",
+        "on_this_page":"On this Page"
+    },
+    "authorization":{
+        "_tab": "Authorization",
+        "signUp": "Sign Up",
+        "login": "Login"
+    },
+    "users":{
+        "first_name":"First name",
+        "middle_name":"Middle name",
+        "last_name":"Last name",
+        "username": "Username",
+        "email":"Email",
+        "password":"Password",
+        "confirm_password":"Confirm Password",
+        "language":"Language"
+    },
+    "buttons":{
+        "back":"Back"
     }
 }

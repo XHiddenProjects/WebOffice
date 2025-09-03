@@ -1,5 +1,6 @@
 <?php
 namespace WebOffice;
+use resource;
 /**
  * Class TCP
  * Provides methods to manage TCP socket connections, data transmission,

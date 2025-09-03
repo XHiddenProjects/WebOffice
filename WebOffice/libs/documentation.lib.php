@@ -1,17 +1,19 @@
 <?php
 namespace WebOffice;
 include_once dirname(__DIR__).'/init.php';
-use WebOffice\tools\Markdown, WebOffice\Security;
+use WebOffice\tools\Markdown, WebOffice\Security, WebOffice\Locales;
 class Documentation{
     private string $title, $logo, $sectionID, $subSectionID;
     private array $sections;
     private Markdown $md;
     private Security $sec;
+    private Locales $lang;
     public function __construct(string $title, string $logo='') {
         $this->title = $title;
         $this->logo = $logo;
         $this->md = new Markdown();
         $this->sec = new Security();
+        $this->lang = new Locales(implode('-',LANGUAGE));
     }
     /**
      * Creates a section
@@ -123,7 +125,7 @@ class Documentation{
                 if ($subsection['type'] === 'static') {
                     // Check if current key matches the selected subSectionID
                     if ($id === $this->subSectionID) {
-                        $subsection['content'] = $this->md->parse($this->sec->preventXSS($content));
+                        $subsection['content'] .= $this->md->parse($this->sec->preventXSS($content));
                     }
                 } elseif ($subsection['type'] === 'collapse') {
                     // Recurse into nested 'subsections'
@@ -143,7 +145,14 @@ class Documentation{
 
         return $this;
     }
-    public function import(string $file):static{
+    /**
+     * Import content from a Markdown file
+     * @param string $file
+     * @return Documentation
+     */
+    public function importContent(string $file):static{
+        $file = preg_replace('/\.md$/','',$file).".md";
+        if (!file_exists($file)) throw new \ErrorException("File {$file} does not exist.");    
         $this->addContent(file_get_contents($file));
         return $this;
     }
@@ -156,7 +165,63 @@ class Documentation{
     private function parseID(string $section, string $id): string{
         $section = preg_replace('/ /','-',strtolower($section));
         $id = preg_replace('/ /','-',strtolower($id));
-        return "#$section|$id";
+        return "?page=$section|$id";
+    }
+    /**
+     * Returns the command lines to the documentation
+     * @param array<array:{label:string,cmd:string}> $cmds Associated command lines
+     * @return string
+     */
+    public function addCodeBlock(array $docs): string {
+        $out = '<div class="documentation-codeblock">';
+        $out .= '<div class="tabs">';
+
+        // Find the first language and its first command for default selection
+        $firstLang = null;
+        $firstCmdLabel = null;
+        $firstCmd = null;
+        foreach ($docs as $lang => $commands) {
+            if ($firstLang === null) {
+                $firstLang = $lang;
+                if (is_array($commands)) {
+                    foreach ($commands as $cmdLabel => $command) {
+                        $firstCmdLabel = $cmdLabel;
+                        $firstCmd = $command;
+                        break;
+                    }
+                } else {
+                    $firstCmdLabel = $lang;
+                    $firstCmd = $commands;
+                }
+            }
+        }
+        $out.='<div class="tabs-label">';
+        foreach ($docs as $lang => $commands) {
+            // Normalize commands: handle if string or array
+            if (is_array($commands)) {
+                foreach ($commands as $cmdLabel => $command) {
+                    $escapedCommand = htmlspecialchars($command);
+                    $selected = ($lang === $firstLang && $cmdLabel === $firstCmdLabel) ? ' selected' : '';
+                    $out .= '<button data-lang="' . htmlspecialchars($lang) . '" data-command="' . $escapedCommand . '"' . $selected . '>' . htmlspecialchars($cmdLabel) . '</button>';
+                }
+            } else {
+                $escapedCommand = htmlspecialchars($commands);
+                $selected = ($lang === $firstLang) ? ' selected' : '';
+                $out .= '<button data-lang="' . htmlspecialchars($lang) . '" data-command="' . $escapedCommand . '"' . $selected . '>' . htmlspecialchars($lang) . '</button>';
+            }
+        }
+        $out.='</div>
+        <div class="docs-toolbars">
+            <button type="button" data-copy title="Copy code"><i class="fa-solid fa-copy"></i></button>
+        </div>';
+
+        $out .= '</div>
+        <div class="code-line">
+            <code class="code-content language-' . htmlspecialchars($firstLang) . '">' . htmlspecialchars($firstCmd) . '</code>
+        </div>
+        </div>';
+
+        return $out;
     }
     /**
      * Publishes the documentation
@@ -166,7 +231,7 @@ class Documentation{
         $out = "<div class='documentation'>
             <nav class='documentation-navbar'>
                 <div class='container-fluid'>
-                    <a class='brand' href=''>
+                    <a class='brand' href='./'>
                         ".($this->logo ? "<img src='{$this->logo}' alt='Logo' width='30' height='24' class='d-inline-block align-text-top'>" : "")."
                         {$this->title}
                     </a>
@@ -216,11 +281,11 @@ class Documentation{
                         if(!empty($sections['subsections'])){
                             foreach($sections['subsections'] as $id => $subsections){
                                 if(strtolower($subsections['type'])==='static' && isset($subsections['content']) && $subsections['content'] !== '')
-                                    $out.="<div class='documentation-content' id='".preg_replace('/^#/','',$this->parseID($sectionID,$id))."'>".$subsections['content']."</div>";
+                                    $out.="<div class='documentation-content' tabindex='0' data-bs-spy='scroll' data-bs-target='.page-nav-link' data-bs-offset='0' data-bs-smooth-scroll='true' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$id))."'>".$subsections['content']."</div>";
                                 if(strtolower($subsections['type'])==='collapse' && isset($subsections['subsections'])){
                                     foreach($subsections['subsections'] as $subId => $nestedSubsection){
                                         if(strtolower($nestedSubsection['type'])==='static' && isset($nestedSubsection['content']) && $nestedSubsection['content'] !== '')
-                                            $out.="<div class='documentation-content' id='".preg_replace('/^#/','',$this->parseID($sectionID,$subId))."'>".$nestedSubsection['content']."</div>";
+                                            $out.="<div class='documentation-content' tabindex='0' data-bs-spy='scroll' data-bs-target='.page-nav-link' data-bs-offset='0' data-bs-smooth-scroll='true' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$subId))."'>".$nestedSubsection['content']."</div>";
                                     }
                                 }
                             }
@@ -232,6 +297,15 @@ class Documentation{
                             <div class='documentation-content'>Please create a section to start documenting your application.</div>";
                     }
                 $out.="
+                </div>
+                <div class='page-nav  flex-column'>
+                    <p class='text-muted fw-bold'>{$this->lang->load(['documentation','on_this_page'],false)}</p>
+                    <div class='d-flex'>
+                        <div class='spyscroll'>
+                            <span class='spyscroll-bar'></span>
+                        </div>
+                        <div class='page-nav-link'></div>
+                    </div>
                 </div>
             </div>
         </div>";

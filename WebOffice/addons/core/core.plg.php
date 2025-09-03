@@ -1,29 +1,42 @@
 <?php
 namespace WebOffice\Addons\Office;
-use WebOffice\Addons, WebOffice\Config, WebOffice\Language;
+use WebOffice\Addons, WebOffice\Config, WebOffice\Locales, WebOffice\URI;
 class Core extends addons{
     private Config $config;
     private string $name = 'core';
+    private URI $uri;
     public function __construct() {
         parent::__construct();
         ini_set('display_errors','1');
         error_reporting(E_ALL);
         $this->config = new Config($this->name);
-        $lang = new Language(implode('-',LANGUAGE), dirname(__FILE__).DS.'languages');
+        $lang = new Locales(implode('-',LANGUAGE), dirname(__FILE__).DS.'languages');
         $this->config->create([
             'name'=>$lang->load()['name'] ?? '',
             'description'=>$lang->load()['description'] ?? '',
             'version'=>$lang->load()['version'] ?? '1.0.0',
             'author'=>$lang->load()['author'] ?? '',
             'enabled'=>true,
-            'disabled'=>true
+            'disabled'=>true,
+            'permissions'=>['fileSystem','activeTab']
         ]);
+        $this->uri = new URI();
     }
     public function head(): string{
         $c = new Config();
-        $langs = new Language(implode('-',LANGUAGE));
+        $langs = new Locales(implode('-',LANGUAGE));
         if($this->isEnabled()){
-            return "<title>{$langs->load()['name']}</title>
+            $paths = $this->uri->arrPath($_SERVER['REQUEST_URI']);
+            $extra = "";
+            if(isset($paths[1])){
+                switch(strtolower($paths[1])){
+                    case 'auth':
+                        $extra=" - {$langs->load()['authorization']['_tab']}";
+                    break;
+                    default:break;
+                }
+            }
+            return "<title>{$langs->load()['name']}{$extra}</title>
             <meta name='description' content='{$langs->load()['description']}' />
             <meta name='author' content='{$langs->load()['author']}' />
             <meta name='version' content='{$langs->load()['version']}' />
@@ -56,7 +69,8 @@ class Core extends addons{
             <script src="'.ASSETS_URL.DS.'js'.DS.'main.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'requests.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'prism.min.js" type="text/javascript"></script>
-            <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>';
+            <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>
+            <script src="'.ASSETS_URL.DS.'js'.DS.'formvalidate.js" type="text/javascript"></script>';
         }else return '';
     }
 }

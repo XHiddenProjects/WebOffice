@@ -60,3 +60,40 @@ body{
     opacity: 0;
     transform: translateX(-40px);
 }
+.authorization-form .card-body{
+        background: #a6d4ed;
+        background: -webkit-linear-gradient(180deg, rgba(103, 138, 157, 1) 0%, rgba(70, 92, 140, 1) 50%, rgba(26, 26, 94, 1) 100%);
+        background: -moz-linear-gradient(180deg, rgba(103, 138, 157, 1) 0%, rgba(70, 92, 140, 1) 50%, rgba(26, 26, 94, 1) 100%);
+        background: linear-gradient(180deg, rgba(103, 138, 157, 1) 0%, rgba(70, 92, 140, 1) 50%, rgba(26, 26, 94, 1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#A6D4ED", endColorstr="#1A1A5E", GradientType=0);
+}
+.authorization-form .tabs{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background: #046490;
+    color: var(--bs-light);
+}
+
+.authorization-form .tab{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    cursor: pointer;
+    font-size: 25px;
+    transition: background-color .3s;
+    width: 100%;
+    text-align: center;
+}
+.authorization-form .tab.active{
+    background-color: lightblue;
+    color: #232323;
+    font-weight: 600;
+}
+.icon-required{
+    color: #e40b0b;
+}
+
+.form-input-invalid [required],
+.form-input-invalid input:required,
+.form-input-invalid select:required{
+    border: 2px solid rgba(255,0,0,0.5);
+}

@@ -1,5 +1,6 @@
 <?php
 namespace WebOffice;
+use WebOffice\Files;
 class Utils{
     public function __construct() {
         $config = new Config();
@@ -175,18 +176,22 @@ class Utils{
         }
     }
     /**
+     * Returns the sudo password string
+     * @param string $password Password (Base64)
+     * @return string Sudo password
+     */
+    public function sudo(string $password): string{
+        return "sudo -S ".$this->escapeShell(base64_decode($password));
+    }
+    /**
      * Execute a shell command with optional password
      * @param string $command Command to execute
-     * @param string|null $password Password for sudo or other privileged commands
      * @throws \RuntimeException If the command fails
      * @return bool|string|null Output of the command
      */
-    public function executeCommand(string $command, ?string $password = null): bool|string|null {
-        $command = $this->escapeShell($command);
-        $fullCommand = $password!==null ? "echo " . $this->escapeShell($password) . " | sudo -S " . $command : $command;
-        $output = shell_exec($fullCommand);
-        if ($output === null) 
-            throw new \RuntimeException("Command execution failed: {$fullCommand}");
+    public function executeCommand(string $command): bool|string|null {
+        //$command = $command;
+        $output = shell_exec($command);
         return $output;
     }
     /**

@@ -16,7 +16,7 @@ class HTML {
         elseif ($version === 4) 
             $this->doctype = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
         else 
-            $this->doctype = '<!DOCTYPE html>';
+            $this->doctype = '';
     }
 
     // Helper method to create a new element array
@@ -120,6 +120,17 @@ class HTML {
     public function setID(string $id=''): static {
         if ($this->current !== null) {
             $this->current['attributes']['id'] = $id;
+        }
+        return $this;
+    }
+    /**
+     * Sets the ID
+     * @param string $name Element Name
+     * @return HTML
+     */
+    public function setName(string $name=''): static {
+        if ($this->current !== null) {
+            $this->current['attributes']['name'] = $name;
         }
         return $this;
     }

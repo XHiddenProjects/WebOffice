@@ -189,11 +189,10 @@ class BBCode{
      * @return string HTML String
      */
     public function parse(string $text): string{
+        $text = htmlspecialchars($text,ENT_QUOTES);
         // First, run all BBCode replacements
-        foreach($this->bbcode as $bbcode) {
+        foreach($this->bbcode as $bbcode) 
             $text = preg_replace_callback($bbcode['pattern'],$bbcode['callback'],$text);
-        }
-
         return $text;
     }
 }

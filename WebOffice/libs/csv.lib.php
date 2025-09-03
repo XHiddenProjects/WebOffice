@@ -51,7 +51,7 @@ class CSV {
      * @return array Array of the CSV
      */
     public function toArray(string $csv): array {
-        $lines = preg_split("/$this->newLine/", $csv);
+        $lines = explode($this->newLine, $csv);
         $result = [];
         if (empty($lines) || trim($lines[0]) === '') {
             return [];

@@ -50,10 +50,7 @@ class Security{
             foreach($headers as $header){
                 $header = $this->preventXSS($header);
                 if($this->preventRequestSmuggling($header)) header($header);
-                    
-                
             }
-            print_r(headers_list());
         }
     }
     /**
@@ -111,9 +108,6 @@ class Security{
             foreach ($issues as $issue) {
                 $this->logSecurityEvent('code_audit', $issue);
             }
-        } else {
-            // No issues found, optionally log
-            $this->logSecurityEvent('code_audit', "Code audit completed: No issues found.");
         }
     }
     /**
@@ -244,11 +238,11 @@ class Security{
      * @param string $event Event to log
      * @return void
      */
-    public function logSecurityEvent(string $name='security', string $event): void {
+    public function logSecurityEvent(string $name='security', string $event=''): void {
         if (error_reporting() === 0) return;
         if (!ini_get('log_errors')) return;
         
-        $log = ERROR_LOG.DS."$name.log";
+        $log = LOG.DS."$name.log";
 
         // Read entire log file content
         $content = '';

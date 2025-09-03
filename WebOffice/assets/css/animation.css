@@ -1,3 +1,4 @@
+/*Fade animation*/
 @keyframes fadeIn {
 	from {
 		opacity: 0;
@@ -94,6 +95,7 @@
 		transform: translateY(20px);
 	}
 }
+/*Slide animation*/
 @keyframes slideInTop {
 	from {
 		opacity: 0;
@@ -173,4 +175,74 @@
 		opacity: 0;
 		transform: translateX(20px);
 	}
+}
+/*Rotation*/
+@keyframes rotateIn {
+    from {
+        transform: rotate(90deg);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes rotateOut {
+    from {
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    to {
+        transform: rotate(90deg);
+        opacity: 0;
+    }
+}
+
+@keyframes rotateClockwise {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotateCounterClockwise {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(-360deg);
+    }
+}
+/*Zoom*/
+@keyframes zoomIn {
+	from { transform: scale(1); }
+	to { transform: scale(1.2);}
+}
+
+@keyframes zoomOut {
+	from { transform: scale(1.2);}
+	to { transform: scale(1);}
+}
+/*Bounce*/
+@keyframes bounce{
+	0%{transform: translateY(0);}
+	20%{transform: translateY(-20px);}
+	40%{transform: translateY(0);}
+	60%{transform: translateY(-10px);}
+	80%{transform: translateY(0);}
+	100%{transform: translateY(0);}
+}
+/*Stretch*/
+@keyframes stretchWidth {
+	0%{transform: scale(1);}
+	50%{transform: scale(1.5,1);}
+	100%{transform: scale(1);}
+}
+@keyframes stretchHeight{
+	0%{transform: scale(1);}
+	50%{transform: scale(1,1.5);}
+	100%{transform: scale(1);}
 }

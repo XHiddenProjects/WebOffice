@@ -28,12 +28,12 @@ class SSH2 {
     /**
      * Connect to an SSH server with credentials
      * @param string $host - Hostname or IP
-     * @param int $port - SSH port, default 22
      * @param string $username - SSH username
      * @param string $password - SSH password
+     * @param int $port - SSH port, default 22
      * @return bool - success
      */
-    public function connect($host, $port = 22, $username, $password): bool {
+    public function connect($host, $username, $password, $port = 22): bool {
         $this->host = $host;
         $this->port = $port;
         $this->username = $username;
