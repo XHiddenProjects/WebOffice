@@ -70,8 +70,7 @@ class Core extends addons{
             <script src="'.ASSETS_URL.DS.'js'.DS.'requests.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'prism.min.js" type="text/javascript"></script>
             <script src="'.ADDONS_URL.DS.$this->name.DS.'js'.DS.$this->name.'.js" type="text/javascript"></script>
-            <script src="'.ASSETS_URL.DS.'js'.DS.'formvalidate.js" type="text/javascript"></script>
-            <script src="'.ASSETS_URL.DS.'js'.DS.'update.js" type="text/javascript"></script>';
+            <script src="'.ASSETS_URL.DS.'js'.DS.'formvalidate.js" type="text/javascript"></script>';
         }else return '';
     }
 }
