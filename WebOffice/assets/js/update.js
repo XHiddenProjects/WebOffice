@@ -12,10 +12,12 @@ function performUpdate() {
         dataType: 'json',
         success: function(response) {
             console.log(`Step: ${steps[currentStep]}, Status: ${response.status}, Message: ${response.message}`);
-            setTimeout(function() {
-                currentStep++;
-                performUpdate();
-            }, 10000);
+            if(response.status==='success'){
+                setTimeout(function() {
+                    currentStep++;
+                    performUpdate();
+                }, 10000);
+            }
         },
         error: function() {
             return {'error':`An error occurred during step: ${steps[currentStep]}`};
@@ -23,4 +25,5 @@ function performUpdate() {
     });
 }
 // Start the process
+console.log('Starting Update...');
 performUpdate();

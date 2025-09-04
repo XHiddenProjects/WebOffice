@@ -155,4 +155,22 @@ class Files{
     public function exists(string $path):bool{
         return @file_exists($path);
     }
+    /**
+     * Hashes/Verifies hash file
+     * @param string $file File
+     * @param string $algo Algorithm
+     * @return bool|string Returns the hashed file
+     */
+    public function hash(string $file,string $algo='sha256'): bool|string{
+        return hash_file($algo,$file);
+    }
+    /**
+     * Verifies hashed file
+     * @param string $hash Hashed file
+     * @param string $input Hash input
+     * @return bool TRUE if hashed is matched, else FALSE
+     */
+    public function verify_hash(string $hash, string $input): bool{
+        return hash_equals($hash, $input);
+    }
 }

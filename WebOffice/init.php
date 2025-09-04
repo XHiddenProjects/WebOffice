@@ -2,6 +2,44 @@
 
 use WebOffice\Database;
 
+# cryptography
+const MD2 = 'md2';
+const MD4 = 'md4';
+const SHA1 = 'sha1';
+const SHA256 = 'sha256';
+const SHA384 = 'sha384';
+const SHA512 = 'sha512';
+const RIPEMD128 = 'ripemd128';
+const RIPEMD160 = 'ripemd160';
+const RIPEMD256 = 'ripemd256';
+const RIPEMD320 = 'ripemd320';
+const WHIRLPOOL = 'whirlpool';
+const TIGER128_3 = 'tiger128,3';
+const TIGER160_3 = 'tiger160,3';
+const TIGER192_3 = 'tiger192,3';
+const TIGER128_4 = 'tiger128,4';
+const TIGER160_4 = 'tiger160,4';
+const TIGER192_4 = 'tiger192,4';
+const SNEFRU = 'snefru';
+const GOST = 'gost';
+const ADLER32 = 'adler32';
+const CRC32 = 'crc32';
+const CRC32B = 'crc32B';
+const HAVAL128_3 = 'haval128,3';
+const HAVAL160_3 = 'haval160,3';
+const HAVAL192_3 = 'haval192,3';
+const HAVAL224_3 = 'haval224,3';
+const HAVAL256_3 = 'haval256,3';
+const HAVAL128_4 = 'haval128,4';
+const HAVAL160_4 = 'haval160,4';
+const HAVAL192_4 = 'haval192,4';
+const HAVAL224_4 = 'haval224,4';
+const HAVAL256_4 = 'haval256,4';
+const HAVAL128_5 = 'haval128,5';
+const HAVAL160_5 = 'haval160,5';
+const HAVAL192_5 = 'haval192,5';
+const HAVAL224_5 = 'haval224,5';
+const HAVAL256_5 = 'haval256,5';
 
 include_once 'vendor/autoloader.php';
 ini_set('display_errors', 1); 
@@ -33,6 +71,8 @@ define('LOG',BASE.DS.'logs');
 define('DATA_PATH',BASE.DS.'data');
 
 define('DOCUMENTATION_PATH',BASE.DS.'docs');
+
+
 
 
 
