@@ -109,31 +109,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $zip = new ZipArchive();
             if ($zip->open(ZIP_FILE) === TRUE) {
                 $extractPath = dirname(TEMP_PATH);
+                $extractionFailed = false; // Flag to monitor failure
                 for ($i = 0; $i < $zip->numFiles; $i++) {
                     $fileName = $zip->getNameIndex($i);
-                    // Skip extracting .htaccess files
-                    if (strpos($fileName, '.htaccess') !== false||
-                        strpos($fileName, '.venv') !== false) continue;
-                    
-                    // Extract individual file
-                    $fileInfo = pathinfo($fileName);
-                    $destPath = $extractPath . DIRECTORY_SEPARATOR . $fileName;
-                    // Create directory if needed
-                    if (!$zip->extractTo($extractPath, $fileName)) {
-                        // Handle error
+                    if (strpos($fileName, '.venv') !== false) {
+                        continue;
+                    }
+                    if (!@$zip->extractTo($extractPath, $fileName)) {
                         $response['status'] = 'fail';
                         $response['message'] = "No Permission for {$extractPath}/{$fileName}";
+                        $extractionFailed = true;
+                        break;
                     }
                 }
                 $zip->close();
-                $response['status'] = 'success';
-                $response['message'] = 'Extraction completed.';
+
+                if (!$extractionFailed && !isset($response['status'])) {
+                    // If no failures occurred, set success status
+                    $response['status'] = 'success';
+                    $response['message'] = 'Extraction completed.';
+                }
             } else {
                 $response['status'] = 'fail';
                 $response['message'] = 'Failed to open zip.';
             }
-            break;
-
+        break;
         case 'finishing':
             // Delete only the zip file
             if (file_exists(ZIP_FILE)) {
