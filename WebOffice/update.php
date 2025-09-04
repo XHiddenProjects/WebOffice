@@ -121,7 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Create directory if needed
                     if (!$zip->extractTo($extractPath, $fileName)) {
                         // Handle error
-                        error_log("Failed to extract $fileName");
+                        $response['status'] = 'fail';
+                        $response['message'] = "No Permission for {$extractPath}/{$fileName}";
                     }
                 }
                 $zip->close();

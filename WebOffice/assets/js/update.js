@@ -24,6 +24,4 @@ function performUpdate() {
         }
     });
 }
-// Start the process
-console.log('Starting Update...');
 performUpdate();
