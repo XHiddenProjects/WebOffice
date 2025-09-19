@@ -183,15 +183,29 @@ class Utils{
     public function sudo(string $password): string{
         return "sudo -S ".$this->escapeShell(base64_decode($password));
     }
-    /**
-     * Execute a shell command with optional password
-     * @param string $command Command to execute
-     * @throws \RuntimeException If the command fails
-     * @return bool|string|null Output of the command
-     */
-    public function executeCommand(string $command): bool|string|null {
-        //$command = $command;
-        $output = shell_exec($command);
+    public function executeCommand(string $command, string $password = ''): bool|string|null {
+        $output = null;
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            if (!empty($password)) {
+                // Using PowerShell to run command with credentials
+                // Note: This is insecure and for demonstration only.
+                $escapedCommand = addslashes($command);
+                $psCommand = "powershell -Command \"\$secpasswd = ConvertTo-SecureString '".base64_decode($password)."' -AsPlainText -Force; \$cred = New-Object System.Management.Automation.PSCredential('USERNAME', \$secpasswd); Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', '$escapedCommand' -Credential \$cred -NoNewWindow -Wait\"";
+                $output = shell_exec($psCommand);
+            } else $output = shell_exec($command);
+            
+        } else {
+            // Linux/macOS
+            if (!empty($password)) {
+                // Use sudo with password
+                // WARNING: Password in command line can be insecure
+                $escapedCommand = escapeshellcmd($command);
+                $cmdWithSudo = "echo " . escapeshellarg(base64_decode($password)) . " | sudo -S $escapedCommand";
+                $output = shell_exec($cmdWithSudo);
+            } else $output = shell_exec($command);
+            
+        }
         return $output;
     }
     /**

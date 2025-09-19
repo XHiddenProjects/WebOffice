@@ -82,14 +82,11 @@ class Database{
      * @param string $sql - The base SQL query without conditions
      * @param array $params - Associative array of parameters to bind to the query
      *                       (e.g., ['id' => 1])
-     * @param string $conditions - Additional SQL conditions (e.g., 'status = :status AND age > :age')
+     * @param int $mode - Fetch mode (default is PDO::FETCH_DEFAULT)
      * @return array|false - Associative array of the fetched record or false if none found
      */
-    public function fetch(string $sql, array $params = [], string $conditions = ''): mixed {
-        // Append conditions if any
-        $fullSql = $sql;
-        if (!empty($conditions)) $fullSql .= " WHERE $conditions";
-        $stmt = $this->db->prepare($fullSql);
+    public function fetch(string $sql, array $params = [], int $mode=PDO::FETCH_DEFAULT): mixed {
+        $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         
         return $stmt->fetch();
@@ -101,48 +98,35 @@ class Database{
      * @param string $sql - The base SQL query without conditions
      * @param array $params - Associative array of parameters to bind to the query
      *                       (e.g., ['status' => 'active'])
-     * @param string $conditions - Additional SQL conditions (e.g., 'category = :category OR type = :type')
+     * @param int $mode - Fetch mode (default is PDO::FETCH_DEFAULT)
      * @return array - Array of associative arrays, each representing a record
      */
-    public function fetchAll(string $sql, array $params = [], string $conditions = ''): array {
-        // Append conditions if any
-        $fullSql = $sql;
-        if (!empty($conditions)) $fullSql .= " WHERE $conditions";
-        $stmt = $this->db->prepare($fullSql);
+    public function fetchAll(string $sql, array $params = [], int $mode=PDO::FETCH_DEFAULT): array {
+        $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        return $stmt->fetchAll($mode);
     }
     /**
      * Inserts data into a specified table using PDO.
      *
      * @param string $table The name of the table where data will be inserted.
      * @param array $data An associative array of column => value pairs to insert.
-     * @return bool Returns true on success or false on failure.
+     * @return array Returns the inserted data
      */
-    public function insert(string $table, array $data): bool {
+    public function insert(string $table, array $data): array {
         // Extract column names from the data array
         $columns = array_keys($data);
         // Create placeholders for prepared statement
-        $placeholders = array_map(fn($column): string=>":$column", $columns);
+        $placeholders = array_map(fn($column): string => ":$column", $columns);
 
         // Build the SQL INSERT statement
         $sql = "INSERT INTO {$table} (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $placeholders) . ")";
-
-        try {
-            // Prepare the statement
-            $stmt = $this->db->prepare($sql);
-
-            // Bind values to placeholders
-            foreach ($data as $column => $value) {
-                $stmt->bindValue(":$column", $value);
-            }
-            // Execute the statement
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            // Handle exception (log error, rethrow, etc.)
-            // For now, just return false
-            return false;
-        }
+        $stmt = $this->db->prepare($sql);
+        foreach ($data as $column => $value) $stmt->bindValue(":$column", $value);
+        $stmt->execute();
+        $lastInsertId = $this->db->lastInsertId();
+        $insertedRow = $this->fetchAll("SELECT * FROM {$table} WHERE id = :id", ['id' => $lastInsertId]);
+        return $insertedRow;
     }
     /**
      * Counts the number of rows in the specified table.
@@ -162,14 +146,55 @@ class Database{
      * @param string $condition The condition for deletion (e.g., "id = :id").
      * @param array $params Associative array of parameters for the condition (e.g., ['id' => 5]).
      */
-    public function delete(string $table, string $condition, array $params = []): void{
-        $sql = "DELETE FROM {$table} WHERE {$condition}";
+    public function delete(string $table, string $condition, array $params = []): array{
+        $sql = "DELETE FROM {$table} WHERE $condition";
         $stmt = $this->db->prepare($sql);
 
+        $selectedDeletedRow = $this->fetchAll("SELECT * FROM $table WHERE $condition",$params);
+        
         // Bind parameters if provided
         foreach ($params as $key => $value) 
             $stmt->bindValue(":$key", $value);
         $stmt->execute();
+        return $selectedDeletedRow;
+    }
+
+    public function update(string $table, array $data, array $where): int|string{
+        // Build SET part
+        $setParts = [];
+        foreach ($data as $column => $value) {
+            $setParts[] = "$column = :set_$column";
+        }
+        $setSql = implode(", ", $setParts);
+
+        // Build WHERE part
+        $whereParts = [];
+        foreach ($where as $column => $value) {
+            $whereParts[] = "$column = :where_$column";
+        }
+        $whereSql = implode(" AND ", $whereParts);
+
+        // Complete SQL statement
+        $sql = "UPDATE {$table} SET $setSql WHERE $whereSql";
+        $stmt = $this->db->prepare($sql);
+
+        // Bind SET parameters
+        foreach ($data as $column => $value) {
+            $stmt->bindValue(":set_$column", $value);
+        }
+
+        // Bind WHERE parameters
+        foreach ($where as $column => $value) {
+            $stmt->bindValue(":where_$column", $value);
+        }
+
+        // Execute the statement
+        try {
+            $stmt->execute();
+            return $stmt->rowCount(); // Return number of affected rows
+        } catch (PDOException $e) {
+            return $e->getMessage(); // Return error message on failure
+        }
     }
     /**
      * Close PDO connection
@@ -214,9 +239,6 @@ class Database{
             }
             
         }
-
-        
-
         $backupFile = "backup_" . date("Ymd_His") . ".sql";
         $zip = new Zip($path);
         $zip->addString($sqlDump,$backupFile);

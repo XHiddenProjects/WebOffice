@@ -20,9 +20,9 @@ class Storage{
      */
     public function cookie(string $name, mixed $value = null, string $action = 'store', int $expire = 30, string $path='/', string $domain='', bool $secure=false, bool $httponly=false): mixed {
         switch (strtolower($action)) {
-            case 'save':
-                // Set a cookie that expires in $expire days
-                $seconds = $expire * 3600; // days to seconds
+            case 'store':
+                // Set a cookie that expires in $expire hours
+                $seconds = $expire * 3600; // hours to seconds
                 setcookie($name, $value, time() + $seconds, $path, $domain, $secure, $httponly);
                 break;
 

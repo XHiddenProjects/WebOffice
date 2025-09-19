@@ -106,4 +106,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^documents(/.*)?$ documents.php$1 [L]
 RewriteRule ^powerpoints(/.*)?$ powerpoints.php$1 [L]
 RewriteRule ^spreadsheets(/.*)?$ spreadsheets.php$1 [L]
+RewriteRule ^policies(/.*)?$ policies.php$1 [L]
 RewriteRule ^mail(/.*)?$ mail.php$1 [L]
+RewriteRule ^api(/.*)?$ api.php$1 [L]
+RewriteRule ^dashboard(/.*)?$ dashboard.php$1 [L]

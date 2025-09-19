@@ -281,11 +281,11 @@ class Documentation{
                         if(!empty($sections['subsections'])){
                             foreach($sections['subsections'] as $id => $subsections){
                                 if(strtolower($subsections['type'])==='static' && isset($subsections['content']) && $subsections['content'] !== '')
-                                    $out.="<div class='documentation-content' tabindex='0' data-bs-spy='scroll' data-bs-target='.page-nav-link' data-bs-offset='0' data-bs-smooth-scroll='true' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$id))."'>".$subsections['content']."</div>";
+                                    $out.="<div class='documentation-content' tabindex='0' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$id))."'>".$subsections['content']."</div>";
                                 if(strtolower($subsections['type'])==='collapse' && isset($subsections['subsections'])){
                                     foreach($subsections['subsections'] as $subId => $nestedSubsection){
                                         if(strtolower($nestedSubsection['type'])==='static' && isset($nestedSubsection['content']) && $nestedSubsection['content'] !== '')
-                                            $out.="<div class='documentation-content' tabindex='0' data-bs-spy='scroll' data-bs-target='.page-nav-link' data-bs-offset='0' data-bs-smooth-scroll='true' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$subId))."'>".$nestedSubsection['content']."</div>";
+                                            $out.="<div class='documentation-content' tabindex='0' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$subId))."'>".$nestedSubsection['content']."</div>";
                                     }
                                 }
                             }
@@ -298,13 +298,10 @@ class Documentation{
                     }
                 $out.="
                 </div>
-                <div class='page-nav  flex-column'>
-                    <p class='text-muted fw-bold'>{$this->lang->load(['documentation','on_this_page'],false)}</p>
-                    <div class='d-flex'>
-                        <div class='spyscroll'>
-                            <span class='spyscroll-bar'></span>
-                        </div>
-                        <div class='page-nav-link'></div>
+                <div class='page-nav flex-column position-relative'>
+                    <div class='position-sticky'>
+                        <p class='text-muted fw-bold'>{$this->lang->load(['documentation','on_this_page'],false)}</p>
+                        <div class='page-nav-scroll'></div>
                     </div>
                 </div>
             </div>

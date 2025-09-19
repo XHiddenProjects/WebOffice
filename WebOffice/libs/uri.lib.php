@@ -151,5 +151,27 @@ class URI{
         $components = $this->parseURL($url);
         return $components['pass'] ?? '';
     }
+    /**
+     * Builds the query structure
+     * @param array $queries Query structure in array
+     * @return string Valid query structure
+     */
+    public function buildQuery(array $queries): string{
+        return http_build_query($queries);
+    }
+    /**
+     * Checks for matched URL path
+     * @param string|string[] $match Path or Paths based on the URL
+     * @return bool TRUE if the URL matches the path else FALSE
+     */
+    public function match(string|array $match): bool{
+        $match = is_string($match) ? explode('/',$match) : $match;
+        $currentPath = $this->arrPath($_SERVER['REQUEST_URI']);
 
+        if(count($currentPath)>count($match)) 
+            array_splice($currentPath, 0, count($currentPath)-count($match));
+
+        if(empty(array_diff($match,$currentPath))) return true;
+        else return false;
+    }
 }

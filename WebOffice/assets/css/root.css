@@ -1,0 +1,143 @@
+:root,
+:host{
+    /*color*/
+    --red: #ff0000;
+    --maroon: #800000;
+    --brown: brown;
+    --tan: #d2b48c;
+    --orange: #ffa500;
+    --peach: #ffdab9;
+    --gold: #ffd700;
+    --yellow: #ffff00;
+    --lime: #00ff00;
+    --olive: #808000;
+    --green: #008000;
+    --teal: #008080;
+    --cyan: #00ffff;
+    --blue: #0000ff;
+    --lightblue: #add8e6;
+    --navy: #000080;
+    --purple: #800080;
+    --indigo: #4b0082;
+    --magenta: #ff00ff;
+    --pink: #ffc0cb;
+    --gray: #808080;
+    --lightgray: #d3d3d3;
+    --white: #ffffff;
+    --black: #000000;
+    /*Grayscale*/
+    --gray-100: #f5f5f5;
+    --gray-200: #e0e0e0;
+    --gray-300: #c2c2c2;
+    --gray-400: #a3a3a3;
+    --gray-500: #858585;
+    --gray-600: #666666;
+    --gray-700: #4d4d4d;
+    --gray-800: #333333;
+    --gray-900: #1a1a1a;
+    /*Color RGB*/
+    --red-rgb: 255, 0, 0;
+    --maroon-rgb: 128, 0, 0;
+    --brown-rgb: 165, 42, 42;
+    --tan-rgb: 210, 180, 140;
+    --orange-rgb: 255, 165, 0;
+    --peach-rgb: 255, 218, 185;
+    --gold-rgb: 255, 215, 0;
+    --yellow-rgb: 255, 255, 0;
+    --lime-rgb: 0, 255, 0;
+    --olive-rgb: 128, 128, 0;
+    --green-rgb: 0, 128, 0;
+    --teal-rgb: 0, 128, 128;
+    --cyan-rgb: 0, 255, 255;
+    --blue-rgb: 0, 0, 255;
+    --lightblue-rgb: 173, 216, 230;
+    --navy-rgb: 0, 0, 128;
+    --purple-rgb: 128, 0, 128;
+    --indigo-rgb: 75, 0, 130;
+    --magenta-rgb: 255, 0, 255;
+    --pink-rgb: 255, 192, 203;
+    --gray-rgb: 128, 128, 128;
+    --lightgray-rgb: 211, 211, 211;
+    --white-rgb: 255, 255, 255;
+    --black-rgb: 0, 0, 0;
+    /*Font weight*/
+    --fw-lighter: lighter;
+    --fw-normal: normal;
+    --fw-bold: bold;
+    --fw-bolder: bolder;
+    --fw-100: 100;
+    --fw-200: 200;
+    --fw-300: 300;
+    --fw-400: 400;
+    --fw-500: 500;
+    --fw-600: 600;
+    --fw-700: 700;
+    --fw-800: 800;
+    --fw-900: 900;
+    /*Font style*/
+    --fs-italic: italic;
+    --fs-normal: normal;
+    --fs-oblique: oblique;
+    /*Font size*/
+    --text-extra-small: clamp(8px, 9px, 10px);
+    --text-small: clamp(12px, 13px, 14px);
+    --text-normal: clamp(16px, 17px, 18px);
+    --text-large: clamp(20px, 22px, 24px);
+    --text-extra-large: clamp(28px, 30px, 32px);
+    --h1: calc(1.375rem + 1.5vw);
+    --h2: calc(1.325rem + .9vw);
+    --h3: calc(1.3rem + .6vw);
+    --h4: calc(1.275rem + .3vw);
+    --h5: 1.25rem;
+    --h6: 1em;
+    /*opacity*/
+    --opacity-0: 0;
+    --opacity-25: 0.25;
+    --opacity-50: 0.50;
+    --opacity-75: 0.75;
+    --opacity-1: 1;
+    /*display*/
+    --d-block: block;
+    --d-contents: contents;
+    --d-flex: flex;
+    --d-flow: flow;
+    --d-root: flow-root;
+    --d-grid: grid;
+    --d-inline: inline;
+    --d-inline-block: inline-block;
+    --d-inline-flex: inline-flex;
+    --d-inline-grid: inline-grid;
+    --d-inline-masonry: inline-masonry;
+    --d-inline-table: inline-table;
+    --d-list: list-item;
+    --d-masonry: masonry;
+    --d-math: math;
+    --d-none: none;
+    --d-ruby: ruby;
+    --d-ruby-text: ruby-text;
+    --d-table: table;
+    --d-caption: table-caption;
+    --d-cell: table-cell;
+    --d-column: table-column;
+    --d-column-group: table-column-group;
+    --d-footer-group: table-footer-group;
+    --d-header-group: table-header-group;
+    --d-row: table-row;
+    --d-row-group: table-row-group;
+    /*linear gradient*/
+    --linear-gradient-0: linear-gradient(0deg, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    --linear-gradient-90: linear-gradient(90deg, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    --linear-gradient-180: linear-gradient(180deg, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    --linear-gradient-270: linear-gradient(270deg, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    --linear-gradient-360: linear-gradient(360deg, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    /*radial gradient*/
+    --radial-gradient-circle: radial-gradient(circle, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    --radial-gradient-ellipse: radial-gradient(ellipse, rgba(var(--white-rgb), 0.15), rgba(var(--white-rgb), var(--opacity-0)));
+    /*overflow*/
+    --ov-auto: auto;
+    --ov-clip: clip;
+    --ov-hidden: hidden;
+    --ov-overlay: overlay;
+    --ov-scroll: scroll;
+    --ov-visible: visible;
+}

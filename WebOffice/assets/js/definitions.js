@@ -11,3 +11,25 @@ const BASE = params.get('base') || '/';
 Math.roundBy = (number, precision=0)=>{
     return parseFloat(number.toFixed(precision));
 }
+
+
+/**
+ * Sends a request to the url
+ *
+ * @param {String} url URL
+ * @param {{}} [options={}] Options to the xhr request
+ * @returns {Promise<any>} Returns a promise response
+ */
+function sendRequest(url, options = {}) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(options.method || 'GET', url);
+        if (options.headers) for (const header in options.headers) xhr.setRequestHeader(header, options.headers[header]);
+        xhr.onload = () => {
+            if (xhr.status == 200 && xhr.readyState == xhr.DONE) resolve(xhr.response);
+            else reject({status: xhr.status, statusText: xhr.statusText});
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send(options.data || null);
+    });
+}

@@ -2,6 +2,7 @@
 namespace WebOffice;
 use WebOffice\tools\Markdown, WebOffice\Files;
 
+if(!defined('LANGUAGE_PATH')) define('LANGUAGE_PATH',dirname(__DIR__).'/locales');
 class Locales {
     private string $path;
     private Markdown $markdown;
@@ -12,7 +13,7 @@ class Locales {
      * @param string $path Language PATH
      */
     public function __construct(string $lang, string $path=LANGUAGE_PATH) {
-        $this->path = $path.DS.$lang.'.json';
+        $this->path = "$path/$lang.json";
         $this->markdown = new Markdown();
     }
 

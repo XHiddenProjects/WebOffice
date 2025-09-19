@@ -29,6 +29,7 @@ class Security{
     FILTER_ADDR = "/(?:(?:\d+\s+[A-Za-z0-9\s.,'-]+)\s*,?\s*)?(?:[A-Za-z\s]+)?\s*,?\s*(?:[A-Za-z\s]+)?\s*,?\s*(?:[A-Z]{2,}|[A-Za-z\s]+)?\s*,?\s*(?:\d{5}|\d{4,6}|[A-Za-z0-9\s-]+)?\s*,?\s*(?:[A-Za-z\s]+)?/",
     FILTER_SSN = "/^(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}$/",
     FILTER_URL = "/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/",
+    FILTER_LOCALHOST_URL = "/https?:\/\/localhost(\/(.*))?/",
     MASK_SSN = "/(\d{3})-(\d{2})/",
     MASK_CARD_PAN = "/(\d{12})|(\d{4}) ?(\d{4}) ?(\d{4})/";
     public function __construct() {
@@ -118,6 +119,7 @@ class Security{
     public function preventXSS(string $str): string|null{
         return preg_replace('/<script.*?>.*?<\/script>/','',$str);
     }
+    
     /**
      * Sanitizes the string
      * @param string $input String to sanitize

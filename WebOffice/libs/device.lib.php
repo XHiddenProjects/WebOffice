@@ -97,13 +97,6 @@ class Device {
         }
         return $manufacturer;
     }
-    /**
-     * Returns the devices screen information
-     * @return array Device screen information
-     */
-    public function getScreen(): array{
-        return (new Storage())->session('device_info', action:'Get')??[];
-    }
 
     public function getSerial(): string {
         $os = $this->dd->getOs('short_name');
@@ -241,6 +234,115 @@ class Device {
         } catch (\Exception $e) {
             return "Failed to shutdown" . ($device ? " device $device: " : " device: ") . $e->getMessage();
         }
+    }
+    /**
+     * Returns the information of the virtual machine
+     * @return array
+     */
+    public function VM(): array|null {
+        $os = PHP_OS_FAMILY; // 'Windows', 'Linux', or 'Darwin' (macOS)
+        $vms = [];
+
+        if ($os === 'Windows') {
+            // Check if running on Windows
+            $vms = array_merge(
+                $this->getWindowsVMs(),
+                $this->getHyperVVMs()
+            );
+        } elseif ($os === 'Linux') {
+            // Linux platforms
+            $vms = array_merge(
+                $this->getVirtualBoxVMs(),
+                $this->getKVMQEMUVMs(),
+            );
+        } elseif ($os === 'Darwin') {
+            // macOS
+            $vms = array_merge(
+                $this->getVirtualBoxVMs(),
+                $this->getParallelsVMs()
+            );
+        }
+
+        return $vms;
+    }
+
+    /**
+     * Get VMs on Windows via PowerShell
+     */
+    private function getWindowsVMs(): array|null {
+        $output = [];
+        // Use PowerShell to get Hyper-V VMs
+        $cmd = 'powershell -Command "Get-VM | Select-Object Name, State, CPUUsage, MemoryAssigned"';
+        exec($cmd, $output);
+        return $output;
+    }
+
+    /**
+     * Get VirtualBox VMs on Linux/Mac
+     */
+    private function getVirtualBoxVMs(): array {
+        $output = [];
+        exec('VBoxManage list vms',$output);
+        $vms = [];
+        foreach ($output as $line) {
+            if (preg_match('/^"(.+)" {(.+)}$/', $line, $matches)) {
+                $vms[] = [
+                    'name' => $matches[1],
+                    'uuid' => $matches[2],
+                    'platform' => 'VirtualBox'
+                ];
+            }
+        }
+        return $vms;
+    }
+
+    /**
+     * Get KVM/QEMU VMs on Linux
+     */
+    private function getKVMQEMUVMs(): array {
+        $output = [];
+        exec('virsh list --all', $output);
+        $vms = [];
+        foreach ($output as $line) {
+            if (preg_match('/^\s*(\d+)?\s*(\S+)\s+(.*?)$/', $line, $matches)) {
+                if (is_numeric($matches[1])) {
+                    $name = trim($matches[3]);
+                    $vms[] = [
+                        'name' => $name,
+                        'platform' => 'KVM/QEMU'
+                    ];
+                }
+            }
+        }
+        return $vms;
+    }
+
+    /**
+     * Get Hyper-V VMs on Windows
+     */
+    private function getHyperVVMs(): array|null {
+        $output = [];
+        $cmd = 'powershell -Command "Get-VM | Select-Object Name, State"';
+        exec($cmd, $output);
+        return $output;
+    }
+
+    /**
+     * Get Parallels VMs on Mac
+     */
+    private function getParallelsVMs(): array {
+        $output = [];
+        exec('prlctl list --all', $output);
+        $vms = [];
+        foreach ($output as $line) {
+            if (!empty($line)) {
+                $vms[] = [
+                    'name' => trim($line),
+                    'platform' => 'Parallels Desktop'
+                ];
+            }
+        }
+        return $vms;
     }
 }
 

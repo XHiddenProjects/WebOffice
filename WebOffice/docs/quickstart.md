@@ -4,16 +4,6 @@ Welcome to the WebOffice platform — your comprehensive solution for managing o
 
 ---
 
-## Table of Contents
-
-- [Getting Started](#getting-started)
-- [Deploy Your Documentation](#deploy-your-documentation)
-- [Updating Your System](#updating-your-system)
-- [Add-ons and Extensions](#addons-and-extensions)
-- [Support & Resources](#support-and-resources)
-
----
-
 ## Getting Started {#getting-started}
 
 Begin your journey with WebOffice by setting up your administrator account, configuring essential components, and managing your organization's infrastructure.

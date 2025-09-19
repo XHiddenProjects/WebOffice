@@ -66,35 +66,20 @@ $(document).ready(()=>{
         
 
         // Generate navigation links for each h4 and set up click handlers
-        $('.documentation .documentation-content h2').each(function(index, element){
+        /* $('.documentation .documentation-content h2').each(function(index, element){
             const id = $(element).attr('id');
             if(id){
-                const link = $(`<a href="#${id}" class="anchor-link${index==0 ? " active" : ""}">${$(element).text()}</a>`);
-                $('.page-nav .page-nav-link').append(link);
+                const link = $(`<li/>`).addClass('scroll-nav__item').html(`<a href="#${id}" class="scroll-nav__link">${$(element).text()}</a>`);
+                $('.scroll-nav__list').append(link);
             }
+        }); */
+
+        const content = $('.documentation .documentation-content')[0];
+        scrollnav.init(content,{
+            insertTarget: $('.documentation .page-nav .page-nav-scroll')[0]
         });
 
-        $(`.documentation .page-nav .spyscroll`).css('height',`calc(${$('.documentation .page-nav .anchor-link')[0]?.clientHeight??0}px * ${$('.documentation .anchor-link').length})`);
-
-        const dataSpyList = document.querySelectorAll('[data-bs-spy="scroll"]')
-        dataSpyList.forEach(dataSpyEl => {
-            bootstrap.ScrollSpy.getInstance(dataSpyEl).refresh();
-        });
-
-        $('[data-bs-spy="scroll"]').on('activate.bs.scrollspy', function(e) {
-            // Select the container and bar
-            const container = $('.spyscroll'),
-            bar = $('.spyscroll-bar');
-            activeLin = $(e.relatedTarget);
-            // Calculate the position of the active link
-            const containerOffset = container.offset().top;
-            const linkOffset = activeLin.offset().top;
-            const scrollTop = container.scrollTop();
-            const position = linkOffset - containerOffset + scrollTop;
-            // Move the bar to the position of the active link
-            bar.css('transform', `translateY(${position}px)`);
-            // Update active class on links
-        });
+        $('.documentation .page-nav .page-nav-scroll').remove();
         
     });
 });

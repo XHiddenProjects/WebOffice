@@ -1,3 +1,4 @@
+#!/.venv/bin/python
 import psutil
 import sys
 import json

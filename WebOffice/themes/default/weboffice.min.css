@@ -1,0 +1,71 @@
+:root,
+:host{
+    --clock-color: 0,0,0;
+    --clock-bg-gradient:  linear-gradient(135deg, rgba(var(--clock-color), 0.2), rgba(var(--clock-color), 0.1));
+    --clock-text-stroke: rgba(var(--clock-color), 0.7);
+}
+[wo-clock]{
+    text-align: center;
+    font-size: 25px; /* Keep your font size */
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: var(--clock-bg-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    -webkit-text-stroke: 1px var(--clock-text-stroke);
+}
+
+
+[wo-clock][wo-clock-style="morning"] {
+    --clock-bg-gradient: linear-gradient(135deg, #FFF8DC, #FFE4B5); /* Light morning hues */
+    --clock-color: 0, 0, 0; /* Dark color for readability */
+    background: var(--clock-bg-gradient);
+    color: rgb(var(--clock-color));
+}
+
+[wo-clock][wo-clock-style="afternoon"] {
+    --clock-bg-gradient: linear-gradient(135deg, #FFE135, #FFA500); /* Bright warm hues */
+    --clock-color: 0, 0, 0; /* Dark color for contrast */
+    background: var(--clock-bg-gradient);
+    color: rgb(var(--clock-color));
+}
+
+[wo-clock][wo-clock-style="evening"] {
+    --clock-bg-gradient: linear-gradient(135deg, #FF7F50, #FF6347); /* Warm tones */
+    --clock-color: 0, 0, 0; /* Dark for readability */
+    background: var(--clock-bg-gradient);
+    color: rgb(var(--clock-color));
+}
+
+[wo-clock][wo-clock-style="night"] {
+    --clock-bg-gradient: linear-gradient(135deg, #191970, #000000); /* Dark hues */
+    --clock-color: 255, 255, 255; /* Light color for contrast */
+    background: var(--clock-bg-gradient);
+    color: rgb(var(--clock-color));
+}
+
+[wo-clock][wo-clock-style="morning"]::before{
+    content: '\f766';
+    font-family: var(--fa-family-classic);
+    margin-right: 8px;
+}
+[wo-clock][wo-clock-style="afternoon"]::before{
+    content: '\f185';
+    font-family: var(--fa-family-classic);
+    margin-right: 8px;
+}
+[wo-clock][wo-clock-style="evening"]::before{
+    content: '\f767';
+    font-family: var(--fa-family-classic);
+    margin-right: 8px;
+}
+[wo-clock][wo-clock-style="night"]::before{
+    content: '\f755';
+    font-family: var(--fa-family-classic);
+    margin-right: 8px;
+}

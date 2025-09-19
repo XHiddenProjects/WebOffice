@@ -1,8 +1,10 @@
 <?php
 use WebOffice\Addons;
 use WebOffice\Locales;
+use WebOffice\Users;
 
 $addon = new Addons(); // Instantiate the concrete subclass
+$users = new Users();
 ?>
 <!DOCTYPE html>
 <html>
@@ -25,11 +27,19 @@ $addon = new Addons(); // Instantiate the concrete subclass
                 <div class="collapse navbar-collapse" id="MainNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link link-light" aria-current="page" href="./documentation"><i class="fa-solid fa-book-open-cover"></i> <?php echo $lang->load(['documentation','_tab'],false)?></a>
+                            <a class="nav-link link-light" aria-current="page" href="./documentation"><i class="fa-solid fa-book-open-lines"></i> <?php echo $lang->load(['documentation','_tab'],false)?></a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link link-light" aria-current="page" href="./auth"><i class="fa-solid fa-users"></i> <?php echo $lang->load(['authorization','_tab'],false)?></a>
-                        </li>
+                        <?php
+                            if($users->getUsername()){
+                                echo "<li class=\"nav-item\">
+                                <a class=\"nav-link link-light\" aria-current=\"page\" href=\"./dashboard\"><i class=\"fa-solid fa-gauge-max\"></i>{$lang->load(['authorization','_dashboard'],false)}</a>
+                            </li>";
+                            }else{
+                                echo "<li class=\"nav-item\">
+                                <a class=\"nav-link link-light\" aria-current=\"page\" href=\"./auth\"><i class=\"fa-solid fa-users\"></i>{$lang->load(['authorization','_tab'],false)}</a>
+                            </li>";
+                            }
+                        ?>
                     </ul>
                 </div>
             </div>
@@ -182,8 +192,8 @@ $addon = new Addons(); // Instantiate the concrete subclass
 
             <?php
             echo $addon->hook('afterMain');
-            echo $addon->hook('footer');
             ?>
+            <footer><?php echo $addon->hook('footer');?></footer>
         </div>
         <?php
         echo $addon->hook('scripts');

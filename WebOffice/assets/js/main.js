@@ -61,6 +61,56 @@ $(document).ready(() => {
     $('.locales-select option').each((_,e)=>{
         const languageName = new Intl.DisplayNames($(e).attr('data-lang'),{type: 'language'}).of($(e).attr('data-lang')),
         regionName = new Intl.DisplayNames($(e).attr('data-lang'),{type: 'region'}).of($(e).attr('data-region').toUpperCase());
+        const lang = navigator.language||navigator.languages[0];
+        if($(e).val()===lang.toLocaleLowerCase()) $(e).attr('selected','selected');
         $(e).text(`${languageName} ${regionName ? `(${regionName})` : ''}`);
     });
+    $(window).on('load resize',()=>{
+        const obj = $('body').children().not('script').not('footer').last(),
+        footer = $('footer');
+        obj.css({"padding-bottom":`${Math.ceil(parseFloat(footer.css('height')))}px`});
+    });
+    //Tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+
+    $('[data-timezone]').val(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+    if ($('.authorization-form').length) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('login')) {
+            $('.tab.login').click();
+        }
+    }
+    const mfa_digits = $('.tfa-panel .digit');
+    mfa_digits.each((_,e)=>{
+        $(e).on('keydown',(e)=>{
+            e.preventDefault();
+            const key = e.originalEvent.key,
+            currentElement = $(e.target);
+            if(parseInt(key)||key==="Backspace"){
+                if(parseInt(key)){
+                    currentElement.text(key);
+                    currentElement.next().focus();
+                }else{
+                    currentElement.text('');
+                    currentElement.prev().focus();
+                }
+            } 
+            
+        });
+    });
+    // Check if users are online or offline
+    setInterval(()=>{
+        $.ajax({
+            url: `${BASE}/submissions/authStatus.php?path=${BASE}`,
+            method: 'GET',
+            dataType: 'json',
+            success: function() {
+                
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching user statuses:', error);
+            }
+        });
+    }, 60000); // Update every 60 seconds
 });

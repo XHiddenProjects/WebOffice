@@ -1,6 +1,7 @@
 <?php
 namespace WebOffice;
 use WebOffice\Security, WebOffice\Server, WebOffice\Database, WebOffice\Config, WebOffice\Storage;
+use PDO;
 class Users{
     private string $user;
     private Security $security;
@@ -43,9 +44,26 @@ class Users{
 
                 // Check if the IP is localhost
                 if ($remoteIp === '127.0.0.1' || $remoteIp === '::1') {
-                    // Return server's local IP address
-                    $localIp = $this->server->hostname(getHostName()); // Gets server's IP
-                    return $this->security->filter($localIp, SECURITY::FILTER_IPV4);
+                    if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+                        // Windows
+                        $remoteIp = shell_exec('ipconfig');
+                        if (preg_match('/IPv4 Address[.\s]*:\s*([\d.]+)/i', $remoteIp, $matches)) {
+                            $remoteIp = $matches[1];
+                        }
+                    } elseif (strncasecmp(PHP_OS, 'DARWIN', 6) === 0 || strncasecmp(PHP_OS, 'Linux', 5) === 0) {
+                        // macOS or Linux
+                        $remoteIp = shell_exec("ifconfig");
+                        if (!$remoteIp) {
+                            // fallback for Linux with ip command
+                            $remoteIp = shell_exec('ip addr');
+                        }
+                        ;
+                        if (preg_match_all('/inet\s+([\d.]+)\s/', $remoteIp, $matches)) {
+                            $remoteIp = preg_replace('/inet\s+/','',$matches[0][count($matches[0])-1]);
+                        }
+                    }
+                    $remoteIp = trim($remoteIp);
+                    return $this->security->filter($remoteIp, SECURITY::FILTER_IPV4);
                 }
                 
                 return $this->security->filter($remoteIp, SECURITY::FILTER_IPV4);
@@ -56,12 +74,12 @@ class Users{
     }
     /**
      * Returns the username
-     * @return string Current or searched username
+     * @return string|null Current or searched username
      */
-    public function getUsername(): string{
+    public function getUsername(): ?string{
         return $this->user==='' ? 
-        $this->storage->session('weboffice_auth')??$this->storage->cookie('weboffice_auth',action:'Load') : 
-        $this->database->fetch("SELECT * FROM users",['user'=>$this->user],'username = :user')['username']??'';
+        base64_decode($this->storage->session(name: 'weboffice_auth',action: 'get')??$this->storage->cookie(name: 'weboffice_auth',action:'load')) : 
+        $this->database->fetch("SELECT * FROM users WHERE username = :user",['user'=>$this->user])['username']??'';
     }
     /**
      * Returns the users language
@@ -73,25 +91,52 @@ class Users{
         $lang_code = substr($primary_lang, 0, 2);
         return $lang_code??'';
     }
-    public function create(string $password, string $email, array $permissions=[], string $status='inactive', string $bio='', string $pfp='', string $timezone=''): bool{
-        if($this->user==='') throw new \ErrorException('You must have user in the root parameter');
-        if($this->getUsername()) return false;
-        $device = new Device();
-        $security = new Security();
-        return $this->database->insert('users',[
-            'username'=>$this->user,
-            'password'=>$security->hashPsw($password,PASSWORD_BCRYPT,[
-                'cost'=>12
-            ]),
-            'email'=>$security->filter($email,Security::FILTER_EMAIL),
-            'permissions'=>json_encode($permissions,JSON_UNESCAPED_SLASHES),
-            'ip_address'=>$this->getIP(),
-            'user_agent'=>$device->getUserAgent(),
-            'status'=>$status,
-            'bio'=>$bio,
-            'profile_picture'=>$pfp,
-            'language'=>$this->getLanguage(),
-            'timezone'=>$timezone
-        ]);
+    /**
+     * Checks if user is admin
+     * @return bool TRUE if admin, else FALSE
+     */
+    public function isAdmin(): bool{
+        if($this->user==='')
+            return $this->database->fetch("SELECT * FROM users WHERE username='{$this->getUsername()}'")['permissions']==='admin'??false;
+        else
+            return $this->database->fetch("SELECT * FROM users WHERE username='{$this->user}'")['permissions']==='admin'??false;
     }
+    /**
+     * Checks if user is member
+     * @return bool TRUE if Member, else FALSE
+     */
+    public function isMember(): bool{
+        if($this->user===''){
+            return $this->database->fetch("SELECT * FROM users WHERE username='{$this->getUsername()}'")['permissions']==='member'??false;
+        }else
+            return $this->database->fetch("SELECT * FROM users WHERE username='{$this->user}'")['permissions']==='member'??false;
+    }
+    /**
+     * Checks if user is moderator
+     * @return bool TRUE if moderator, else FALSE
+     */
+    public function isModerator(): bool{
+        if($this->user==='')
+            return $this->database->fetch("SELECT * FROM users WHERE username='{$this->getUsername()}'")['permissions']==='moderator'??false;
+        else
+            return $this->database->fetch("SELECT * FROM users WHERE username='{$this->user}'")['permissions']==='moderator'??false;
+    }
+    /**
+     * Lists all users
+     * @return array List of users
+     */
+    public function list():array{
+        return $this->database->fetchAll("SELECT username FROM users",[],PDO::FETCH_ASSOC);
+    }
+    /**
+     * Updates the last activity timestamp for a user
+     * @param string $username Username
+     * @param int $timestamp Unix timestamp
+     * @return bool TRUE if updated, else FALSE
+     */
+    public function getLastActivity(string $username): ?int{
+        $result = $this->database->fetch("SELECT last_activity FROM users WHERE username = :username", ['username' => $username], PDO::FETCH_ASSOC);
+        return strtotime($result['last_activity']) ?? null;
+    }
+
 }

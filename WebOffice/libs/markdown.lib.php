@@ -340,6 +340,7 @@ class Markdown {
             }
             return "<ol class=\"list-group list-group-numbered\">$listItems</ol>";
         }, $html);
+        $html = preg_replace('/\n\n/','<br/>',$html);
         return $html;
     }
     

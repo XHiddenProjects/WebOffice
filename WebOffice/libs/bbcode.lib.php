@@ -193,6 +193,7 @@ class BBCode{
         // First, run all BBCode replacements
         foreach($this->bbcode as $bbcode) 
             $text = preg_replace_callback($bbcode['pattern'],$bbcode['callback'],$text);
+        $text = preg_replace('/\n\n/','<br/>',$text);
         return $text;
     }
 }

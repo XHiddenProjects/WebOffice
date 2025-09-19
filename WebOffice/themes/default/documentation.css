@@ -1,0 +1,351 @@
+:root,
+:host{
+    --documentation-bg: rgba(255,255,255,0.85);
+    --documentation-brand-color: rgb(0, 0, 0);
+    --documentation-nav: rgb(248,249,250);
+    --documentation-nav-color:rgb(93, 93, 93);
+    --documentation-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+    --documentation-search-bg: rgb(234, 237, 239);
+    --documentation-search-size: 1.2rem;
+    --documentation-search-placeholder-color: rgb(168, 168, 168);
+    --documentation-section-label-color: rgb(37, 37, 37);
+    --documentation-section-color: rgba(62, 62, 62, 0.5);
+    --documentation-subsection-focus: #141414;
+    --documentation-section-focus-bg: rgba(193, 193, 193, 0.65);
+    --documentation-api-get-bg: #d1fae5;
+    --documentation-api-get-color: #065f46;
+    --documentation-api-get-hover: rgba(192, 228, 157, 0.65);
+    --documentation-api-post-bg: #e0e7ff;
+    --documentation-api-post-color: #3730a3;
+    --documentation-api-post-hover: rgba(160, 177, 191, 0.651);
+    --documentation-api-delete-bg: #fee2e2;
+    --documentation-api-delete-color: #ff0000;
+    --documentation-api-delete-hover: rgba(197, 154, 154, 0.651);
+    --documentation-api-put-bg: #fef3c7;
+    --documentation-api-put-color: #92400e;
+    --documentation-api-put-hover: rgba(231, 224, 179, 0.65);
+    --documentation-collapse-title: #3e3e3e;
+    --documentation-codeblock-bg: #e9ecef;
+    --documentation-codeblock-tabs-bg: #cdcdcd;
+    --documentation-codeblock-selected: #205a20;
+    --documentation-page-nav-active: #141414;
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html,body{
+    width: 100%;
+    height: 100%;
+}
+.documentation{
+    width: 100%;
+    background-color: var(--documentation-bg);
+}
+.documentation .documentation-navbar{
+    width: 100%;
+    background-color: var(--documentation-nav);
+    background-image: var(--documentation-gradient);
+}
+.documentation .documentation-navbar .container-fluid{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem;
+    align-items: center;
+}
+.documentation .brand{
+    text-decoration: none;
+    font-size: 1.25rem;
+    color: var(--documentation-brand-color);
+    white-space: nowrap;
+    padding: 0.3125rem 0;
+    margin-right: 1rem;
+}
+.documentation .documentation-search{
+    display: flex;
+    background-color: var(--documentation-search-bg);
+    padding: .5rem .8rem;
+    font-size: var(--documentation-search-size);
+    border-radius: 5px;
+}
+.documentation .documentation-search .documentation-searchbar{
+    outline: none;
+    background-color: transparent;
+    border:0;
+    font-size: var(--documentation-search-size);
+}
+.documentation .documentation-search .documentation-searchbar::placeholder{
+    color: var(--documentation-search-placeholder-color);
+}
+.documentation .documentation-search .documentation-search-icon{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-right: 0.35rem;
+}
+.documentation .documentation-sidenav{
+    width: 250px;
+    padding: .5rem;
+    overflow-x: hidden;
+    background-color: var(--documentation-nav);
+    user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -ms-touch-select: none;
+    -webkit-user-select: none;
+}
+
+.documentation .documentation-section,
+.documentation .documentation-subsection{
+    list-style: none;
+    padding-left: 0;
+    text-align: left;
+}
+
+.documentation .documentation-subsection li{
+    display: flex;
+    align-items: center;
+}
+
+.documentation .documentation-section,
+.documentation .documentation-subsection-item{
+    font-size: 2.5vh;
+    color: var(--documentation-section-color);
+    text-decoration: none;
+    
+}
+.documentation .documentation-section li,
+.documentation .documentation-subsection-item li{
+    border-radius: 3px;
+}
+.documentation .documentation-section,
+.documentation .documentation-subsection-item,
+.documentation .documentation-subsection-item.focus li,
+.documentation .documentation-subsection-item:focus li{
+    transition: all .2s linear;
+    margin: 0;
+}
+.documentation .documentation-section-label,
+.documentation .documentation-subsection-item li{
+    padding: 5px;
+}
+
+.documentation .documentation-section-label{
+    font-weight: 800;
+    font-size: 2.5vh;
+    color: var(--documentation-section-label-color);
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
+
+.documentation .documentation-subsection-item.focus,
+.documentation .documentation-subsection-item:focus{
+    color: var(--documentation-subsection-focus);
+}
+
+.documentation .documentation-subsection-item.focus li,
+.documentation .documentation-subsection-item:focus li{
+    background-color: var(--documentation-section-focus-bg);
+}
+
+.documentation .documentation-container{
+    display: flex;
+    height: 100%;
+}
+
+.documentation .documentation-body{
+    display:block;
+    width: 100%;
+    height: 100%;
+    margin: auto 1rem;
+    margin-bottom: 18rem;
+}
+.documentation .documentation-icon-placeholder{
+    margin-left: 25px;
+}
+.documentation .scroll-nav__list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.documentation .scroll-nav__item--active a{
+    color: var(--blue)!important;
+}
+
+.documentation .documentation-navbar{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.documentation .api-badge{
+    font-size: 1rem;
+    border-radius: 5px;
+    padding: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+    line-height: calc(1/.75);
+}
+.documentation .api-badge:not(.outlined).api-get{
+    background-color: var(--documentation-api-get-bg);
+    color: var(--documentation-api-get-color);
+}
+.documentation .api-badge:not(.outlined).api-post{
+    background-color: var(--documentation-api-post-bg);
+    color: var(--documentation-api-post-color);
+}
+.documentation .api-badge:not(.outlined).api-delete{
+    background-color: var(--documentation-api-delete-bg);
+    color: var(--documentation-api-delete-color);
+}
+.documentation .api-badge:not(.outlined).api-put{
+    background-color: var(--documentation-api-put-bg);
+    color: var(--documentation-api-put-color);
+}
+
+.documentation .api-badge.outlined.api-get{
+    border: 2px solid var(--documentation-api-get-bg);
+    color: var(--documentation-api-get-color);
+}
+.documentation .api-badge.outlined.api-post{
+    border: 2px solid var(--documentation-api-post-bg);
+    color: var(--documentation-api-post-color);
+}
+.documentation .api-badge.outlined.api-delete{
+    border: 2px solid var(--documentation-api-delete-bg);
+    color: var(--documentation-api-delete-color);
+}
+.documentation .api-badge.outlined.api-put{
+    border: 2px solid var(--documentation-api-put-bg);
+    color: var(--documentation-api-put-color);
+}
+
+
+.documentation .documentation-subsection-item.focus:has(.api-badge.api-get) li{
+    background-color: var(--documentation-api-get-hover);
+}
+.documentation .documentation-subsection-item.focus:has(.api-badge.api-put) li{
+    background-color: var(--documentation-api-put-hover);
+}
+.documentation .documentation-subsection-item.focus:has(.api-badge.api-delete) li{
+    background-color: var(--documentation-api-delete-hover);
+}
+.documentation .documentation-subsection-item.focus:has(.api-badge.api-post) li{
+    background-color: var(--documentation-api-post-hover);
+}
+
+.documentation .collapse{
+    height: auto;
+}
+.documentation .collapse .collapse-title{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.documentation .collapse .collapse-title::after{
+    content: '\f0da';
+    font-family: var(--fa-style-family-classic);
+    font-weight: 900;
+    font-size: 21px;
+    margin-left: .5rem;
+    cursor: pointer;
+}
+.documentation .collapse.active .collapse-title::after{
+    content: '\f0d7';
+    font-family: var(--fa-style-family-classic);
+}
+.documentation .collapse .collapse-body{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+.documentation .collapse .collapse-title{
+    opacity: 1;
+    color: var(--documentation-collapse-title);
+}
+.documentation .documentation-content{
+    display: none;
+}
+
+.documentation .documentation-codeblock{
+    width: 100%;
+    background-color: var(--documentation-codeblock-bg);
+    border-radius: 5px;
+}
+.documentation .documentation-codeblock .tabs{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--documentation-codeblock-tabs-bg);
+    padding: 5px 0;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+.documentation .documentation-codeblock .tabs button{
+    border:0;
+    background-color: transparent;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    transition: color .2s ease;
+}
+.documentation .documentation-codeblock .tabs button[selected]{
+    color: var(--documentation-codeblock-selected);
+    border-bottom: 2px solid var(--documentation-codeblock-selected);
+    font-weight: 600;
+}
+.documentation .documentation-codeblock .code-line{
+    padding: 1rem;
+}
+.documentation .documentation-codeblock .code-line code{
+    border-radius: 0;
+    background-color: transparent;
+}
+.documentation .page-nav{
+    display: flex;
+}
+.documentation .page-nav > div{
+    top: 60px;
+}
+
+.documentation .page-nav .page-nav-link{
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+    width: 220px;
+}
+.documentation .page-nav a{
+    text-decoration: none;
+    color: var(--documentation-section-color);
+    padding: .25rem;
+    border-radius: 3px;
+    transition: all .2s linear;
+}
+
+.documentation .page-nav a.active{
+    color: var(--documentation-page-nav-active);
+}
+.documentation .page-nav .spyscroll{
+    position: relative;
+    height: 0;
+    width: 5px;
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 3px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+.documentation .page-nav .spyscroll-bar{
+    position: absolute;
+    width: 5px;
+    height: 30px;
+    background-color: var(--documentation-subsection-focus);
+    border-radius: 3px;
+    transition: top .2s ease;
+}
+
+.documentation .documentation-content{
+    display: block;
+    height: 100%;
+}

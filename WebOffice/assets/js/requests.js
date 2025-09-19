@@ -126,6 +126,4 @@ $(document).ready(()=>{
             }
         });
     }
-    // Call the function on page load
-    getDeviceScreenSize();
 });

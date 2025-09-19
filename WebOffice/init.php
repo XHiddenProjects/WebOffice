@@ -59,11 +59,15 @@ define('POWERPOINT_PATH',BASE.DS.'powerpoints');
 define('SPREADSHEETS_PATH',BASE.DS.'spreadsheets');
 define('OFFICE_PATH',BASE.DS.'office');
 
+define('DOCS_PATH',BASE.DS.'docs');
+
 define('BACKUP_PATH',BASE.DS.'backups');
 define('OS',strtoupper(PHP_OS));
-define('LANGUAGE_PATH',BASE.DS.'locales');
+if(!defined('LANGUAGE_PATH')) define('LANGUAGE_PATH',BASE.DS.'locales');
 define('ADDONS_PATH',BASE.DS.'addons');
 define('ADDONS_URL',URL.DS.'addons');
+define('THEMES_PATH',BASE.DS.'themes');
+define('THEMES_URL',URL.DS.'themes');
 define('ASSETS_PATH',BASE.DS.'assets');
 define('ASSETS_URL',URL.'/assets');
 define('VERSION', file_exists(BASE . DS . 'VERSION') ? BASE . DS . 'VERSION' : '1.0.0');
@@ -71,9 +75,6 @@ define('LOG',BASE.DS.'logs');
 define('DATA_PATH',BASE.DS.'data');
 
 define('DOCUMENTATION_PATH',BASE.DS.'docs');
-
-
-
 
 
 use WebOffice\Security, WebOffice\Config, WebOffice\Files;
@@ -88,6 +89,7 @@ $sec->setSecurityHeaders();
 $sec->enforceHTTPS();
 $sec->sessionStart();
 
+$_SESSION['URL_TOP_LAYER'] = URL;
 
 
 if($sec->checkVersion()) die('Your WebOffice version is outdated. Please update to the latest version.');
@@ -142,10 +144,12 @@ function cleanTemp(): void {
 // Register a tick function to check every time the script executes
 register_tick_function(function(): void {
     global $config;
-    $currentTime = time();
-    if (($currentTime - $_SESSION['last_cleanup']) >= (int)$config->read('settings','temp')) {
-        cleanTemp();
-        $_SESSION['last_cleanup'] = $currentTime;
+    if(isset($_SESSION['last_cleanup'])){
+        $currentTime = time();
+        if (($currentTime - $_SESSION['last_cleanup']) >= (int)$config->read('settings','temp')) {
+            cleanTemp();
+            $_SESSION['last_cleanup'] = $currentTime;
+        }
     }
 });
 
@@ -163,14 +167,12 @@ $db->createTable('users', [
     'first_name'=>'VARCHAR(50) NOT NULL',
     'middle_name'=>'VARCHAR(50) DEFAULT NULL',
     'last_name'=>'VARCHAR(50) NOT NULL',
-    'password' => 'VARCHAR(255) NOT NULL',
+    'password' => 'TEXT NOT NULL',
     'email' => 'VARCHAR(255) NOT NULL UNIQUE',
     'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     'updated_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
     'last_login' => 'TIMESTAMP NULL',
     'permissions' => 'TEXT DEFAULT NULL',
-    '2fa_secret' => 'VARCHAR(255) DEFAULT NULL',
-    '2fa_enabled' => 'BOOLEAN DEFAULT FALSE',
     'ip_address' => 'VARCHAR(45) DEFAULT NULL',
     'user_agent' => 'TEXT DEFAULT NULL',
     'status' => 'ENUM(\'active\', \'inactive\', \'banned\') DEFAULT \'active\'',
@@ -184,13 +186,18 @@ $db->createTable('users', [
     'account_locked' => 'BOOLEAN DEFAULT FALSE',
     'lock_expiration' => 'TIMESTAMP NULL',
 ]);
+$db->createTable('mfa',[
+    'username'=>'VARCHAR(255) PRIMARY KEY',
+    '2fa_secret' => 'VARCHAR(255) DEFAULT NULL',
+    '2fa_enabled' => 'BOOLEAN DEFAULT FALSE',
+]);
 
 $db->createTable('documents',[
     'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
     'document_id' => 'VARCHAR(255) NOT NULL UNIQUE',
     'user_id' => 'INT NOT NULL',
     'title' => 'VARCHAR(255) NOT NULL',
-    'content' => 'TEXT NOT NULL',
+    'encrypted_key' => 'VARCHAR(255) DEFAULT NULL',
     'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     'updated_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
     'visibility' => 'ENUM(\'public\', \'private\', \'restricted\') DEFAULT \'private\'',
@@ -203,7 +210,7 @@ $db->createTable('powerpoints',[
     'presentation_id' => 'VARCHAR(255) NOT NULL UNIQUE',
     'user_id' => 'INT NOT NULL',
     'title' => 'VARCHAR(255) NOT NULL',
-    'content' => 'TEXT NOT NULL',
+    'encrypted_key' => 'VARCHAR(255) DEFAULT NULL',
     'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     'updated_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
     'visibility' => 'ENUM(\'public\', \'private\', \'restricted\') DEFAULT \'private\'',
@@ -216,7 +223,7 @@ $db->createTable('spreadsheets',[
     'spreadsheet_id' => 'VARCHAR(255) NOT NULL UNIQUE',
     'user_id' => 'INT NOT NULL',
     'title' => 'VARCHAR(255) NOT NULL',
-    'content' => 'TEXT NOT NULL',
+    'encrypted_key' => 'VARCHAR(255) DEFAULT NULL',
     'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     'updated_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
     'visibility' => 'ENUM(\'public\', \'private\', \'restricted\') DEFAULT \'private\'',

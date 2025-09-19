@@ -1,7 +1,7 @@
 {
     "name":"WebOffice",
     "description":"**WebOffice** is a comprehensive, integrated platform designed to streamline and unify your organization's administrative, network, and server management needs. This all-in-one Office suite empowers teams with powerful tools to enhance productivity, collaboration, and operational efficiency in a single, web-based environment.",
-    "version":" 1.0.0",
+    "version":"1.0.0",
     "author":" XHiddenProjects",
     "license": "MIT",
     "keywords": ["office", "web", "suite", "productivity"],
@@ -62,7 +62,10 @@
     "authorization":{
         "_tab": "Authorization",
         "signUp": "Sign Up",
-        "login": "Login"
+        "login": "Login",
+        "userLogin": "Username/Email",
+        "rememberMe": "Remember me",
+        "_dashboard":"Dashboard"
     },
     "users":{
         "first_name":"First name",
@@ -75,6 +78,40 @@
         "language":"Language"
     },
     "buttons":{
-        "back":"Back"
+        "back":"Back",
+        "next":"Next",
+        "submit":"Submit",
+        "close":"Close"
+    },
+    "errors":{
+        "emptyInput": "This is a required input",
+        "csrfInvalid": "Invalid CSRF token",
+        "mismatch_psw": "Passwords are mismatched",
+        "UsernameOrEmailExists": "Username/Email already exists",
+        "invalidEmail": "Invalid email address",
+        "failedCreatedUser": "Failed to create user.",
+        "noUser": "User account doesn`t exist",
+        "incorrectPassword": "Incorrect Password",
+        "invalidMFA": "Invalid Code",
+        "invalidStatus": "This is an invalid status"
+    },
+    "policies":{
+        "__notFound":"Policy not found"
+    },
+    "terms_and_conditions":"Terms and Conditions",
+    "privacy_policy":"Privacy Policy",
+    "legal":"Legal",
+    "home": "Home",
+    "footer":{
+        "quick_links": "Quick Links",
+        "support":"Support",
+        "follow_us": "Follow Us"
+    },
+    "socials":{
+        "github":"GitHub",
+        "discord":"Discord"
+    },
+    "mfa":{
+        "_form":"Enter Code"
     }
 }
