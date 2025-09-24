@@ -28,5 +28,13 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
   * OpenSSH
   * KiTTY
   * WinSCP 
-
+***
+## Features
+* Hardware graphs
+* AD(DS) software
+* Addons/Themes
+* Office Suite (Docs, Mail, Powerpoint, Spreadsheets, etc.)
+* HR Tools
+* Network/Server tools
+* And more.
 
