@@ -27,7 +27,8 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 * SSH
   * OpenSSH
   * KiTTY
-  * WinSCP 
+  * WinSCP
+* [speedtest-cli](https://github.com/sivel/speedtest-cli) 
 ***
 ## Features
 * Hardware graphs
