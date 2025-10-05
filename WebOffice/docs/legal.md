@@ -31,7 +31,6 @@ This Legal Notice applies to the use, distribution, and contribution to the WebO
 ## 6. Governing Law and Jurisdiction
 
 - This legal notice shall be governed by and construed in accordance with the laws of _United States_.
-- For disputes arising from the use of WebOffice, users agree to submit to the exclusive jurisdiction of courts located in _Ohio, United States_.
 
 ## 7. Changes to Legal Notice
 
