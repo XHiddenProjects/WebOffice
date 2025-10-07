@@ -39,3 +39,22 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 * Network/Server tools
 * And more.
 
+***
+
+## Security and Privacy
+* WebOffice limits the usage of 3rd party scrips/stylesheets
+Here is the 3rd parties that are being used
+- [Bootstrap (v5.3)](https://getbootstrap.com/) - **Usage:** Styleing and Scripting
+- [DataTables (v2.3.4)](https://datatables.net/) - **Usage:** UI tables
+- [Leaflet (v2.0.0-alpha.1)](https://leafletjs.com/) - **Usage:** GPS/Location GUI
+- [Plotly (v3.1.0)](https://plotly.com/) - **Usage:** Graph/Chart visualization
+
+_The software does use:_
+- GEOLocation API
+- Navigator API
+- Wifi/Internet connection
+- Devices hardware/components
+- Terminal/Command scripts
+- Network connections
+- Browser history
+
