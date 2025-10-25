@@ -1,6 +1,6 @@
 <?php
 namespace WebOffice;
-use WebOffice\Files;
+
 class Utils{
     public function __construct() {
         $config = new Config();
@@ -185,7 +185,6 @@ class Utils{
     }
     public function executeCommand(string $command, string $password = ''): bool|string|null {
         $output = null;
-
         if (PHP_OS_FAMILY === 'Windows') {
             if (!empty($password)) {
                 // Using PowerShell to run command with credentials
@@ -202,7 +201,9 @@ class Utils{
                 // WARNING: Password in command line can be insecure
                 $escapedCommand = escapeshellcmd($command);
                 $cmdWithSudo = "echo " . escapeshellarg(base64_decode($password)) . " | sudo -S $escapedCommand";
+                
                 $output = shell_exec($cmdWithSudo);
+                
             } else $output = shell_exec($command);
             
         }

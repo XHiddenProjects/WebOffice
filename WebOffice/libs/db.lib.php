@@ -89,7 +89,7 @@ class Database{
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         
-        return $stmt->fetch();
+        return $stmt->fetch($mode);
     }
 
     /**
@@ -143,20 +143,40 @@ class Database{
      * Deletes a record from the specified table based on a condition.
      *
      * @param string $table The name of the table to delete from.
-     * @param string $condition The condition for deletion (e.g., "id = :id").
-     * @param array $params Associative array of parameters for the condition (e.g., ['id' => 5]).
+     * @param string[] $condition The condition for deletion (e.g., "[id => 1, username='...']").
+     * @return array Returns the deleted rows
      */
-    public function delete(string $table, string $condition, array $params = []): array{
-        $sql = "DELETE FROM {$table} WHERE $condition";
+    public function delete(string $table, array $condition): array{
+        // Build WHERE part
+        $whereParts = [];
+        foreach ($condition as $column => $value) {
+            $whereParts[] = "$column = :$column";
+        }
+        $whereSql = implode(" AND ", $whereParts);
+
+        // Complete SQL statement
+        $sql = "DELETE FROM {$table} WHERE $whereSql";
         $stmt = $this->db->prepare($sql);
 
-        $selectedDeletedRow = $this->fetchAll("SELECT * FROM $table WHERE $condition",$params);
-        
-        // Bind parameters if provided
-        foreach ($params as $key => $value) 
-            $stmt->bindValue(":$key", $value);
-        $stmt->execute();
-        return $selectedDeletedRow;
+        // Bind WHERE parameters
+        foreach ($condition as $column => $value) {
+            $stmt->bindValue(":$column", $value);
+        }
+
+        // Execute the statement
+        try {
+            // Fetch rows to be deleted for return
+            $selectSql = "SELECT * FROM {$table} WHERE $whereSql";
+            $selectStmt = $this->db->prepare($selectSql);
+            foreach ($condition as $column => $value) $selectStmt->bindValue(":$column", $value);
+            $selectStmt->execute();
+            $deletedRows = $selectStmt->fetchAll(PDO::FETCH_ASSOC);
+            // Now perform the deletion
+            $stmt->execute();
+            return $deletedRows; // Return the deleted rows
+        } catch (PDOException $e) {
+            return []; // Return empty array on failure
+        }
     }
 
     public function update(string $table, array $data, array $where): int|string{

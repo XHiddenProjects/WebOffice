@@ -29,6 +29,7 @@
     --documentation-codeblock-tabs-bg: #cdcdcd;
     --documentation-codeblock-selected: #205a20;
     --documentation-page-nav-active: #141414;
+    --documentation-search-shortcut: #d3d3d3;
 }
 *{
     margin: 0;
@@ -69,6 +70,7 @@ html,body{
     padding: .5rem .8rem;
     font-size: var(--documentation-search-size);
     border-radius: 5px;
+    align-items: center;
 }
 .documentation .documentation-search .documentation-searchbar{
     outline: none;
@@ -76,6 +78,13 @@ html,body{
     border:0;
     font-size: var(--documentation-search-size);
 }
+
+.documentation .documentation-search-shortcut{
+    background-color: var(--documentation-search-shortcut);
+    padding: 2px;
+    border-radius: 5px;
+}
+
 .documentation .documentation-search .documentation-searchbar::placeholder{
     color: var(--documentation-search-placeholder-color);
 }

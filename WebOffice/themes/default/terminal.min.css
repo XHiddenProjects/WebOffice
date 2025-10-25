@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+.terminal{
+    height: calc(500px - 40px);
+    overflow: auto;
+    background-color: var(--black);
+    border-radius: 5px;
+    color: var(--white);
+    position: relative;
+    padding: 10px; 
+    font-family: monospace; 
+    overflow-y: auto;
+}
+.terminal[terminal-theme="gnome"]{
+    font-family: 'Ubuntu Mono', 'DejaVu Sans Mono', monospace;
+}
+.terminal[terminal-theme="cmdPrompt"],
+.terminal[terminal-theme="powershell"]{
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+.terminal[terminal-theme="macOS"]{
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+.terminal[terminal-theme="powershell"]{
+    background-color: var(--blue);
+}
+
+.terminal .terminal-input{
+    font-size: 14px;
+    word-wrap: break-word;
+}
+.terminal .terminal-input.noType{
+    cursor: default;
+}
+.terminal[terminal-theme="gnome"] .userHost{
+    color: var(--lime);
+}
+.terminal[terminal-theme="gnome"] .cwd{
+    color: var(--cyan);
+}
+
+.terminal[terminal-theme="cmdPrompt"] .userHost,
+.terminal[terminal-theme="powershell"] .userHost{
+    display: none;
+}
+
+
+
+.terminal .cmd{
+    outline: none;
+    min-width: 25px;
+    display: inline-block;
+    position: relative;
+}
+.terminal .currentInfo{
+    margin-right: 3px;
+    pointer-events: none;
+    user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -ms-touch-select: none;
+    -webkit-user-select: none;
+}
+.terminal .terminal-output{
+    margin-bottom: 0;
+    white-space: pre-wrap;
+}

@@ -78,7 +78,7 @@ class Users{
      */
     public function getUsername(): ?string{
         return $this->user==='' ? 
-        base64_decode($this->storage->session(name: 'weboffice_auth',action: 'get')??$this->storage->cookie(name: 'weboffice_auth',action:'load')) : 
+        base64_decode(($this->storage->session(name: 'weboffice_auth',action: 'get')??$this->storage->cookie(name: 'weboffice_auth',action:'load'))??'') : 
         $this->database->fetch("SELECT * FROM users WHERE username = :user",['user'=>$this->user])['username']??'';
     }
     /**
@@ -138,5 +138,25 @@ class Users{
         $result = $this->database->fetch("SELECT last_activity FROM users WHERE username = :username", ['username' => $username], PDO::FETCH_ASSOC);
         return strtotime($result['last_activity']) ?? null;
     }
-
-}
+    /**
+     * Returns the location based on IP address
+     * @return string[] Location data
+     */
+    public function getLocation(): array{
+        $api = "https://api.findip.net/{$this->getIP()}/?token=f788c0ac0ef548468e060c5eab78dd0a";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($response, true)??[];
+    }
+    /**
+     * Returns the users ID
+     * @return int Users ID
+     */
+    public function getID(): int{
+        $result = $this->database->fetch("SELECT id FROM users WHERE username=:username",['username'=>$this->getUsername()],PDO::FETCH_ASSOC);
+        return $result['id'];
+    }
+}   

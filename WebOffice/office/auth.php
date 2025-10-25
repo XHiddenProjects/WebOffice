@@ -6,9 +6,8 @@ $security = new Security();
 $md = new Markdown();
 $storage = new Storage();
 
-if($storage->session('weboffice_auth', action: 'Get')||$storage->cookie(name: 'weboffice_auth',action: 'load')){
+if($storage->session('weboffice_auth', action: 'Get')||$storage->cookie(name: 'weboffice_auth',action: 'load'))
     header('Location: '.URL.DS.'dashboard');
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -28,7 +27,7 @@ if($storage->session('weboffice_auth', action: 'Get')||$storage->cookie(name: 'w
                                 </div>
                                 <div class="modal-body">
                                     <?php
-                                        echo $md->parse(file_get_contents(DOCS_PATH.DS.'terms-and-conditions.md'));
+                                        echo $md->parse(file_get_contents(POLICIES_PATH.DS.strtolower(LANGUAGE[0]).DS.'terms-and-conditions.md'));
                                     ?>
                                 </div>
                                 <div class="modal-footer">
@@ -46,7 +45,7 @@ if($storage->session('weboffice_auth', action: 'Get')||$storage->cookie(name: 'w
                                                 </div>
                                                 <div class="modal-body">
                                                     <?php
-                                                        echo $md->parse(file_get_contents(DOCS_PATH.DS.'legal.md'));
+                                                        echo $md->parse(file_get_contents(POLICIES_PATH.DS.strtolower(LANGUAGE[0]).DS.'legal.md'));
                                                     ?>
                                                 </div>
                                                 <div class="modal-footer">
@@ -64,7 +63,7 @@ if($storage->session('weboffice_auth', action: 'Get')||$storage->cookie(name: 'w
                                 </div>
                                 <div class="modal-body">
                                     <?php
-                                        echo $md->parse(file_get_contents(DOCS_PATH.DS.'privacy-policy.md'));
+                                        echo $md->parse(file_get_contents(POLICIES_PATH.DS.strtolower(LANGUAGE[0]).DS.'privacy-policy.md'));
                                     ?>
                                 </div>
                                 <div class="modal-footer">
@@ -178,15 +177,15 @@ if($storage->session('weboffice_auth', action: 'Get')||$storage->cookie(name: 'w
                         <input name="main" type="hidden" value="<?php echo base64_encode(URL);?>"/>
                         <div class="row">
                             <div class="col">
-                                <label for="username" class="form-label text-light"><i class="fa-solid fa-asterisk icon-required"></i> <?php echo $lang->load(['authorization','userLogin']);?></label>
-                                <input type="text" name="username" id="username" class="form-control" required/>
+                                <label for="login_username" class="form-label text-light"><i class="fa-solid fa-asterisk icon-required"></i> <?php echo $lang->load(['authorization','userLogin']);?></label>
+                                <input type="text" name="username" id="login_username" class="form-control" required/>
                                 <span class="error-msg alert alert-danger"><?php echo $lang->load(['errors','emptyInput']);?></span>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
-                                <label for="password" class="form-label text-light"><i class="fa-solid fa-asterisk icon-required"></i> <?php echo $lang->load(['users','password']);?></label>
-                                <input type="password" data-password-tools="true" data-password-nogen="true" data-password-no="copy,paste,select" name="password" id="password" class="form-control" required/>
+                                <label for="login_psw" class="form-label text-light"><i class="fa-solid fa-asterisk icon-required"></i> <?php echo $lang->load(['users','password']);?></label>
+                                <input type="password" data-password-tools="true" data-password-nogen="true" data-password-no="copy,paste,select" name="password" id="login_psw" class="form-control" required/>
                                 <span class="error-msg alert alert-danger"><?php echo $lang->load(['errors','emptyInput']);?></span>
                             </div>
                         </div>

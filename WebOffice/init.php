@@ -59,7 +59,7 @@ define('POWERPOINT_PATH',BASE.DS.'powerpoints');
 define('SPREADSHEETS_PATH',BASE.DS.'spreadsheets');
 define('OFFICE_PATH',BASE.DS.'office');
 
-define('DOCS_PATH',BASE.DS.'docs');
+define('POLICIES_PATH',BASE.DS.'policies');
 
 define('BACKUP_PATH',BASE.DS.'backups');
 define('OS',strtoupper(PHP_OS));
@@ -69,12 +69,16 @@ define('ADDONS_URL',URL.DS.'addons');
 define('THEMES_PATH',BASE.DS.'themes');
 define('THEMES_URL',URL.DS.'themes');
 define('ASSETS_PATH',BASE.DS.'assets');
-define('ASSETS_URL',URL.'/assets');
+define('ASSETS_URL',URL.DS.'assets');
+define('UPLOAD_PATH',BASE.DS.'uploads');
+define('UPLOAD_URL',URL.DS.'uploads');
+
+
 define('VERSION', file_exists(BASE . DS . 'VERSION') ? BASE . DS . 'VERSION' : '1.0.0');
 define('LOG',BASE.DS.'logs');
 define('DATA_PATH',BASE.DS.'data');
 
-define('DOCUMENTATION_PATH',BASE.DS.'docs');
+define('DOCUMENTATIONS_PATH',BASE.DS.'documentations');
 
 
 use WebOffice\Security, WebOffice\Config, WebOffice\Files;
@@ -90,6 +94,9 @@ $sec->enforceHTTPS();
 $sec->sessionStart();
 
 $_SESSION['URL_TOP_LAYER'] = URL;
+
+
+
 
 
 if($sec->checkVersion()) die('Your WebOffice version is outdated. Please update to the latest version.');
@@ -126,6 +133,7 @@ if(!$f->exists(TEMP_PATH)) $f->createFolder('temp');
 if(!$f->exists(BACKUP_PATH)) $f->createFolder('backups');
 if(!$f->exists(LOG)) $f->createFolder('logs');
 if(!$f->exists(DATA_PATH)) $f->createFolder('data');
+if(!$f->exists(UPLOAD_PATH)) $f->createFolder('uploads',0777);
 # Change permissions for files/folder
 @chmod(dirname(__FILE__).'/files',0777);
 # Temp
@@ -245,7 +253,6 @@ $db->createTable('mail',[
 ]);
 $db->createTable('attempts', [
     'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
-    'user_id' => 'INT NOT NULL',
     'attempted_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     'ip_address' => 'VARCHAR(45) NOT NULL',
     'user_agent' => 'TEXT NOT NULL',
@@ -253,8 +260,10 @@ $db->createTable('attempts', [
 ]);
 $db->createTable('devices', [
     'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
-    'name' => 'VARCHAR(255)',            // Name or model of the device
+    'name' => 'VARCHAR(255)',            // Name of the device
     'type' => 'VARCHAR(100)',            // Type of device (e.g., smartphone, tablet)
+    'brand' => 'VARCHAR(100)',           // Brand of the device
+    'model' => 'VARCHAR(100)',          // Model of the device
     'manufacturer' => 'VARCHAR(100)',    // Manufacturer or brand
     'serial_number' => 'VARCHAR(255)',   // Unique serial number
     'purchase_date' => 'DATE',           // Date of purchase
@@ -264,7 +273,7 @@ $db->createTable('devices', [
     'ip_address' => 'VARCHAR(45)',       // IP address if networked
     'mac_address' => 'VARCHAR(17)',      // MAC address
     'os' => 'VARCHAR(100)',              // Operating system
-    'asset_tag' => 'VARCHAR(100) NOT NULL', // Asset tag identifier
+    'asset_tag' => 'VARCHAR(100) UNIQUE NOT NULL', // Asset tag identifier
     'history'=>'JSON NULL',              // Devices History
     'notes' => 'TEXT'                    // Additional notes
 ]);
@@ -297,4 +306,31 @@ $db->createTable('version_history', [
     'description' => 'TEXT DEFAULT NULL',
     'content' => 'TEXT DEFAULT NULL',
     'additional_metadata' => 'TEXT DEFAULT NULL'
+]);
+
+$db->createTable('support_tickets', [
+    'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
+    'ticket_id' => 'VARCHAR(255) NOT NULL UNIQUE',
+    'user_id' => 'INT NOT NULL',
+    'subject' => 'VARCHAR(255) NOT NULL',
+    'description' => 'TEXT NOT NULL',
+    'status' => 'ENUM(\'open\', \'in_progress\', \'resolved\', \'closed\') DEFAULT \'open\'',
+    'category'=>'VARCHAR(255) NOT NULL',
+    'priority' => 'ENUM(\'low\', \'medium\', \'high\', \'urgent\') DEFAULT \'medium\'',
+    'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+    'updated_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+    'assigned_to' => 'JSON DEFAULT NULL',
+    'comments' => 'JSON DEFAULT NULL', // Store comments as JSON array
+    'attachments' => 'LONGTEXT DEFAULT NULL', // Store attachment file paths as JSON array
+]);
+
+$db->createTable('gps_points',[
+    'serial_number'=>'VARCHAR(255) PRIMARY KEY',
+    'latitude'=>'DOUBLE NOT NULL',
+    'longitude'=>'DOUBLE NOT NULL',
+    'accuracy'=>'DOUBLE NOT NULL',
+    'altitude'=>'DOUBLE NULL',
+    'altitudeAccuracy'=>'DOUBLE NULL',
+    'speed'=>'DOUBLE NULL',
+    'timestamp'=>'TIMESTAMP'
 ]);

@@ -1,6 +1,6 @@
 <?php
 namespace WebOffice\Security;
-use WebOffice\Config, WebOffice\Cryptography;
+use WebOffice\Config, WebOffice\Cryptography, WebOffice\Users;
 class MFA{
     private string $label, $issuer, $algo, $secret, $user;
     private int $digits, $period;
@@ -9,16 +9,16 @@ class MFA{
      * Creates a Multi-factor authenticator 
      * @param string $secret Secret 
      */
-    public function __construct(string $user) {
+    public function __construct() {
         $config = new Config();
         $this->crypto = new Cryptography();
-        $this->user = $user;
+        $this->user = (new Users())->getUsername();
         $this->label = $config->read('2fa','label');
         $this->issuer = $config->read('2fa','issuer');
         $this->algo = $config->read('2fa','algorithm');
         $this->digits = (int)$config->read('2fa','digits');
         $this->period = (int)$config->read('2fa','period');
-        $this->secret = $this->crypto->encode($user,'base32');
+        $this->secret = $this->crypto->encode(random_bytes(20),'base32');
     }
     /**
      * Returns the encoded secret
@@ -31,16 +31,16 @@ class MFA{
      * Returns the TOTP(Time-Based One-Time Password) URL
      * @return string URL
      */
-    public function getTOTP(): string{
-        return "otpauth://totp/$this->issuer:$this->user?secret=$this->secret&issuer=$this->issuer&algorithm=$this->algo&digits=$this->digits&period=$this->period";
+    public function getTOTP(string $secret): string{
+        return "otpauth://totp/$this->issuer:$this->user?secret=$secret&issuer=$this->issuer&algorithm=$this->algo&digits=$this->digits&period=$this->period";
     }
     /**
      * Verifies the code
      * @param int $code Enter the **x** digits of code
      * @return bool TRUE if success, else FALSE
      */
-    public function verify(int $code): bool {
-        $secret = $this->crypto->decode($this->secret, 'base32'); // Decode the secret
+    public function verify(string $secret, int $code): bool {
+        $secret = $this->crypto->decode($secret, 'base32'); // Decode the secret
         $time = floor(time() / $this->period);
         $tolerance = 1; // Allow 1 step before and after for time drift
 

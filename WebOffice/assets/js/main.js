@@ -66,7 +66,7 @@ $(document).ready(() => {
         $(e).text(`${languageName} ${regionName ? `(${regionName})` : ''}`);
     });
     $(window).on('load resize',()=>{
-        const obj = $('body').children().not('script').not('footer').last(),
+        const obj = $('body').children().not('script').not('footer').not('svg').last(),
         footer = $('footer');
         obj.css({"padding-bottom":`${Math.ceil(parseFloat(footer.css('height')))}px`});
     });
@@ -101,16 +101,61 @@ $(document).ready(() => {
     });
     // Check if users are online or offline
     setInterval(()=>{
+        if(navigator.onLine){
+            $.ajax({
+                url: `${BASE}/submissions/authStatus.php?path=${BASE}`,
+                method: 'GET',
+                dataType: 'json',
+                success: function() {
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching user statuses:', error);
+                }
+            });
+        }
+    }, 1000);
+
+    $('.logout').on('click',()=>{
         $.ajax({
-            url: `${BASE}/submissions/authStatus.php?path=${BASE}`,
+            url: `${BASE}/submissions/logout.php`,
             method: 'GET',
             dataType: 'json',
-            success: function() {
-                
+            success: function(response) {
+                if(response.status==='success') window.open(`${BASE}/auth`,'_self');
             },
             error: function(xhr, status, error) {
-                console.error('Error fetching user statuses:', error);
+                console.error('Error during logout:', error);
             }
         });
-    }, 60000); // Update every 60 seconds
+    });
+    let spoilers = {};
+    $('[data-spoiler]').each((i,e)=>{
+        const spoilerID = `spoiler_id_${i+1}`;
+        $(e).attr('data-spoiler',spoilerID);
+        spoilers[i+1] = $(e).text();
+        // Get the width and height of the element
+        let width = $(e).outerWidth(),
+        height = $(e).outerHeight();
+
+        // Set the width and height as inline styles
+        $(e).css({
+        'width': width + 'px',
+        'height': height + 'px'
+        });
+        $(e).text('');
+    });
+    sessionStorage.setItem('spoilers',JSON.stringify(spoilers));
+    spoilers = {};
+    $('[data-spoiler]').on('click',function(){
+        const id = parseInt($(this).attr('data-spoiler').replace('spoiler_id_','')),
+        loaded = JSON.parse(sessionStorage.getItem('spoilers'));
+        if($(this).attr('data-spoiler-show')){
+            $(this).removeAttr('data-spoiler-show');
+            $(this).text('')
+        }else{
+            $(this).attr('data-spoiler-show','true');
+            $(this).text(loaded[id]);
+        }
+    });
 });

@@ -3,8 +3,13 @@ namespace WebOffice;
 include_once dirname(__DIR__).'/init.php';
 class Config{
     private string $config;
-    public function __construct(string $name='config') {
-        $this->config = CONFIG_PATH.DS."$name.ini";
+    /**
+     * Creates a config object
+     * @param string $name Configuration name
+     * @param string $path Path to configuration, leave empty to use DEFAULT config path
+     */
+    public function __construct(string $name='config',string $path='') {
+        $this->config = defined('CONFIG_PATH') ? CONFIG_PATH.DS."$name.ini" : "$path/".rtrim($name,'/').".ini";
     }
     /**
      * Will return the value based on the conjunctions path of the ini array

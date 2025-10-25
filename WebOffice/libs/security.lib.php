@@ -1,13 +1,15 @@
 <?php
 namespace WebOffice;
 
-use ErrorException;
-use WebOffice\Security\JWT;
-use WebOffice\Security\MFA;
-use WebOffice\Security\CSRF;
-use WebOffice\Security\Rate;
-use WebOffice\Server;
-
+use ErrorException,
+WebOffice\Security\JWT,
+WebOffice\Security\MFA,
+WebOffice\Security\CSRF,
+WebOffice\Security\Rate,
+WebOffice\Server,
+DateTime, 
+DateInterval,
+TransportModesKPH;
 class Security{
     public const SANITIZE_DEFAULT = "/[^a-zA-Z0-9\s!@#$%^&*()\-_=+\[\]{}|;:\'\",.<>\/?`~]/",
     SANITIZE_EMAIL = "/[^a-zA-Z0-9._@]/",
@@ -31,7 +33,9 @@ class Security{
     FILTER_URL = "/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/",
     FILTER_LOCALHOST_URL = "/https?:\/\/localhost(\/(.*))?/",
     MASK_SSN = "/(\d{3})-(\d{2})/",
-    MASK_CARD_PAN = "/(\d{12})|(\d{4}) ?(\d{4}) ?(\d{4})/";
+    MASK_CARD_PAN = "/(\d{12})|(\d{4}) ?(\d{4}) ?(\d{4})/",
+    # Location Spoofing threshold
+    LOCATION_SPOOF_THRESHOLD = 1;
     public function __construct() {
         
     }
@@ -116,10 +120,17 @@ class Security{
      * @param string $str String to sanitize
      * @return string|null Sanitized string
      */
-    public function preventXSS(string $str): string|null{
-        return preg_replace('/<script.*?>.*?<\/script>/','',$str);
+    public function preventXSS(string $str): string|null {
+        return preg_replace_callback(
+            '/<script(.*?)>(.*?)<\/script>/is',
+            function($matches): string {
+                $attributes = isset($matches[1]) ? htmlspecialchars($matches[1]) : '';
+                $content = isset($matches[2]) ? htmlspecialchars($matches[2]) : '';
+                return "&lt;script{$attributes}&gt;{$content}&lt;/script&gt;";
+            },
+            $str
+        );
     }
-    
     /**
      * Sanitizes the string
      * @param string $input String to sanitize
@@ -136,7 +147,13 @@ class Security{
      * @return string Filtered string
      */
     public function filter(string $input, string $pattern=self::FILTER_DEFAULT): string{
-        if(preg_match($pattern,$input,$matches)) return htmlspecialchars($matches[0],ENT_QUOTES);
+        if(preg_match($pattern,$input,$matches)) {
+            return match($pattern){
+                self::FILTER_FLOAT=>(float)$matches[0],
+                self::FILTER_INT=>(int)$matches[0],
+                default=>htmlspecialchars($matches[0],ENT_QUOTES)
+            };
+        }
         else return '';
     }
     /**
@@ -152,16 +169,17 @@ class Security{
     }
     /**
      * Creates/Verifies CSRF token
-     * @param string $action Actions: "Load" or "verify"
+     * @param string $action Actions: "Load", "verify", "Generate"
      * @param string $token Token input, **if verify**
-     * @return bool|string Returns token if loaded, else TRUE/FALSE on verify
+     * @return bool|string|null Returns token if loaded, else TRUE/FALSE on verify
      * @throws ErrorException Invalid action
      */
-    public function CSRF(string $action='load', string $token=''): bool|string{
+    public function CSRF(string $action='load', string $token=''): bool|string|null{
         $c = new CSRF();
         $action = strtolower($action);
         if($action==='load') return $c->getToken();
         elseif($action==='verify') return $c->verify($token);
+        elseif($action==='generate') return $c->generate();
         else throw new ErrorException('Must be a load or verify action');
     }
     /**
@@ -171,13 +189,13 @@ class Security{
      * @param int $code  Verification code
      * @return bool|string TRUE if verified, else FALSE. Returns TOTP URL if action="get"
      */
-    public function MFA(string $user, string $action='GET', int $code=000000): bool|string{
-        $m = new MFA($user);
+    public function MFA(string $secret, int $code=000000, string $action='GET'): bool|string{
+        $m = new MFA();
         $action = strtolower($action);
         if($action==='get')
-            return $m->getTOTP();
+            return $m->getTOTP($secret);
         else
-            return $m->verify((int)$code);
+            return $m->verify($secret,(int)$code);
     }
     /**
      * Checks for JSON Web Token
@@ -420,5 +438,224 @@ class Security{
     public function sessionStart(): bool{
         if (session_status() !== PHP_SESSION_ACTIVE) return session_start();
         else return true;
+    }
+    /**
+     * Checks if the location has been spoofed.
+     * 
+     * @param string $lastTimestamp Last timestamp to check.
+     * @param float $lat1 Start Latitude.
+     * @param float $lon1 Start Longitude.
+     * @param float $lat2 End Latitude.
+     * @param float $lon2 End Longitude.
+     * @param int $speed Speed (100kph Car speed, in urban areas).
+     * @param float $threshold How many hours difference to count as spoof.
+     * @return array{isSpoofed: bool, interval: string, distanceDifference: float, estimateTime: string} An associative array containing spoofing detection results and related info.
+     * - **isSpoofed**: TRUE if location is considered spoofed, FALSE otherwise
+     * - **interval**: Human-readable time interval between timestamps
+     * - **distanceDifference**: Calculated difference in distance between 2 points. **Measurement:** _km_
+     * - **estimateTime**: Calculates the estimate time between 2 points. **Format:** _(hrs, min)_
+     */
+    public function locationSpoofed(string $lastTimestamp, float $lat1, float $lon1, float $lat2, float $lon2, int $speed = TransportModesKPH::CAR_HIGHWAY, float $threshold = self::LOCATION_SPOOF_THRESHOLD): array {
+        /**
+         * Calculates the distance between two geographic coordinates using the Haversine formula
+         * and estimates the travel time based on a specified speed.
+         *
+         * @param float $latitudeFrom Starting point latitude in degrees.
+         * @param float $longitudeFrom Starting point longitude in degrees.
+         * @param float $latitudeTo Destination point latitude in degrees.
+         * @param float $longitudeTo Destination point longitude in degrees.
+         * @param float $speedKph Travel speed in kilometers per hour.
+         * @return array Associative array containing:
+         *               - 'distance' => float, distance in meters,
+         *               - 'time' => array with keys:
+         *                     - 'years' => int,
+         *                     - 'months' => int,
+         *                     - 'days' => int,
+         *                     - 'hours' => int,
+         *                     - 'minutes' => int,
+         *                     - 'seconds' => int,
+         *                     - 'milliseconds' => int.
+         */
+        function getDistanceAndTravelTime($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $speedKph=50): array {
+            // Earth radius in kilometers
+            $earthRadius = 6371;
+
+            $latFromRad = deg2rad($latitudeFrom);
+            $lonFromRad = deg2rad($longitudeFrom);
+            $latToRad = deg2rad($latitudeTo);
+            $lonToRad = deg2rad($longitudeTo);
+
+            $latDelta = $latToRad - $latFromRad;
+            $lonDelta = $lonToRad - $lonFromRad;
+
+            $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+                cos($latFromRad) * cos($latToRad) * pow(sin($lonDelta / 2), 2)));
+
+            $distance = $angle * $earthRadius; // in kilometers
+
+            // Convert speed from km/h to km/s if needed for further calculations
+            $speedKps = $speedKph / 3600; // km/sec
+
+            // Calculate total time in seconds
+            $timeSeconds = $distance / $speedKps;
+
+            // Break down time into components
+            $milliseconds = ($timeSeconds - floor($timeSeconds)) * 1000;
+            $totalSeconds = floor($timeSeconds);
+            $seconds = $totalSeconds % 60;
+            $minutes = floor($totalSeconds / 60) % 60;
+            $hours = floor($totalSeconds / 3600);
+            $days = floor($hours / 24);
+            $remainingHours = $hours % 24;
+
+            return [
+                'distance' => $distance,
+                'time' => [
+                    'days' => $days,
+                    'hours' => $remainingHours,
+                    'minutes' => $minutes,
+                    'seconds' => $seconds,
+                ],
+            ];
+        }
+
+        $distance = getDistanceAndTravelTime($lat1, $lon1, $lat2, $lon2, $speed);
+
+        // Your initial date
+        $initialDate = new DateTime($lastTimestamp);
+
+        // Array of intervals to add: [days, hours, minutes, seconds]
+        $intervals = [
+            $distance['time']['days'],
+            $distance['time']['hours'],
+            $distance['time']['minutes'],
+            $distance['time']['seconds']
+        ];
+
+        // Create a DateInterval string
+        $intervalSpec = 'P'; // period
+
+        // Track if any component is added
+        $hasIntervalComponent = false;
+
+        if ($intervals[0] > 0) {
+            $intervalSpec .= "$intervals[0]D"; // days
+            $hasIntervalComponent = true;
+        }
+        if ($intervals[1] > 0) {
+            $intervalSpec .= "T$intervals[1]H"; // hours
+            $hasIntervalComponent = true;
+        }
+        if ($intervals[2] > 0) {
+            $intervalSpec .= "$intervals[2]M"; // minutes
+            $hasIntervalComponent = true;
+        }
+        if ($intervals[3] > 0) {
+            $intervalSpec .= "$intervals[3]S"; // seconds
+            $hasIntervalComponent = true;
+        }
+
+        // Handle case where all intervals are zero
+        if (!$hasIntervalComponent) {
+            $intervalSpec = 'P0D'; // zero days duration
+        }
+
+        $interval = new DateInterval($intervalSpec);
+
+        // Add the interval to the initial date
+        $initialDate->add($interval);
+
+        // Current date and time
+        $currentDate = new DateTime();
+
+        // Calculate the difference between current date and the expected date
+        $diff = $currentDate->diff($initialDate);
+        $hoursDifference = $diff->days * 24 + $diff->h + $diff->i / 60;
+
+        // Format hours and minutes as string
+        $daysPart = $diff->d;
+        $hoursPart = $diff->h;
+        $minutesPart = $diff->i;
+        $hoursMinutesFormatted = sprintf('%d days %d hours, %d minutes', $daysPart, $hoursPart, $minutesPart);
+        $status = $currentDate > $initialDate ? false : $hoursDifference > $threshold;
+        return [
+            'isSpoofed' => $status,
+            'interval' => $diff->format('%a days, %h hours, %i minutes, %s seconds'),
+            'distanceDifference' => $distance['distance'],
+            'estimateTime' => $hoursMinutesFormatted,
+        ];
+    }
+    /**
+     * Handles the upload of one or multiple files with security validations.
+     *
+     * @param array|array[] $file An element from the $_FILES superglobal, e.g., $_FILES['file'], or an array of such elements for multiple uploads.
+     * @param array $options Optional. Configuration options for upload.
+     *                       - 'uploadDir' (string): Directory where files will be saved. Default: 'uploads/'.
+     *                       - 'allowedMimeTypes' (array): List of allowed MIME types. Default: ['image/jpeg', 'image/png', 'application/pdf'].
+     *                       - 'maxFileSize' (int): Maximum allowed file size in bytes. Default: 5MB.
+     *
+     * @return array An array of result messages for each file.
+     */
+    public function upload($file, $options = []): array {
+        $results = [];
+        // Set default options
+        $defaults = [
+            'uploadDir' => UPLOAD_PATH,
+            'allowedMimeTypes' => ['image/jpeg', 'image/png', 'application/pdf'],
+            'maxFileSize' => 5 * 1024 * 1024, // 5MB
+        ];
+        $opts = array_merge($defaults, $options);
+
+        // Check if multiple files
+        if (isset($file['name']) && is_array($file['name'])) {
+            // Multiple files
+            $fileCount = count($file['name']);
+            for ($i = 0; $i < $fileCount; $i++) {
+                $singleFile = [
+                    'name' => $file['name'][$i],
+                    'type' => $file['type'][$i],
+                    'tmp_name' => $file['tmp_name'][$i],
+                    'error' => $file['error'][$i],
+                    'size' => $file['size'][$i],
+                ];
+                $results[] = $this->processSingleFile($singleFile, $opts);
+            }
+        } else 
+            // Single file
+            $results[] = $this->processSingleFile($file, $opts);
+        return $results;
+    }
+
+    /**
+     * Processes a single file upload with security validations.
+     *
+     * @param array $file Single file info array.
+     * @param array $opts Options array.
+     * @return string Result message.
+     */
+    private function processSingleFile($file, $opts): array {
+        // Check for upload errors
+        if ($file['error'] !== UPLOAD_ERR_OK) return ['status'=>false,'msg'=>"Error during file upload: {$file['name']}"];
+        // Validate file size
+        if ($file['size'] > $opts['maxFileSize']) return ['status'=>false,'msg'=>"File is too large: {$file['name']}"];
+        // Validate MIME type
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+        if (!in_array($mimeType, $opts['allowedMimeTypes'])) return ['status'=>false,"Invalid file type: {$file['name']}"];
+        
+
+        // Generate a secure filename
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $newFilename = bin2hex(random_bytes(16)) . '.' . $extension;
+
+        // Ensure upload directory exists
+        if (!is_dir($opts['uploadDir'])) mkdir($opts['uploadDir'], 0755, true);
+            $destination = rtrim($opts['uploadDir'],'/')."/$newFilename";
+        // Move the uploaded file
+        if (move_uploaded_file($file['tmp_name'], $destination)) 
+            return ['status'=>true,'msg'=>"File uploaded successfully: $destination",'destination'=>preg_replace('/\/submissions/','',UPLOAD_URL)."/$newFilename"];
+        else 
+            return ['status'=>false,'msg'=>"Failed to move uploaded file: {$file['name']}"];
     }
 }

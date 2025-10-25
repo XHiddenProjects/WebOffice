@@ -33,6 +33,14 @@ class Locales {
             throw new \Exception("Failed to read language file: $this->path");
         }
 
+        // Remove BOM if present
+        if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+            $content = substr($content, 3);
+        }
+
+        // Remove control characters that may cause JSON errors
+        $content = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $content);
+
         $data = json_decode($content, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception("JSON decode error: " . json_last_error_msg());

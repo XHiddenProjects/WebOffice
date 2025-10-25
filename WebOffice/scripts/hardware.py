@@ -29,12 +29,12 @@ class Hardware:
             dict[str,any]: Returns the object of the CPU information
         """
         return {
-            'percent': psutil.cpu_percent(config.get('interval',1),config.get('percpu',False)),
-            'cores': psutil.cpu_count(config.get('logical',True)),
-            'freq':psutil.cpu_freq(config.get('percpu',False)),
+            'percent': psutil.cpu_percent(config.get('per_interval',None),config.get('per_percpu',True)),
+            'cores': psutil.cpu_count(config.get('cores_logical',True)),
+            'freq':psutil.cpu_freq(config.get('freq_percpu',True)),
             'status': psutil.cpu_stats(),
-            'times': psutil.cpu_times(config.get('percpu',False)),
-            'times_percent':psutil.cpu_times_percent(config.get('interval',1),config.get('percpu',False))
+            'times': psutil.cpu_times(config.get('times_percpu',True)),
+            'times_percent':psutil.cpu_times_percent(config.get('times_per_interval',None),config.get('times_per_percpu',True))
         }
     def Processor(self):
         """Returns the processor information

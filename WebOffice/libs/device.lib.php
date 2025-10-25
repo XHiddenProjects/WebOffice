@@ -3,10 +3,15 @@ namespace WebOffice;
 use DeviceDetector\ClientHints,
 DeviceDetector\DeviceDetector,
 DeviceDetector\Parser\Device\AbstractDeviceParser,
-WebOffice\Utils;
+WebOffice\Utils,
+WebOffice\Database,
+WebOffice\Config,
+WebOffice\Security;
 class Device {
     private DeviceDetector $dd;
     private Utils $utils;
+    private Database $db;
+    private Security $security;
     /**
      * Constructor to initialize DeviceDetector with ClientHints
      * @param string $userAgent User agent string, defaults to $_SERVER['HTTP_USER_AGENT']
@@ -18,6 +23,14 @@ class Device {
         $this->dd = new DeviceDetector($userAgent,ClientHints::factory($_SERVER));
         $this->dd->parse();
         $this->utils = new Utils();
+        $config = new Config();
+        $this->db = new Database(
+            $config->read('mysql','host'),
+            $config->read('mysql','user'),
+            $config->read('mysql','psw'),
+            $config->read('mysql','db')
+        );
+        $this->security = new Security();
     }
     /**
      * Get the device brand
@@ -134,10 +147,9 @@ class Device {
                     $serial = 'Permission denied. Run as root or check permissions.';
                 }
             }
-        } else {
+        } else 
             $serial = 'Unsupported OS';
-        }
-
+        $output = shell_exec($command);
         return $serial ?? 'Serial number not found';
     }
     /**
@@ -343,6 +355,84 @@ class Device {
             }
         }
         return $vms;
+    }
+    /**
+     * Returns the devices name
+     * @return string Device name
+     */
+    public function deviceName(): string {
+        $os = strtoupper($this->dd->getOs('short_name'));
+        $name = 'Unknown';
+
+        if (stripos($os, 'WIN') !== false) {
+            // Windows
+            $output = shell_exec('hostname');
+            if ($output) {
+                $name = trim($output);
+            }
+        } elseif (stripos($os, 'DAR') !== false) {
+            // macOS
+            $output = shell_exec('scutil --get ComputerName');
+            if ($output) {
+                $name = trim($output);
+            }
+        } elseif (stripos($os, 'LIN') !== false) {
+            // Linux
+            $output = shell_exec('hostname');
+            if ($output) {
+                $name = trim($output);
+            }
+        }
+
+        return $name;
+    }
+    /**
+     * Returns the MAC address of the device
+     * @return string MAC address
+     */
+    public function macAddress(): string {
+        $os = strtoupper($this->dd->getOs('short_name'));
+        $mac = 'Unknown';
+
+        if (stripos($os, 'WIN') !== false) {
+            // Windows
+            $output = shell_exec('getmac');
+            if ($output) {
+                // Extract MAC address from output
+                if (preg_match('/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/', $output, $matches)) {
+                    $mac = $matches[0];
+                }
+            }
+        } elseif (stripos($os, 'DAR') !== false || stripos($os, 'LIN') !== false) {
+            // macOS or Linux
+            $output = shell_exec('ifconfig -a');
+            if ($output) {
+                if (preg_match('/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/', $output, $matches)) {
+                    $mac = $matches[0];
+                }
+            }
+        }
+
+        return $mac;
+    }
+    public function addDevice(string $location, int $purchase_date, int $warranty_expiry, string $status, string $asset_tag, array $history, string $notes=''){
+        $this->db->insert('devices',[
+            'name'=>$this->deviceName(),
+            'type'=>$this->is('mobile') ? 'mobile' : ($this->is('tablet') ? 'tablet' : ($this->is('desktop') ? 'desktop' : 'unknown')),
+            'brand'=>$this->deviceBrand(),
+            'model'=>$this->deviceModel(),
+            'os'=>$this->getOs('name'),
+            'serial'=>$this->getSerial(),
+            'manufacturer'=>$this->getManufacturer(),
+            'status'=>$status,
+            'purchase_date'=>date('Y-m-d H:i:s',$purchase_date),
+            'warranty_expiry'=>date('Y-m-d H:i:s',$warranty_expiry),
+            'asset_tag'=>$this->security->sanitize($asset_tag,Security::SANITIZE_STRING),
+            'history'=>json_encode($history,JSON_UNESCAPED_SLASHES),
+            'notes'=>$this->security->filter(htmlspecialchars($notes),$this->security::FILTER_DEFAULT),
+            'mac_address'=>$this->macAddress(),
+            'location'=>htmlspecialchars($location)
+        ]);
     }
 }
 

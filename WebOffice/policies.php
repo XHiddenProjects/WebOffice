@@ -22,9 +22,9 @@ $locales = new Locales(implode('-',LANGUAGE));
     <body>
         <?php
         echo match(strtolower($paths[2])){
-            'terms-and-conditions'=>$md->parse(file_get_contents(DOCS_PATH.DS.'terms-and-conditions.md')),
-            'privacy-policy'=>$md->parse(file_get_contents(DOCS_PATH.DS.'privacy-policy.md')),
-            'legal'=>$md->parse(file_get_contents(DOCS_PATH.DS.'legal.md')),
+            'terms-and-conditions'=>$md->parse(file_get_contents(POLICIES_PATH.DS.strtolower(LANGUAGE[0]).DS.'terms-and-conditions.md')),
+            'privacy-policy'=>$md->parse(file_get_contents(POLICIES_PATH.DS.strtolower(LANGUAGE[0]).DS.'privacy-policy.md')),
+            'legal'=>$md->parse(file_get_contents(POLICIES_PATH.DS.strtolower(LANGUAGE[0]).DS.'legal.md')),
             default=>"<h1>{$locales->load(['policies','__notFound'])}</h1>"
         };
         ?>

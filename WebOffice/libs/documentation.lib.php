@@ -237,11 +237,38 @@ class Documentation{
                     </a>
                     <form class='documentation-search' role='search'>
                         <div class='documentation-search-icon'><i class='fa-solid fa-magnifying-glass'></i></div>
-                        <input class='documentation-searchbar' name='doc-search' type='search' placeholder='Search...' aria-label='Search'/>
+                        <input class='documentation-searchbar' id='documentation-searchbar' data-bs-toggle='modal' data-bs-target='#documentation-search' name='doc-search' type='search' placeholder='Search...' aria-label='Search'/>
+                        <div class='documentation-search-shortcut'><code>ctrl K</code></div>
                     </form>
                     <div class='documentation-hidden'></div>
                 </div>
             </nav>
+            <div class='modal fade' id='documentation-search' tabindex='-1' aria-labelledby='documentation-searchLabel' aria-hidden='true'>
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                            <div class='modal-header'>
+                                <div class='documentation-search w-100'>
+                                    <div class='documentation-search-icon'><i class='fa-solid fa-magnifying-glass'></i></div>
+                                    <input type='search' placeholder='".$this->lang->load(['documentation','search_docs'],false)."' class='documentation-searchbar w-100' id='documentation-modal-search'/>
+                                </div> 
+                            </div>
+                            <div class='modal-body'>
+                                <p class='text-center opacity-50'>".$this->lang->load(['documentation','no_recent_searches'])."</p>
+                            </div>
+                            <div class='modal-footer justify-content-between'>
+                            <div>
+                                <code><i class='fa-light fa-arrow-turn-down-left'></i></code>
+                                <span>".$this->lang->load(['documentation','navigation','to_enter'])."</span>
+                                <code><i class='fa-light fa-arrow-up'></i></code>
+                                <code><i class='fa-light fa-arrow-down'></i></code>
+                                <span>".$this->lang->load(['documentation','navigation','to_navigate'])."</span>
+                                <code>esc</code>
+                                <span>".$this->lang->load(['documentation','navigation','to_close'])."</span>
+                            </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
             <div class='documentation-container'>
                 <div class='documentation-sidenav'>
                     <ul class='documentation-section'>
@@ -281,11 +308,11 @@ class Documentation{
                         if(!empty($sections['subsections'])){
                             foreach($sections['subsections'] as $id => $subsections){
                                 if(strtolower($subsections['type'])==='static' && isset($subsections['content']) && $subsections['content'] !== '')
-                                    $out.="<div class='documentation-content' tabindex='0' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$id))."'>".$subsections['content']."</div>";
+                                    $out.="<div class='documentation-content' tabindex='0' id='".preg_replace('/\|/','_',preg_replace('/^\?page=/','',$this->parseID($sectionID,$id)))."'>".$subsections['content']."</div>";
                                 if(strtolower($subsections['type'])==='collapse' && isset($subsections['subsections'])){
                                     foreach($subsections['subsections'] as $subId => $nestedSubsection){
                                         if(strtolower($nestedSubsection['type'])==='static' && isset($nestedSubsection['content']) && $nestedSubsection['content'] !== '')
-                                            $out.="<div class='documentation-content' tabindex='0' id='".preg_replace('/^\?page=/','',$this->parseID($sectionID,$subId))."'>".$nestedSubsection['content']."</div>";
+                                            $out.="<div class='documentation-content' tabindex='0' id='".preg_replace('/\|/','_',preg_replace('/^\?page=/','',$this->parseID($sectionID,$subId)))."'>".$nestedSubsection['content']."</div>";
                                     }
                                 }
                             }

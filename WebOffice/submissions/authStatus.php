@@ -28,7 +28,7 @@ if ($auth) {
 }else {
     // Get all users and check their last_activity even if no one is logged in
     $usersList = $users->list();
-    $inactiveThreshold = 60; // 1 minutes
+    $inactiveThreshold = 1; // 1 seconds
     foreach ($usersList as $user) {
         $lastActivity = $users->getLastActivity($user['username']);
         if ($lastActivity !== null && (time() - $lastActivity) > $inactiveThreshold) {

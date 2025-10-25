@@ -8,7 +8,7 @@ $(document).ready(()=>{
         $(x).addClass('focus');
 
         $(`.documentation .documentation-content`).each((_,e)=>{
-            const id = currentHash ? currentHash : $($('.documentation-subsection-item')[0])?.attr('href')?.replace('?page=','');
+            const id = currentHash ? currentHash.replace('|','_') : $($('.documentation-subsection-item')[0])?.attr('href')?.replace('?page=','').replace('|','_');
             if($(e).attr('id') === id)
                 $(e).css('display','block');
             else
@@ -62,24 +62,21 @@ $(document).ready(()=>{
                 });
             }
         });
-
-        
-
-        // Generate navigation links for each h4 and set up click handlers
-        /* $('.documentation .documentation-content h2').each(function(index, element){
-            const id = $(element).attr('id');
-            if(id){
-                const link = $(`<li/>`).addClass('scroll-nav__item').html(`<a href="#${id}" class="scroll-nav__link">${$(element).text()}</a>`);
-                $('.scroll-nav__list').append(link);
-            }
-        }); */
-
-        const content = $('.documentation .documentation-content')[0];
-        scrollnav.init(content,{
-            insertTarget: $('.documentation .page-nav .page-nav-scroll')[0]
-        });
-
-        $('.documentation .page-nav .page-nav-scroll').remove();
-        
+        setTimeout(()=>{
+            const params = new URLSearchParams(window.location.search);
+            const content = $(`.documentation .documentation-content#${params.get('page').replace('|','_')}`)[0];
+            scrollnav.init(content,{
+                insertTarget: $('.documentation .page-nav .page-nav-scroll')[0]
+            });
+            $('.documentation .page-nav .page-nav-scroll').remove();
+        },100);
+    });
+    $('#documentation-searchbar').on('focus',function(){$(this).blur();});
+    $(window).on('keydown',function(e){
+        const key = e.key||e.keyCode||e.which;
+        if(e.ctrlKey&&key=='k'&&$('.modal.show').length==0){
+            e.preventDefault();
+            $('#documentation-searchbar').click();
+        }
     });
 });

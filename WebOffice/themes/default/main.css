@@ -156,3 +156,216 @@ footer .social-bubble i{
 .tfa-panel *{
     width: 100%;
 }
+
+.analysis-charts{
+    max-height: 450px;
+}
+[data-spoiler]{
+    display: block;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all .2s;
+}
+[data-spoiler]:not([data-spoiler-show]){
+    background-color: var(--gray);
+    color: var(--transparent);
+}
+[data-spoiler]:not([data-spoiler-show]):hover{
+    background-color: rgba(var(--gray-rgb),var(--opacity-75));
+}
+
+[data-no-select]{
+    user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -ms-touch-select: none;
+    -webkit-user-select: none;
+}
+.battery{
+    position: relative;
+}
+.battery .battery-head{
+    width:40px;
+    height:15px;
+    background-color: var(--lightgray);
+    margin: 0 auto;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+.battery .battery-body{
+    width: 100px;
+    height:200px;
+    background-color: var(--transparent);
+    margin: 0 auto;
+    border: 4px solid var(--lightgray);
+    border-radius:18px;
+    position: relative;
+}
+
+.battery i{
+    color: transparent;
+    font-size: 40px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    animation: battery-bolt 2s linear infinite;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    background-image:  linear-gradient(180deg, rgba(var(--lightgray-rgb), var(--opacity-1)), rgba(var(--lightgray-rgb), var(--opacity-50)));
+    background-clip: text;
+}
+
+
+.battery:not(.battery-horizontal) .charge{
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    z-index: -1;
+    border-radius: 12px;
+    transition: all 0.3s;
+    background-image: var(--linear-gradient-180);
+}
+
+
+.battery.battery-horizontal{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.battery.battery-horizontal .charge{
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    z-index: -1;
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.battery.battery-horizontal .battery-head{
+    width:15px;
+    height:40px;
+    background-color: var(--lightgray);
+    margin: auto 0;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 0;
+    border-bottom-right-radius: 5px;
+}
+.battery.battery-horizontal .battery-body{
+    width: 200px;
+    height:100px;
+    background-color: var(--transparent);
+    margin: auto 0;
+    border: 4px solid var(--lightgray);
+    border-radius:18px;
+    position: relative;
+}
+
+.battery[battery-status="low"] .charge{
+    background-color: var(--red);
+}
+.battery[battery-status="ok"] .charge{
+    background-color: var(--yellow);
+}
+.battery[battery-status="good"] .charge{
+    background-color: var(--green);
+}
+.battery[battery-status="excellent"] .charge{
+    background-color: var(--lime);
+}
+
+@keyframes battery-bolt {
+    50% {
+        transform: translate(-50%,-50%) scale(1.3);
+    }
+
+    100% {
+        transform: translate(-50%,-50%) scale(1);
+    }
+}
+
+
+
+#dashboard-nav li{
+    border:0;
+}
+
+#dashboard-nav [data-bs-toggle="collapse"] li::after{
+    content: '\f107';
+    font-family: var(--fa-family-classic);
+    color: inherit;
+    float: inline-end;
+}
+#dashboard-nav [data-bs-toggle="collapse"][aria-expanded="true"] li::after{
+    content: '\f106';
+    font-family: var(--fa-family-classic);
+    color: inherit;
+    float: inline-end;
+}
+
+
+.supportDesk-container .avg-status{
+    font-size: 15px;
+    color: var(--bs-secondary)
+}
+
+.supportDesk-container .avg-status.avg-status-positive{
+    color: var(--bs-success)
+}
+.supportDesk-container .avg-status.avg-status-positive::before{
+    content: '\f0d8';
+    font-family: var(--fa-family-classic);
+    font-weight: 800;
+    margin-right: 5px;
+}
+
+.supportDesk-container .avg-status.avg-status-negative{
+    color: var(--bs-danger)
+}
+.supportDesk-container .avg-status.avg-status-negative::before{
+    content: '\f0d7';
+    font-family: var(--fa-family-classic);
+    font-weight: 800;
+    margin-right: 5px;
+}
+
+#device-map{
+    max-height: 430px;
+    height: 600px;
+}
+#supportTickets-table tbody tr{
+    cursor: pointer;
+}
+
+
+.image-container {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+.preview-image {
+    max-width: 150px;
+    max-height: 150px;
+    display: block;
+}
+.image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    text-align: center;
+    font-size: 1.6vh;
+    padding: 2px 0;
+}
+.image-container span.image-remove {
+    position: absolute;
+    top: 0;
+    left: 3px;
+    font-size: 2vh;
+    color: darkslategrey;
+    cursor: pointer;
+    z-index: 1;
+    font-weight: 800;
+}

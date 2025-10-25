@@ -173,4 +173,154 @@ class Files{
     public function verify_hash(string $hash, string $input): bool{
         return hash_equals($hash, $input);
     }
+
+    /**
+     * Writes JSON data to a file atomically.
+     *
+     * @param string $filename The target filename.
+     * @param mixed $data The data to encode as JSON.
+     * @param int $flags JSON encoding options (default: JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE).
+     * @return bool True on success, false on failure.
+     */
+    public function writeJsonAtomic(string $filename, $data, int $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE): bool
+    {
+        $dir = dirname($filename);
+        
+        // Create parent directories if they don't exist
+        if (!is_dir($dir)) {
+            if (!mkdir($dir, 0755, true)) return false;
+        }
+
+        $tempFile = tempnam($dir, 'tmp');
+
+        if ($tempFile === false) return false;
+        
+
+        $lockFile = "$tempFile.lock";
+
+        $lockHandle = fopen($lockFile, 'c');
+        if ($lockHandle === false) {
+            unlink($tempFile);
+            return false;
+        }
+
+        // Acquire exclusive lock
+        if (!flock($lockHandle, LOCK_EX)) {
+            fclose($lockHandle);
+            unlink($tempFile);
+            unlink($lockFile);
+            return false;
+        }
+
+        // Encode JSON data
+        $json = json_encode($data, $flags);
+        if ($json === false) {
+            flock($lockHandle, LOCK_UN);
+            fclose($lockHandle);
+            unlink($tempFile);
+            unlink($lockFile);
+            return false;
+        }
+
+        // Write JSON to temp file
+        $writeResult = false;
+        if (file_put_contents($tempFile, $json) !== false) $writeResult = true;
+        
+
+        // Release lock and close handle
+        flock($lockHandle, LOCK_UN);
+        fclose($lockHandle);
+
+        // Remove lock file
+        unlink($lockFile);
+
+        if (!$writeResult) {
+            unlink($tempFile);
+            return false;
+        }
+
+        // Atomically rename temp file to target file
+        $renamed = false;
+        if (DIRECTORY_SEPARATOR === '\\') {
+            // Windows: unlink target if exists before renaming
+            if (file_exists($filename)) unlink($filename);
+            $renamed = rename($tempFile, $filename);
+        } else $renamed = rename($tempFile, $filename);
+        
+
+        if (!$renamed) unlink($tempFile);
+        
+
+        return $renamed;
+    }
+
+    /**
+     * Writes plain text content to a file atomically.
+     *
+     * @param string $filename The target filename.
+     * @param string $content The content to write.
+     * @return bool True on success, false on failure.
+     */
+    public function writeFileAtomic(string $filename, string $content): bool
+    {
+        $dir = dirname($filename);
+
+        // Create parent directories if they don't exist
+        if (!is_dir($dir)) {
+            if (!mkdir($dir, 0755, true)) {
+                return false;
+            }
+        }
+
+        $tempFile = tempnam($dir, 'tmp');
+
+        if ($tempFile === false) {
+            return false;
+        }
+
+        $lockFile = "$tempFile.lock'";
+
+        $lockHandle = fopen($lockFile, 'c');
+        if ($lockHandle === false) {
+            unlink($tempFile);
+            return false;
+        }
+
+        // Acquire exclusive lock
+        if (!flock($lockHandle, LOCK_EX)) {
+            fclose($lockHandle);
+            unlink($tempFile);
+            unlink($lockFile);
+            return false;
+        }
+
+        // Write content to temp file
+        $writeResult = false;
+        if (file_put_contents($tempFile, $content) !== false) {
+            $writeResult = true;
+        }
+
+        // Release lock and close handle
+        flock($lockHandle, LOCK_UN);
+        fclose($lockHandle);
+
+        // Remove lock file
+        unlink($lockFile);
+
+        if (!$writeResult) {
+            unlink($tempFile);
+            return false;
+        }
+
+        // Atomically rename temp file to target file
+        $renamed = false;
+        if (DIRECTORY_SEPARATOR === '\\') {
+            // Windows: unlink target if exists
+            if (file_exists($filename)) unlink($filename);
+            $renamed = rename($tempFile, $filename);
+        } else $renamed = rename($tempFile, $filename);
+        if (!$renamed) unlink($tempFile);
+        return $renamed;
+    }
+
 }

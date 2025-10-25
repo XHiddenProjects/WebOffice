@@ -18,7 +18,7 @@ $config = new Config();
         <?php
             echo $docs->addSection('getting_started','Getting Started')
             ->addSubsection('quickstart','Quickstart','<i class="fa-solid fa-rocket"></i>')
-            ->importContent(DOCUMENTATION_PATH.DS.'quickstart.md')
+            ->importContent(DOCUMENTATIONS_PATH.DS.LANGUAGE[0].DS.'quickstart.md')
             ->publish();
         ?>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>

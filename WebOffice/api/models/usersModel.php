@@ -41,9 +41,10 @@ class UsersModel extends Database{
                     }
                 }
             }
-
+            
             // Build the WHERE clause with conditions and operators
             if (!empty($conditions)) {
+                
                 $sql .= ' WHERE ';
                 for ($i = 0; $i < count($conditions); $i++) {
                     if ($i > 0) {
@@ -74,32 +75,38 @@ class UsersModel extends Database{
         // Prepare placeholders for the MFA query
         $placeholders = rtrim(str_repeat('?,', count($usernames)), ',');
 
+
         // Fetch MFA status for all usernames
-        $mfaSql = "SELECT username, 2fa_secret, 2fa_enabled FROM mfa WHERE username IN ($placeholders)";
-        $mfaResults = $this->fetchAll($mfaSql, $usernames);
-
-        // Create an associative array for quick lookup
-        $mfaMap = [];
-        foreach ($mfaResults as $mfa) {
-            $mfaMap[$mfa['username']] = [
-                '2fa_secret' => $mfa['2fa_secret'],
-                '2fa_enabled' => $mfa['2fa_enabled']
-            ];
-        }
-
-        // Merge MFA data into user results
-        foreach ($results as &$user) {
-            if (isset($mfaMap[$user['username']])) {
-                $user = array_merge($user, $mfaMap[$user['username']]);
-            } else {
-                // If no MFA info, set defaults or nulls
-                $user['2fa_secret'] = null;
-                $user['2fa_enabled'] = 0; // or false
+        if(empty($usernames)) return [];
+        else{
+            $mfaSql = "SELECT username, 2fa_secret, 2fa_enabled FROM mfa WHERE username IN ($placeholders)";
+            $mfaResults = $this->fetchAll($mfaSql, $usernames);
+            // Create an associative array for quick lookup
+            $mfaMap = [];
+            foreach ($mfaResults as $mfa) {
+                $mfaMap[$mfa['username']] = [
+                    '2fa_secret' => $mfa['2fa_secret'],
+                    '2fa_enabled' => $mfa['2fa_enabled']
+                ];
             }
+
+            // Merge MFA data into user results
+            foreach ($results as &$user) {
+                if (isset($mfaMap[$user['username']])) {
+                    $user = array_merge($user, $mfaMap[$user['username']]);
+                } else {
+                    // If no MFA info, set defaults or nulls
+                    $user['2fa_secret'] = null;
+                    $user['2fa_enabled'] = 0; // or false
+                }
+            }
+
+
+            return array_map(function($row): array {
+                unset($row['2fa_secret']);
+                return array_filter($row, fn($key): bool => !is_int($key), ARRAY_FILTER_USE_KEY);
+            }, $results) ?? [];
         }
-
-
-        return array_map(fn($row): array=>array_filter($row, fn($key): bool=>!is_int($key), ARRAY_FILTER_USE_KEY), $results);
     }
     public function postUsers(array $data): array|string{
         try{
@@ -112,6 +119,13 @@ class UsersModel extends Database{
     public function putUsers(array $data, array $where): int|string{
         try{
             return $this->update('users',$data,$where);
+        }catch(Exception $e){
+            return $e->getMessage();
+        }
+    }
+    public function deleteUsers(array $where): int|string{
+        try{
+            return $this->delete('users',$where)?1:0;
         }catch(Exception $e){
             return $e->getMessage();
         }

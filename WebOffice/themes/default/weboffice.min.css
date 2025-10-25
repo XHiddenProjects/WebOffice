@@ -18,6 +18,12 @@
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     -webkit-text-stroke: 1px var(--clock-text-stroke);
+    user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -ms-touch-select: none;
+    -webkit-user-select: none;
+    transition: all 0.3s;
 }
 
 
@@ -68,4 +74,88 @@
     content: '\f755';
     font-family: var(--fa-family-classic);
     margin-right: 8px;
+}
+[wo-weather]{
+    background-color: #24dd24;
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: #1e1e1e;
+}
+[wo-weather] .weather-info{
+    display: flex;
+    justify-content: space-between;
+}
+
+[wo-weather] .temperature-container,
+[wo-weather] .condition-container{
+    display: flex;
+    flex-direction: column;
+}
+[wo-weather] .temperature-container{
+    align-items: center;
+    justify-content: center;
+}
+[wo-weather] .condition-container{
+    margin-left: 8px;
+}
+[wo-weather] .section-1{
+    display: flex;
+}
+
+[wo-weather] .temperature{
+    font-size: 25px;
+    color: #18373d;
+    font-weight: 800;
+}
+[wo-weather] .condition{
+    font-size: 14px;
+    color: #452c07;
+}
+[wo-weather] .location{
+    font-size: 16px;
+    color: #171717;
+    font-weight: 800;
+}
+[wo-weather] img{
+    width: 90px;
+    height: 90px;
+}
+
+
+/*Ticket badges*/
+#supportTickets-table_wrapper .ticket-status.ticket-status-open{
+    background-color: var(--ticket-status-open);
+    color: var(--white);
+}
+#supportTickets-table_wrapper .ticket-status-in_progress{
+    background-color: var(--ticket-status-progress);
+    color: var(--white);
+}
+#supportTickets-table_wrapper .ticket-status.ticket-status-resolved{
+    background-color: var(--ticket-status-resolved);
+    color: var(--white);
+}
+#supportTickets-table_wrapper .ticket-status.ticket-status-closed{
+    background-color: var(--ticket-status-closed);
+    color: var(--white);
+}
+
+#supportTickets-table_wrapper .ticket-priority.ticket-priority-low{
+    background-color: var(--ticket-priority-low);
+    color: var(--white);
+}
+#supportTickets-table_wrapper .ticket-priority.ticket-priority-medium{
+    background-color: var(--ticket-priority-medium);
+    color: var(--white);
+}
+#supportTickets-table_wrapper .ticket-priority.ticket-priority-high{
+    background-color: var(--ticket-priority-high);
+    color: var(--white);
+}
+#supportTickets-table_wrapper .ticket-priority.ticket-priority-urgent{
+    background-color: var(--ticket-priority-urgent);
+    color: var(--white);
+}
+#supportTickets-table_wrapper {
+    overflow: auto;
 }

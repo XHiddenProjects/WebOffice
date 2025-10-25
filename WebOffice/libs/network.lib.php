@@ -1,6 +1,6 @@
 <?php
 namespace WebOffice;
-use WebOffice\Utils, WebOffice\Device, WebOffice\Server;
+use WebOffice\Utils, WebOffice\Device, WebOffice\Server, WebOffice\Locales;
 
 class Network {
     private Utils $utils; 
@@ -8,10 +8,13 @@ class Network {
     private int $bytesSent = 0, $bytesReceived = 0;
     private Server $server;
 
+    private Locales $locales;
+
     public function __construct() {
         $this->utils = new Utils();
         $this->device = new Device();
         $this->server = new Server();
+        $this->locales = new Locales(implode('-',LANGUAGE));
     }
     
     private function getOsShortName(): string {
@@ -232,12 +235,12 @@ class Network {
     private function internetStrength(bool $isConnected): string{
         if($isConnected){
             $latency = $this->measureLatency();
-            if($latency === null) return 'No Response';
-            if($latency < 50) return 'Excellent';
-            elseif($latency < 100) return 'Good';
-            elseif($latency < 200) return 'Fair';
-            else return 'Poor';
-        }else return 'No Connection';
+            if($latency === null) return $this->locales->load('noResponse');
+            if($latency < 50) return $this->locales->load(['internet','status','excellent']);
+            elseif($latency < 100) return $this->locales->load(['internet','status','good']);
+            elseif($latency < 200) return $this->locales->load(['internet','status','fair']);
+            else return $this->locales->load(['internet','status','poor']);
+        }else return $this->locales->load(['internet','status','noConnection']);
     }
     /**
      * Measures the latency to a known reliable host (e.g., Google DNS)

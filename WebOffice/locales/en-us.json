@@ -57,7 +57,14 @@
     "documentation":{
         "_tab": "Documentation",
         "_title":"- Documentation",
-        "on_this_page":"On this Page"
+        "on_this_page":"On this Page",
+        "search_docs":"Search docs",
+        "navigation":{
+            "to_enter":"to enter",
+            "to_navigate":"to navigate",
+            "to_close":"to close"
+        },
+        "no_recent_searches":"No Recent Searches"
     },
     "authorization":{
         "_tab": "Authorization",
@@ -68,6 +75,7 @@
         "_dashboard":"Dashboard"
     },
     "users":{
+        "_label":"Users",
         "first_name":"First name",
         "middle_name":"Middle name",
         "last_name":"Last name",
@@ -81,7 +89,8 @@
         "back":"Back",
         "next":"Next",
         "submit":"Submit",
-        "close":"Close"
+        "close":"Close",
+        "logout":"Logout"
     },
     "errors":{
         "emptyInput": "This is a required input",
@@ -93,7 +102,9 @@
         "noUser": "User account doesn`t exist",
         "incorrectPassword": "Incorrect Password",
         "invalidMFA": "Invalid Code",
-        "invalidStatus": "This is an invalid status"
+        "invalidStatus": "This is an invalid status",
+        "tooManyAttempts": "Too many login attempts. Please try again later.",
+        "spoofedLocation":"Your location is spoofed, turn off the location spoof extension."
     },
     "policies":{
         "__notFound":"Policy not found"
@@ -113,5 +124,119 @@
     },
     "mfa":{
         "_form":"Enter Code"
+    },
+    "dashboard":{
+        "analysis": "Analysis",
+        "config":{
+            "_label":"Configuration"
+        }
+    },
+    "dates":{
+        "months": ["January","February","March","April","May","June","July","August","September","October","November","December"],
+        "days": ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+    },
+    "charts":{
+        "cpu":{
+            "_title":"CPU Usage Over Time",
+            "X_axis":"Time (seconds)",
+            "Y_axis":"Usage (%)"
+        },
+        "users":{
+            "_title":"User Registrations Per Month",
+            "X_axis":"Months",
+            "Y_axis":"Number of Users"
+        },
+        "memory":{
+            "_title":"Memory and Swap Usage",
+            "memoryUsed":"Memory Used",
+            "memoryAvailable":"Memory Available",
+            "swapUsed":"Swap Used",
+            "swapFree":"Swap Free"
+        },
+        "tickets":{
+            "unresolved_tickets_by_priority":"Unresolved Tickets by Priority"
+        }
+    },
+    "support":{
+        "_title":"Support Desk",
+        "_label":"Support",
+        "status":{
+            "open":"Open",
+            "in_progress":"In Progress",
+            "closed":"Closed",
+            "_label":"Status"
+        },
+        "priority":{
+            "low":"Low",
+            "medium":"Medium",
+            "high":"High",
+            "urgent":"Urgent",
+            "_label":"Priority"
+        },
+        "create_ticket":"Create Ticket",
+        "view_tickets":"View Tickets",
+        "ticket_id":"Ticket ID",
+        "subject":"Subject",
+        "created_at":"Created At",
+        "updated_at":"Updated At",
+        "description":"Description",
+        "issue_category":"Issue Category",
+        "submit_ticket":"Submit Ticket",
+        "ticket_details":"Ticket Details",
+        "add_comment":"Add Comment",
+        "comments":"Comments",
+        "assigned_to":"Assigned to",
+        "desk":{
+            "on_hold":"On Hold Tickets",
+            "open_tickets":"Open Tickets",
+            "due_tickets_today":"Due Tickets Today",
+            "unassigned":"Unassigned"
+        }
+    },
+    "results":"Results",
+    "information":"Information",
+    "internet":{
+        "_label":"Internet",
+        "connected":"Connected",
+        "strength":"Strength",
+        "latency":"Latency",
+        "isWireless":"Wireless",
+        "connection_name":"Connection Name",
+        "connection_secured":"Connection Secured",
+        "downloadSpeed":"Download Speed",
+        "uploadSpeed":"Upload Speed",
+        "status":{
+            "good":"Good",
+            "fair":"Fair",
+            "excellent":"Excellent",
+            "poor":"Poor",
+            "noConnection":"No Connection"
+        }
+    },
+    "service":"Service",
+    "device":"Device",
+    "hardware":{
+        "_label":"Hardware",
+        "battery":"Battery",
+        "cpu":"CPU",
+        "memory":"Memory"
+    },
+    "plural":"s",
+    "noResponse":"No Response",
+    "navbar":{
+        "new":"New"
+    },
+    "devices":{
+        "_label":"Devices",
+        "view_devices":"View Devices",
+        "register_device":"Register Device",
+        "tracking_device":"Track Device"
+    },
+    "profile":{
+        "_label":"Profile"
+    },
+    "attachments":"Attachments",
+    "terminal":{
+        "_label":"Terminal"
     }
 }

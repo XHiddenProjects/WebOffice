@@ -16,9 +16,9 @@ class CSRF{
 
     /**
      * Generates a random token
-     * @return void
+     * @return null
      */
-    public function generate(): void{
+    public function generate(): null{
         $n = $this->c->read('security','csrf_name');
         if(empty($this->s->session(name: $n,action: 'get'))){
             $timestamp = time();
@@ -28,6 +28,7 @@ class CSRF{
                 'expire'=>$timestamp+(int)$this->c->read('security','csrf_token_expiry')
             ]);
         }
+        return null;
     }
 
     /**
@@ -38,7 +39,6 @@ class CSRF{
     public function verify(string $token): bool{
         $n = $this->c->read('security','csrf_name');
         $v = $this->s->session(name: $n, action: 'get');
-
         if(empty($v)){
             // No token exists, generate a new one
             $this->generate();
@@ -56,10 +56,6 @@ class CSRF{
             $this->generate();
             return false;
         }
-
-        // Token is valid, delete and regenerate for next use
-        $this->s->session($n, null, 'delete');
-        $this->generate();
         return true;
     }
 

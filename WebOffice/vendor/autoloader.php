@@ -5,11 +5,5 @@ foreach($l as $ls){
     if(is_file(dirname(__DIR__)."/libs/$ls")) include_once dirname(__DIR__)."/libs/$ls";
 }
 foreach($a as $as) include_once dirname(__DIR__)."/addons/$as/$as.plg.php";
-
 include_once dirname(__DIR__).'/libs/device-detector/Spyc.php';
-include_once dirname(__DIR__).'/libs/PHPMailer/src/Exception.php';
-include_once dirname(__DIR__).'/libs/PHPMailer/src/PHPMailer.php';
-include_once dirname(__DIR__).'/libs/PHPMailer/src/SMTP.php';
-include_once dirname(__DIR__).'/libs/PHPMailer/src/POP3.php';
-
 include_once dirname(__DIR__).'/libs/device-detector/autoload.php';

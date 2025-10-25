@@ -1,5 +1,6 @@
 <?php
-use WebOffice\Security, WebOffice\Users, WebOffice\Locales, WebOffice\Storage;
+use WebOffice\Security, WebOffice\Users, WebOffice\Locales, WebOffice\Storage, WebOffice\Database;
+use WebOffice\Config;
 header('Content-Type: application/json; charset=utf-8');
 $p = dirname(__DIR__).'/libs';
 foreach(array_diff(scandir($p),['.','..']) as $f) if(is_file("$p/$f")) include_once "$p/$f";
@@ -9,6 +10,7 @@ $security = new Security();
 $users = new Users();
 $lang= new Locales(implode('-',LANGUAGE));
 $storage = new Storage();
+$config = new Config();
 
 
 
@@ -18,7 +20,15 @@ $tempUser = $_SESSION['temp_user'];
 
 $code = $security->sanitize($_POST['mfa_code'], $security::SANITIZE_INT);
 
-if($security->MFA($tempUser,'VERIFY',$code)){
+$secrete = (new Database(
+    $config->read('mysql','host'),
+    $config->read('mysql','user'),
+    $config->read('mysql','psw'),
+    $config->read('mysql','db')
+))->fetch("SELECT 2fa_secret FROM mfa WHERE username=:user",['user'=>$tempUser]);
+
+
+if($security->MFA($secrete['2fa_secret'],$code, 'VERIFY')){
     if($remember) $storage->cookie('weboffice_auth',base64_encode($res[0]['username']),'store',720);    
     else $storage->session('weboffice_auth',base64_encode($res[0]['username']));
     $url = "$main/api/users?username={$tempUser}&status=active&last_login=".date('Y-m-d H:i:s',time())."&last_activity=".date('Y-m-d H:i:s',time());

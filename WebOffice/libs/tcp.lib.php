@@ -42,9 +42,9 @@ class TCP {
     /**
      * Establish a TCP connection to the specified host and port.
      *
-     * @return bool True on success, false on failure.
+     * @return static|false True on success, false on failure.
      */
-    public function connect(): bool {
+    public function connect(): static|false {
         // Attempt to create a stream socket connection
         $this->socket = @stream_socket_client("tcp://{$this->host}:{$this->port}", $errno, $errstr, 5);
         if ($this->socket === false) {
@@ -54,7 +54,7 @@ class TCP {
         }
         // Mark connection as established
         $this->connected = true;
-        return true;
+        return $this;
     }
 
     /**

@@ -124,4 +124,21 @@ $(document).ready(()=>{
             submit.html(originalText);
         }
     });
+
+    $('.createTicketForm').on('submit',function(e){
+        e.preventDefault();
+        const subject = $(this).find('input#ticket-subject'),
+        description = $(this).find('textarea#ticket-description'),
+        error = $(this).find('.error-msg');
+        if(subject.val()===''||description.val()==='')
+            error.addClass('d-block');
+        else{
+            error.removeClass('d-block');
+            sendRequest(`${BASE}/submissions/tickets.php`,{
+                data: new FormData($(this)[0]),
+                method: 'POST'
+            });
+        }
+    });
+
 })

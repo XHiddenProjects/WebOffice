@@ -111,4 +111,37 @@ class UsersController extends Controller{
             );
         }
     }
+    public function delete(): never{
+        $strErrorDesc = '';
+        $arrQueryStringParams = $this->getQueryStringParams();
+        try {
+                    $userModel = new UsersModel($this->config->read('mysql','host'),
+                $this->config->read('mysql','user'),
+            $this->config->read('mysql','psw'),
+        $this->config->read('mysql','db'));
+            $where = [];
+                foreach ($arrQueryStringParams as $key=>$value) {
+                    if($key === 'username'){
+                        $where[$key] = $value;
+                    }
+                }
+                if(empty($where)) throw new Error("Missing 'username' parameter for identifying the user to delete.");
+                $arrUsers = $userModel->deleteUsers($where);
+                $responseData = json_encode($arrUsers);
+        } catch (Error $e) {
+            $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+            $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+        }
+        // send output 
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                ['Content-Type: application/json', 'HTTP/1.1 200 OK']
+            );
+        } else {
+            $this->sendOutput(json_encode(['error' => $strErrorDesc]), 
+                ['Content-Type: application/json', $strErrorHeader]
+            );
+        }
+    }
 }

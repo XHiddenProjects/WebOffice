@@ -35,6 +35,8 @@
     --gray-700: #4d4d4d;
     --gray-800: #333333;
     --gray-900: #1a1a1a;
+    /*transparent*/
+    --transparent: transparent;
     /*Color RGB*/
     --red-rgb: 255, 0, 0;
     --maroon-rgb: 128, 0, 0;
@@ -140,4 +142,14 @@
     --ov-overlay: overlay;
     --ov-scroll: scroll;
     --ov-visible: visible;
+    /*Ticket badges*/
+    --ticket-status-open: #4caf50;
+    --ticket-status-progress: #ffc107;
+    --ticket-status-resolved: #2196f3;
+    --ticket-status-closed: #9e9e9e;
+    
+    --ticket-priority-low: #8bC34a;
+    --ticket-priority-medium: #c0af12;
+    --ticket-priority-high: #ff9800;
+    --ticket-priority-urgent: #f44336;
 }
