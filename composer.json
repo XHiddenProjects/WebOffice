@@ -1,0 +1,11 @@
+{
+  "name": "XHiddenProjects/WebOffice",
+  "description": "WebOffice is a administrative, server and network tool where it can used by multiple users.",
+  "type": "project",
+  "require": {
+    "php": "^8.0"
+  },
+  "autoload": {},
+  "scripts": {},
+  "license": "MIT"
+}
