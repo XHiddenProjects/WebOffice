@@ -64,7 +64,7 @@ $(document).ready(()=>{
         });
         setTimeout(()=>{
             const params = new URLSearchParams(window.location.search);
-            const content = $(`.documentation .documentation-content#${params.get('page').replace('|','_')}`)[0];
+            const content = $(`.documentation .documentation-content#${params.get('page').replace(/\|/g,'_')}`)[0];
             scrollnav.init(content,{
                 insertTarget: $('.documentation .page-nav .page-nav-scroll')[0]
             });
