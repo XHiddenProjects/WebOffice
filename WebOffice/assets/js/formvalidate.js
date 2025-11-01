@@ -83,7 +83,7 @@ $(document).ready(()=>{
                     if(r['msg']['2fa']) window.open(`${BASE}/2fa`,'_self');
                     else window.open(`${BASE}/dashboard`,'_self');
                 }
-                submit.html(originalText);
+                submit.text(originalText);
             });
         }
     });
