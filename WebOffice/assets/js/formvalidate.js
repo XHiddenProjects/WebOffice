@@ -45,7 +45,7 @@ $(document).ready(()=>{
                     alert.addClass('d-none');
                     window.open(`${BASE}/dashboard`,'_self');
                 }
-                submit.html(originalText);
+                submit.text(originalText);
             });
         }
     });
