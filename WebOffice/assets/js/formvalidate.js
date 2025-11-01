@@ -121,7 +121,7 @@ $(document).ready(()=>{
                     window.open(`${BASE}/dashboard`,'_self');
                 }
             });
-            submit.html(originalText);
+            submit.text(originalText);
         }
     });
 
