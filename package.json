@@ -1,0 +1,13 @@
+{
+    "name": "WebOffice",
+    "version": "1.0.0",
+    "description": "WebOffice is a administrative, server and network tool where it can used by multiple users.  Resources",
+    "author": "XHiddenProjects",
+    "main": "index.js",
+    "dependencies": {},
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "license": "MIT"
+}
