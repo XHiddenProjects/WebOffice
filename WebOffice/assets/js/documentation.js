@@ -8,7 +8,7 @@ $(document).ready(()=>{
         $(x).addClass('focus');
 
         $(`.documentation .documentation-content`).each((_,e)=>{
-            const id = currentHash ? currentHash.replace(/\|/,'_') : $($('.documentation-subsection-item')[0])?.attr('href')?.replace(/\?page=/,'').replace(/\|/,'_');
+            const id = currentHash ? currentHash.replace(/\|/g,'_') : $($('.documentation-subsection-item')[0])?.attr('href')?.replace(/\?page=/,'').replace(/\|/g,'_');
             if($(e).attr('id') === id)
                 $(e).css('display','block');
             else
