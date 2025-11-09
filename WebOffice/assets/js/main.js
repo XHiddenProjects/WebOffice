@@ -106,15 +106,13 @@ $(document).ready(() => {
                 url: `${BASE}/submissions/authStatus.php?path=${BASE}`,
                 method: 'GET',
                 dataType: 'json',
-                success: function() {
-                    
-                },
+                success: function() {},
                 error: function(xhr, status, error) {
                     console.error('Error fetching user statuses:', error);
                 }
             });
         }
-    }, 1000);
+    }, 3000);
 
     $('.logout').on('click',()=>{
         $.ajax({
@@ -157,5 +155,62 @@ $(document).ready(() => {
             $(this).attr('data-spoiler-show','true');
             $(this).text(loaded[id]);
         }
+    });
+
+    $('[data-select]').each((_, e) => {
+        const $input = $(e);
+        const $parent = $input.parent();
+        $parent.addClass('select-list');
+
+        // Handle input event for filtering options
+        $input.on('input', function() {
+            const val = $(this).val();
+            const parts = val.split(','); 
+            const end = parts[parts.length - 1].trim();
+
+            // Show or hide options based on the last part
+            $parent.find('.select-options').each((_, option) => {
+                const $option = $(option);
+                const text = $option.text();
+
+                // Show options that match the incomplete part
+                if (text.match(new RegExp(end, 'i'))) {
+                    // Only show if the option is not already selected
+                    if (!$option.hasClass('selected')) {
+                        $option.css({ display: 'block' });
+                    }
+                } else {
+                    $option.css({ display: 'none' });
+                }
+            });
+        });
+
+        // Handle click on an option
+        $parent.find('.select-options').each((_, option) => {
+            $(option).on('click', () => {
+                const $option = $(option);
+                const selectedText = $option.text().trim();
+
+                // Mark this option as selected and hide it
+                $option.addClass('selected').css({ display: 'none' });
+
+                const currentVal = $input.val();
+                const parts = currentVal.split(',').map(part => part.trim());
+                // Remove the last part (incomplete text)
+                parts.pop();
+
+                // Append the selected full text
+                parts.push(selectedText);
+
+                // Update input value with proper spacing
+                const newVal = parts.join(', ') + (parts.length ? ', ' : '');
+                $input.val(newVal);
+            });
+        });
+    });
+    $('[data-asset-tag]').on('input',function(){
+        $(this).val($(this).val().toUpperCase());
+        $($(this).val($(this).val().replace(/[^A-Z0-9]/,'')));
+        if($(this).val().length>6) $(this).val($(this).val().substring(0,6));
     });
 });

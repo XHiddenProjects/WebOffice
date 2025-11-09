@@ -1,3 +1,4 @@
+<?xml version='1.0'?>
 <TicketCategories>
     <Category name="authentication" color="#ADD8E6" title="Authentication"/>
     <Category name="payments" color="#FFA07A" title="Payments"/>

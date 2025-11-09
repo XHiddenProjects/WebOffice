@@ -8,7 +8,7 @@ $(document).ready(()=>{
         $(x).addClass('focus');
 
         $(`.documentation .documentation-content`).each((_,e)=>{
-            const id = currentHash ? currentHash.replace(/\|/g,'_') : $($('.documentation-subsection-item')[0])?.attr('href')?.replace('?page=','').replace(/\|/g,'_');
+            const id = currentHash ? currentHash.replace(/\|/,'_') : $($('.documentation-subsection-item')[0])?.attr('href')?.replace('?page=','').replace(/\|/,'_');
             if($(e).attr('id') === id)
                 $(e).css('display','block');
             else
@@ -64,7 +64,7 @@ $(document).ready(()=>{
         });
         setTimeout(()=>{
             const params = new URLSearchParams(window.location.search);
-            const content = $(`.documentation .documentation-content#${params.get('page').replace(/\|/g,'_')}`)[0];
+            const content = $(`.documentation .documentation-content#${(params.get('page') ? params.get('page').replace(/\|/g, '_') : 'getting_started_quickstart')}`)[0];
             scrollnav.init(content,{
                 insertTarget: $('.documentation .page-nav .page-nav-scroll')[0]
             });

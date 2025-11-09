@@ -183,6 +183,12 @@ class Utils{
     public function sudo(string $password): string{
         return "sudo -S ".$this->escapeShell(base64_decode($password));
     }
+    /**
+     * Returns the executed command
+     * @param string $command CLI command
+     * @param string $password Encoded password
+     * @return bool|string|null Returns the value of the executed commands
+     */
     public function executeCommand(string $command, string $password = ''): bool|string|null {
         $output = null;
         if (PHP_OS_FAMILY === 'Windows') {
@@ -233,33 +239,5 @@ class Utils{
     private function escapeShell(string $command): string {
         return escapeshellcmd($command);
     }
-    /**
-     * Convert bytes to a human-readable format
-     * @param int $bytes Number of bytes
-     * @param int $precision Number of decimal places
-     * @return string Human-readable size
-     */
-    public function bytes2readable(int $bytes, int $precision = 2): string {
-        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        $factor = floor((strlen($bytes) - 1) / 3);
-        return sprintf("%.{$precision}f %s", $bytes / pow(1024, $factor), $units[$factor]);
-    }
-    /**
-     * Convert a human-readable size to bytes
-     * @param string $size Human-readable size (e.g., "10MB", "2.5GB")
-     * @return int|float Size in bytes
-     */
-    public function readable2bytes(string $size): int|float {
-        $units=['B'=>0,'KB'=>1,'MB'=>2,'GB'=>3,'TB'=>4,'PB'=>5,'EB'=>6,'ZB'=>7,'YB'=>8,'K'=>1,'M'=>2,'G'=>3,'T'=>4,'P'=>5,'E'=>6,'Z'=>7,'Y'=>8];
-        $size = trim($size);
-        $unit = strtoupper(preg_replace('/[0-9.]/', '', $size));
-        $unit = rtrim($unit, 'B'); // Remove trailing 'B' if present
-        if ($unit === '')
-            $unit = 'B';
-        elseif (isset($units["{$unit}B"])) 
-            $unit.='B';
-        
-        $value = floatval(preg_replace('/[^\d.]/', '', $size));
-        return isset($units[$unit]) ? (float)($value * pow(1024, $units[$unit])) : (float)$value;
-    }
+    
 }

@@ -171,15 +171,16 @@ class Security{
      * Creates/Verifies CSRF token
      * @param string $action Actions: "Load", "verify", "Generate"
      * @param string $token Token input, **if verify**
+     * @param bool $forceGenerate forces to regenerate
      * @return bool|string|null Returns token if loaded, else TRUE/FALSE on verify
      * @throws ErrorException Invalid action
      */
-    public function CSRF(string $action='load', string $token=''): bool|string|null{
+    public function CSRF(string $action='load', string $token='', bool $forceGenerate=false): bool|string|null{
         $c = new CSRF();
         $action = strtolower($action);
         if($action==='load') return $c->getToken();
         elseif($action==='verify') return $c->verify($token);
-        elseif($action==='generate') return $c->generate();
+        elseif($action==='generate') return $c->generate($forceGenerate);
         else throw new ErrorException('Must be a load or verify action');
     }
     /**
@@ -654,7 +655,7 @@ class Security{
             $destination = rtrim($opts['uploadDir'],'/')."/$newFilename";
         // Move the uploaded file
         if (move_uploaded_file($file['tmp_name'], $destination)) 
-            return ['status'=>true,'msg'=>"File uploaded successfully: $destination",'destination'=>preg_replace('/\/submissions/','',UPLOAD_URL)."/$newFilename"];
+            return ['status'=>true,'msg'=>"File uploaded successfully: $destination",'destination'=>preg_replace('/\/submissions/','',UPLOAD_URL)."/$newFilename",'name'=>$newFilename];
         else 
             return ['status'=>false,'msg'=>"Failed to move uploaded file: {$file['name']}"];
     }

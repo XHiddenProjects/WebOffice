@@ -166,11 +166,9 @@ class URI{
      */
     public function match(string|array $match): bool{
         $match = is_string($match) ? explode('/',$match) : $match;
-        $currentPath = $this->arrPath($_SERVER['REQUEST_URI']);
-
+        $currentPath = $this->arrPath(preg_replace('/\?.*/','',$_SERVER['REQUEST_URI']));
         if(count($currentPath)>count($match)) 
             array_splice($currentPath, 0, count($currentPath)-count($match));
-
         if(empty(array_diff($match,$currentPath))) return true;
         else return false;
     }

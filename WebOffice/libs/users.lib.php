@@ -159,4 +159,13 @@ class Users{
         $result = $this->database->fetch("SELECT id FROM users WHERE username=:username",['username'=>$this->getUsername()],PDO::FETCH_ASSOC);
         return $result['id'];
     }
+    /**
+     * Returns the user by ID
+     * @param int $id Users ID
+     * @return string[] users information
+     */
+    public function getUserByID(int $id): array{
+        $result = $this->database->fetch("SELECT id,username,first_name,middle_name,last_name,email,profile_picture,bio,`permissions`,ip_address FROM users WHERE id=:id",['id'=>$id],PDO::FETCH_ASSOC);
+        return $result;
+    }
 }   

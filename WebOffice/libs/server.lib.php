@@ -5,9 +5,11 @@ include_once dirname(__DIR__).'/init.php';
 class Server{
     private Utils $utils;
     private Database $db;
+    private Files $files;
     public function __construct(){
         $this->utils = new Utils();
         $config = new Config();
+        $this->files = new Files();
         $this->db = new Database($config->read('mysql', 'host'), 
                                 $config->read('mysql', 'user'), 
                                 $config->read('mysql', 'psw'), 
@@ -221,10 +223,10 @@ class Server{
             'run_time' => $this->runTime(),
             'database_connected' => $this->db !== null,
             'memory'=>[
-                'usage'=>$this->utils->bytes2readable(memory_get_usage(true)),
-                'peak_usage'=>$this->utils->bytes2readable(memory_get_peak_usage(true)),
+                'usage'=>$this->files->bytes2readable(memory_get_usage(true)),
+                'peak_usage'=>$this->files->bytes2readable(memory_get_peak_usage(true)),
                 'limit'=>ini_get('memory_limit'),
-                'status'=>((memory_get_usage(true) / $this->utils->readable2bytes(ini_get('memory_limit'))) < 0.8 ? 'OK' : 'High')
+                'status'=>((memory_get_usage(true) / $this->files->readable2bytes(ini_get('memory_limit'))) < 0.8 ? 'OK' : 'High')
             ],
         ];
         return $status;
@@ -252,8 +254,8 @@ class Server{
 
 
         // Scan and add document root files to backup using Files class
-        $files = new Files();
-        $fileList = $files->scan($docRoot); // Recursively scan all files
+        
+        $fileList = $this->files->scan($docRoot); // Recursively scan all files
         foreach ($fileList as $file) {
             $relativePath = str_replace($docRoot . DS, '', $file);
             if (is_dir($docRoot.DS.$file)) {

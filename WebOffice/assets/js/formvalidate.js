@@ -134,11 +134,63 @@ $(document).ready(()=>{
             error.addClass('d-block');
         else{
             error.removeClass('d-block');
-            sendRequest(`${BASE}/submissions/tickets.php`,{
+            sendRequest(`${BASE}/submissions/tickets.php?action=create`,{
                 data: new FormData($(this)[0]),
                 method: 'POST'
+            }).then((response)=>{
+                if(response) window.open('../support','_self');
             });
         }
     });
 
+    if($('.ticket-footer').length>0){
+        $('.ticket-footer .ticket-form').on('submit',function(e){
+            e.preventDefault();
+            sendRequest(`${BASE}/submissions/tickets.php?action=save`,{
+                data: new FormData($(this)[0]),
+                method: 'POST'
+            }).then((response)=>{
+                response = JSON.parse(response);
+                if(response['success']){
+                    LANGUAGES.then((e)=>{
+                        NOTIFY.addTitle(e.name)
+                        .addBody(e.success.ticket_saved)
+                        .addIcon(`${BASE}/assets/icons/favicon/32.png`)
+                        .setTimeout(8000)
+                        .push();
+                    });
+                    window.location.reload();
+                }
+            })
+
+            
+        });
+    }
+    if($('.deviceRegister').length>0){
+        $('.deviceRegister').on('submit',function(e){
+            e.preventDefault();
+            const err = $('.alert');
+            LANGUAGES.then((e)=>{
+                if($(this).find('#deviceAsset').val()===''){
+                    err.text(e.errors.assetTagNull);
+                    err.removeClass('d-none');
+                }else{
+                    err.addClass('d-none');
+                    sendRequest(`${BASE}/submissions/device.php?action=add`,{
+                        data: new FormData($(this)[0]),
+                        method: 'POST',
+                        responseType: 'json'
+                    }).then((results)=>{
+                        results = JSON.parse(results);
+                        if(results.success) window.location.reload();
+                        else{
+                            err.text(results.msg);
+                            err.removeClass('d-none');
+                        }
+                    });
+                }
+            });
+            
+        });
+    }
 })

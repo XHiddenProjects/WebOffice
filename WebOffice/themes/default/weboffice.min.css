@@ -131,6 +131,10 @@
     background-color: var(--ticket-status-progress);
     color: var(--white);
 }
+#supportTickets-table_wrapper .ticket-status-on_hold{
+    background-color: var(--ticket-status-hold);
+    color: var(--white);
+}
 #supportTickets-table_wrapper .ticket-status.ticket-status-resolved{
     background-color: var(--ticket-status-resolved);
     color: var(--white);

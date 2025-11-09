@@ -90,7 +90,11 @@
         "next":"Next",
         "submit":"Submit",
         "close":"Close",
-        "logout":"Logout"
+        "logout":"Logout",
+        "save":"Save"
+    },
+    "success":{
+        "ticket_saved":"Ticket has been successfully saved!"
     },
     "errors":{
         "emptyInput": "This is a required input",
@@ -104,7 +108,10 @@
         "invalidMFA": "Invalid Code",
         "invalidStatus": "This is an invalid status",
         "tooManyAttempts": "Too many login attempts. Please try again later.",
-        "spoofedLocation":"Your location is spoofed, turn off the location spoof extension."
+        "spoofedLocation":"Your location is spoofed, turn off the location spoof extension.",
+        "noAttemptLogin":"You haven`t attempted to login",
+        "assetTagNull":"You must insert an asset tag",
+        "deviceExists":"This device already exists"
     },
     "policies":{
         "__notFound":"Policy not found"
@@ -162,8 +169,10 @@
         "_label":"Support",
         "status":{
             "open":"Open",
+            "on_hold":"On Hold",
             "in_progress":"In Progress",
             "closed":"Closed",
+            "resolved":"Resolved",
             "_label":"Status"
         },
         "priority":{
@@ -230,13 +239,51 @@
         "_label":"Devices",
         "view_devices":"View Devices",
         "register_device":"Register Device",
-        "tracking_device":"Track Device"
+        "tracking_device":"Track Device",
+        "device_name":"Device Name",
+        "device_type":"Device Type",
+        "device_brand":"Device Brand",
+        "device_model":"Device Model",
+        "device_asset":"Asset tag",
+        "device_os":"Device OS",
+        "device_manufacturer":"Device Manufacturer",
+        "device_location":"Device Location",
+        "device_serial":"Serial Number",
+        "purchase_date":"Purchase Date",
+        "warranty_expiry":"Warranty Expiry",
+        "desktop":"Desktop",
+        "mobile":"Mobile",
+        "tablet":"Tablet"
     },
     "profile":{
         "_label":"Profile"
     },
     "attachments":"Attachments",
     "terminal":{
-        "_label":"Terminal"
+        "_label":"Terminal",
+        "terminal_type":"Terminal Type",
+        "terminal_theme":"Terminal Theme",
+        "themes":{
+            "solarized_light":"Solarized Light",
+            "solarized_dark":"Solarized Dark",
+            "dracula":"Dracula",
+            "monokai":"Monokai",
+            "ocean_breeze":"Ocean Breeze",
+            "mint_fresh":"Mint Fresh",
+            "midnight_sky":"Midnight Sky",
+            "deep_forest":"Deep Forest",
+            "rose_quartz":"Rose Quartz",
+            "cherry_blossom":"Cherry Blossom",
+            "golden_hour":"Golden Hour",
+            "maroon_magic":"Maroon Magic",
+            "graphite_gray":"Graphite Gray"
+        }
+    },
+    "default":"Default",
+    "unknown":"Unknown",
+    "ip_address":"IP Address",
+    "mac_address":"Mac Address",
+    "help":{
+        "asset_tag":"Asset tag is the physical tag of the device to give each device a physical uniqueness."
     }
 }

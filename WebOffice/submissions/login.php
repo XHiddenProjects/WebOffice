@@ -78,7 +78,7 @@ if($security->CSRF('verify',$token)){
                     if($remember) $storage->cookie('weboffice_auth',base64_encode($res[0]['username']),'store',720);    
                     else $storage->session('weboffice_auth',base64_encode($res[0]['username']));
                 }
-                $security->CSRF('generate');
+                $security->CSRF(action: 'generate', forceGenerate: true);
                 echo json_encode(['status'=>'success','msg'=>$msg??''],JSON_UNESCAPED_SLASHES);
                 # delete attempt
                 if(isset($fetchedAttempts)&&!empty($fetchedAttempts)) $db->delete('attempts',['ip_address'=>$users->getIP()]);

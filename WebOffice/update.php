@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['message'] = 'Enough space available.';
             } else {
                 $response['status'] = 'fail';
-                $response['message'] = "Not enough disk space. Current: {$u->bytes2readable($freeSpace)}, Required: {$u->bytes2readable($requiredSpace)}";
+                $response['message'] = "Not enough disk space. Current: {$f->bytes2readable($freeSpace)}, Required: {$f->bytes2readable($requiredSpace)}";
             }
         break;
         case 'download':

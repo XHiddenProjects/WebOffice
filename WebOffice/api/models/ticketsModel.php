@@ -70,7 +70,20 @@ class TicketsModel extends Database{
      */
     public function postTickets(array $data): array|string{
         try{
-            return $this->insert('users',$data);
+            return $this->insert('support_tickets',$data);
+        }catch(Exception $e){
+            return $e->getMessage();
+        }
+    }
+    /**
+     * Updates the tickets
+     * @param array $data Ticket data
+     * @param array $where Where to update it
+     * @return int|string
+     */
+    public function putTickets(array $data, array $where): int|string{
+        try{
+            return $this->update('support_tickets',$data,$where);
         }catch(Exception $e){
             return $e->getMessage();
         }

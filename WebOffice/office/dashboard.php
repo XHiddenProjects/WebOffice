@@ -7,7 +7,9 @@ WebOffice\Users,
 WebOffice\Network,
 WebOffice\Device,
 WebOffice\Utils,
-WebOffice\Data;
+WebOffice\Data,
+WebOffice\table as Table,
+WebOffice\Security;
 $addon = new Addons(); // Instantiate the concrete subclass
 $storage = new Storage();
 $users = new Users();
@@ -16,6 +18,7 @@ $network = new Network();
 $device = new Device();
 $utils = new Utils();
 $data = new Data();
+$security = new Security();
 if(!$storage->session('weboffice_auth', action: 'Get')&&!$storage->cookie(name: 'weboffice_auth',action: 'load')) header('Location: '.URL.DS.'auth');
 ?>
 <!DOCTYPE html>
@@ -283,16 +286,198 @@ if(!$storage->session('weboffice_auth', action: 'Get')&&!$storage->cookie(name: 
             </form>
             <?php
             }
+            if($uri->match('dashboard/support/read')){
+                $ticket = new Table\SupportTickets();
+                $info = $ticket->getTicket($_GET['ticket']);
+                $uname = $users->getUserByID($info['user_id']);
+            ?>
+                <div class="ticket-container">
+                    <div class="ticket-title">
+                        <p class="ticket-subject"><?php echo $info['subject'];?></p>
+                        <p class="ticket-author"><?php echo $uname['first_name'].' '.($uname['middle_name'].' '??'').$uname['last_name'];?></p>
+                    </div>
+                    <div class="ticket-description">
+                        <p><?php echo $security->preventXSS($info['description']);?></p>
+                    </div>
+                    <div class="ticket-attachments">
+                        <p class="ticket-attachments-label"><?php echo $lang->load('attachments');?></p>
+                        <div class="ticket-attachments-gallery">
+                            <?php
+                                foreach(json_decode($info['attachments'],true) as $attachments){
+                                    $alt = explode('/',$attachments);
+                                    echo "<img src='$attachments' alt='".preg_replace('/\..*$/','',end($alt))."'/>";
+                                }
+                            ?>
+                        </div>
+                    </div>
+                    <hr class="border-4"/>
+                    <div class="ticket-footer">
+                        <form method="post" enctype="multipart/form-data" class="ticket-form">
+                            <input type="hidden" name="token" value="<?php echo $security->CSRF()?>"/>
+                            <input type="hidden" name="ticket_id" value="<?php echo $_GET['ticket'];?>"/>
+                            <input type="hidden" name="main" value="<?PHP echo base64_encode(URL);?>"/>
+                            <div>
+                                <label for="ticket-priority"><?php echo $lang->load(['support','priority','_label']);?></label>
+                                <select class="form-select" id="ticket-priority" name="ticket-priority">
+                                    <option value="low"<?php echo $info['priority']==='low' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','priority','low']);?></option>
+                                    <option value="medium"<?php echo $info['priority']==='medium' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','priority','medium']);?></option>
+                                    <option value="high"<?php echo $info['priority']==='high' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','priority','high']);?></option>
+                                    <option value="urgent"<?php echo $info['priority']==='urgent' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','priority','urgent']);?></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="ticket-status"><?php echo $lang->load(['support','status','_label']);?></label>
+                                <select class="form-select" id="ticket-status" name="ticket-status">
+                                    <option value="open"<?php echo $info['status']==='open' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','status','open']);?></option>
+                                    <option value="on_hold"<?php echo $info['status']==='on_hold' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','status','on_hold']);?></option>
+                                    <option value="in_progress"<?php echo $info['status']==='in_progress' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','status','in_progress']);?></option>
+                                    <option value="closed"<?php echo $info['status']==='closed' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','status','closed']);?></option>
+                                    <option value="resolved"<?php echo $info['status']==='resolved' ? ' selected="selected"' : '';?>><?php echo $lang->load(['support','status','resolved']);?></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="assigned_to"><?php echo $lang->load(['support','assigned_to']);?></label>
+                                <input type="text" id="assigned_to" name="assigned_to" class="form-control" data-select="assignment-user" value="<?php echo isset($info['assigned_to'])&&!empty($info['assigned_to']) ? implode(',',json_decode($info['assigned_to'],true)):'';?>">
+                                <div class="assignment-user">
+                                    <?php
+                                        foreach($users->list() as $users)
+                                            echo "<div class='select-options' tabindex='0'>{$users['username']}</div>";
+                                    ?>
+                                </div>
+                            </div>
+                            <button class="btn btn-success mt-2 w-100"><i class="fa-solid fa-floppy-disk"></i> <?php echo $lang->load(['buttons','save']);?></button>
+                            <a href="../support"><button class="btn btn-primary mt-2 w-100" type="button"><?php echo $lang->load(['buttons','back']);?></button></a>
+                        </form>
+                    </div>
+                </div>
+            <?php
+            }
+            if($uri->match('dashboard/devices')){
+            ?>
+            <div class="device-list">
+                <?php
+                    foreach($device->getRegisterDevices() as $devices){
+                        
+                    }
+                ?>
+            </div>
+            
+            
+            <?php
+            }
+            if($uri->match('dashboard/devices/register')){
+                $deviceType = $device->is('mobile') ? 'mobile' : ($device->is('tablet') ? 'tablet' : ($device->is('desktop') ? 'desktop' : 'unknown'))
+            ?>
+                <div class="device-information">
+                    <form class="deviceRegister" method="post" enctype="multipart/form-data">
+                        <div class="alert alert-danger d-none"></div>
+                        <input type="hidden" value="<?php echo $security->CSRF();?>" name="token"/>
+                        <div class="row">
+                            <div class="col">
+                                <label for="deviceName"><?php echo $lang->load(['devices','device_name']);?></label>
+                                <input type="text" readonly name="deviceName" id="deviceName" class="form-control disabled" value="<?php echo $device->deviceName();?>">
+                            </div>
+                            <div class="col">
+                                <label for="deviceType"><?php echo $lang->load(['devices','device_type']);?></label>
+                                <select class="form-select disabled" readonly name="deviceType" id="deviceType">
+                                    <option <?php echo $deviceType==='desktop'?'selected="selected" ' : '';?>value="desktop"><?php echo $lang->load(['devices','desktop']);?></option>
+                                    <option <?php echo $deviceType==='mobile'?'selected="selected" ' : '';?>value="mobile"><?php echo $lang->load(['devices','mobile']);?></option>
+                                    <option <?php echo $deviceType==='tablet'?'selected="selected" ' : '';?>value="tablet"><?php echo $lang->load(['devices','tablet']);?></option>
+                                    <option <?php echo $deviceType==='unknown'?'selected="selected" ' : '';?>value="tablet"><?php echo $lang->load(['unknown']);?></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="deviceBrand"><?php echo $lang->load(['devices','device_brand']);?></label>
+                                <input type="text" name="deviceBrand" id="deviceBrand" class="form-control" value="<?php echo $device->deviceBrand();?>">
+                            </div>
+                            <div class="col">
+                                <label for="deviceOS"><?php echo $lang->load(['devices','device_os']);?></label>
+                                <input type="text" name="deviceOS" readonly id="deviceOS" class="form-control disabled" value="<?php echo $device->getOs('name');?>">
+                            </div>
+                            <div class="col">
+                                <label for="deviceModel"><?php echo $lang->load(['devices','device_model']);?></label>
+                                <input type="text" name="deviceModel" id="deviceModel" class="form-control" value="<?php echo $device->deviceModel();?>">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="deviceManufacturer"><?php echo $lang->load(['devices','device_manufacturer']);?></label>
+                                <input type="text" readonly name="deviceManufacturer" id="deviceManufacturer" class="form-control disabled" value="<?php echo $device->getManufacturer()?>">
+                            </div>
+                            <div class="col">
+                                <label for="deviceSerial"><?php echo $lang->load(['devices','device_serial']);?></label>
+                                <input type="text" readonly name="deviceSerial" id="deviceSerial" class="form-control disabled" value="<?php echo $device->getSerial()?>">
+                            </div>
+                            <div class="col position-relative">
+                                <i class="fa-solid fa-rotate randomAssetTag"></i>
+                                <label for="deviceAsset"><?php echo $lang->load(['devices','device_asset']);?> <i class="fa-solid fa-circle-question" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo $lang->load(['help','asset_tag']);?>"></i></label>
+                                <input type="text" name="deviceAsset" id="deviceAsset" class="form-control" data-asset-tag>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="purchaseDate"><?php echo $lang->load(['devices','purchase_date']);?></label>
+                                <input type="date" name="purchaseDate" id="purchaseDate" class="form-control">
+                            </div>
+                            <div class="col">
+                                <label for="warrantyExpiry"><?php echo $lang->load(['devices','warranty_expiry']);?></label>
+                                <input type="date" name="warrantyExpiry" id="warrantyExpiry" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="deviceIP"><?php echo $lang->load('ip_address');?></label>
+                                <input type="text" readonly name="deviceIP" id="deviceIP" class="form-control disabled" value="<?php echo $users->getIP();?>">
+                            </div>
+                            <div class="col">
+                                <label for="deviceMAC"><?php echo $lang->load('mac_address');?></label>
+                                <input type="text" readonly name="deviceMAC" id="deviceMAC" class="form-control disabled" value="<?php echo $device->macAddress();?>">
+                            </div>
+                            <div class="col">
+                                <label for="deviceLocation"><?php echo $lang->load(['devices','device_location']);?></label>
+                                <input type="text" readonly name="deviceLocation" id="deviceLocation" class="form-control disabled">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success mt-2 w-100 fs-4"><i class="fa-solid fa-floppy-disk"></i> <?php echo $lang->load(['buttons','save'])?></button>
+                    </form>
+                </div>
+            <?php
+            }
             if($uri->match('dashboard/terminal')){
                 if($users->isAdmin()){
             ?> 
-            <div class="terminal container-fluid" terminal-theme="gnome">
-                <select class="form-select terminal-theme-select" name="terminal-theme">
-                    <option value="gnome">GNOME</option>
-                    <option value="powershell">Powershell</option>
-                    <option value="cmdPrompt">Command Prompt</option>
-                    <option value="macOS">macOS</option>
-                </select>
+            <div class="terminal container-fluid" terminal-type="gnome" terminal-theme="default">
+                <div class="d-flex">
+                    <select class="form-select terminal-type-select" name="terminal-type">
+                        <optgroup label="<?php echo $lang->load(['terminal','terminal_type']);?>">
+                            <option value="gnome">GNOME</option>
+                            <option value="powershell">Powershell</option>
+                            <option value="cmd">Command Prompt</option>
+                            <option value="macOS">macOS</option>
+                            <option value="iTerm2">iTerm2</option>
+                        </optgroup>
+                    </select>
+                    <select class="form-select terminal-theme-select ms-2" name="terminal-theme">
+                        <optgroup style="max-height:65px;" label="<?php echo $lang->load(['terminal','terminal_theme']);?>">
+                            <option value="default" selected="selected"><?php echo $lang->load('default')?></option>
+                            <option value="solarized_light"><?php echo $lang->load(['terminal','themes','solarized_light']);?></option>
+                            <option value="solarized_dark"><?php echo $lang->load(['terminal','themes','solarized_dark']);?></option>
+                            <option value="dracula"><?php echo $lang->load(['terminal','themes','dracula']);?></option>
+                            <option value="monokai"><?php echo $lang->load(['terminal','themes','monokai']);?></option>
+                            <option value="ocean_breeze"><?php echo $lang->load(['terminal','themes','ocean_breeze']);?></option>
+                            <option value="mint_fresh"><?php echo $lang->load(['terminal','themes','mint_fresh']);?></option>
+                            <option value="midnight_sky"><?php echo $lang->load(['terminal','themes','midnight_sky']);?></option>
+                            <option value="deep_forest"><?php echo $lang->load(['terminal','themes','deep_forest']);?></option>
+                            <option value="rose_quartz"><?php echo $lang->load(['terminal','themes','rose_quartz']);?></option>
+                            <option value="cherry_blossom"><?php echo $lang->load(['terminal','themes','cherry_blossom']);?></option>
+                            <option value="golden_hour"><?php echo $lang->load(['terminal','themes','golden_hour']);?></option>
+                            <option value="maroon_magic"><?php echo $lang->load(['terminal','themes','maroon_magic']);?></option>
+                            <option value="graphite_gray"><?php echo $lang->load(['terminal','themes','graphite_gray']);?></option>
+                        </optgroup>
+                    </select>
+                </div>
                 <div class="terminal-history">
                     <div class="terminal-input" data-terminal-user="<?php echo get_current_user()?>" data-terminal-host="<?php echo php_uname('n')?>" data-terminal-cwd="<?php echo getcwd();?>">
                         <span class="currentInfo"></span>

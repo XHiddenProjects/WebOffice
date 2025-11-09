@@ -147,6 +147,7 @@
     --ticket-status-progress: #ffc107;
     --ticket-status-resolved: #2196f3;
     --ticket-status-closed: #9e9e9e;
+    --ticket-status-hold: #3d2b9f;
     
     --ticket-priority-low: #8bC34a;
     --ticket-priority-medium: #c0af12;

@@ -51,14 +51,50 @@ class TicketsController extends Controller{
         $strErrorDesc = '';
         $arrQueryStringParams = $this->getQueryStringParams();
         try {
-                    $userModel = new TicketsModel($this->config->read('mysql','host'),
+                    $ticketModel = new TicketsModel($this->config->read('mysql','host'),
                 $this->config->read('mysql','user'),
             $this->config->read('mysql','psw'),
         $this->config->read('mysql','db'));
             $data = [];
                 foreach ($arrQueryStringParams as $key=>$value) $data[$key] = $value;
-                $arrTickets = $userModel->postTickets($data);
+                $arrTickets = $ticketModel->postTickets($data);
                 $responseData = json_encode($arrTickets);
+        } catch (Error $e) {
+            $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+            $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+        }
+        // send output 
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                ['Content-Type: application/json', 'HTTP/1.1 200 OK']
+            );
+        } else {
+            $this->sendOutput(json_encode(['error' => $strErrorDesc]), 
+                ['Content-Type: application/json', $strErrorHeader]
+            );
+        }
+    }
+    public function put(): never{
+        $strErrorDesc = '';
+        $arrQueryStringParams = $this->getQueryStringParams();
+        try {
+            $userModel = new TicketsModel($this->config->read('mysql','host'),
+                $this->config->read('mysql','user'),
+            $this->config->read('mysql','psw'),
+        $this->config->read('mysql','db'));
+            $data = [];
+            $where = [];
+                foreach ($arrQueryStringParams as $key=>$value) {
+                    if($key === 'ticket_id'){
+                        $where[$key] = $value;
+                    }else{
+                        $data[$key] = $value;
+                    }
+                }
+                if(empty($where)) throw new Error("Missing 'ticket_id' parameter for identifying the ticket id to update.");
+                $arrUsers = $userModel->putTickets($data,$where);
+                $responseData = json_encode($arrUsers);
         } catch (Error $e) {
             $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
             $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';

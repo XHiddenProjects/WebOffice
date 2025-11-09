@@ -8,7 +8,7 @@ class Zip
      * Summary of __construct
      * @param string $path Filepath to locate the zip file
      */
-    public function __construct(string $path = null){
+    public function __construct(string $path = ''){
         $this->zipArchive = new \ZipArchive();
         if ($path === null || trim($path) === '') {
             throw new \InvalidArgumentException("Zip file path must be provided.");
@@ -51,7 +51,7 @@ class Zip
      * @param mixed $localName Filename
      * @return bool
      */
-    public function addFile(string $filePath, string $localName = null): bool{
+    public function addFile(string $filePath, string $localName = ''): bool{
         if (!$this->isOpen) {
             return false;
         }
@@ -64,7 +64,7 @@ class Zip
      * @param string|null $localName Local name for the folder in the zip
      * @return bool TRUE if the folder was added, else FALSE
      */
-    public function addFolder(string $folderPath, string $localName = null): bool {
+    public function addFolder(string $folderPath, string $localName = ''): bool {
         if (!$this->isOpen) {
             return false;
         }

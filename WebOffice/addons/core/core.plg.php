@@ -44,7 +44,13 @@ class Core extends addons{
             <meta name='version' content='{$langs->load()['version']}' />
             <meta name='charset' content='{$c->read('settings','charset')}'/>
             <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-            <meta name='keywords' content='".implode(',',$langs->load()['keywords'])."'/>";
+            <meta name='keywords' content='".implode(',',$langs->load()['keywords'])."'/>
+            <!-- PNG favicon in various sizes -->
+            <link rel='icon' type='image/png' sizes='16x16' href='".ASSETS_URL.DS."icons".DS."favicon".DS."16.png'/>
+            <link rel='icon' type='image/png' sizes='32x32' href='".ASSETS_URL.DS."icons".DS."favicon".DS."32.png'/>
+            <link rel='icon' type='image/png' sizes='48x48' href='".ASSETS_URL.DS."icons".DS."favicon".DS."48.png'/>
+            <!-- Apple Touch Icon for iOS devices -->
+            <link rel='apple-touch-icon' sizes='180x180' href='".ASSETS_URL.DS."icons".DS."favicon".DS."180.png'/>";
         } 
         
         else return '';
@@ -54,7 +60,8 @@ class Core extends addons{
         if($this->isEnabled()){
             $out = "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr\" crossorigin=\"anonymous\">
             <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."prism.min.css\" type=\"text/css\"/>
-            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."fonts.css\" type=\"text/css\"/>";
+            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."fonts.css\" type=\"text/css\"/>
+            <link rel=\"stylesheet\" href=\"".ASSETS_URL.DS."css".DS."notification.min.css\" type=\"text/css\"/>";
             foreach(array_diff(scandir(THEMES_PATH),['.','..']) as $themes){
                 $c = new Config();
                 if(strcasecmp($themes,$c->read('settings','theme'))==0){
@@ -93,6 +100,7 @@ class Core extends addons{
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
             <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-2.3.4/b-3.2.5/b-html5-3.2.5/b-print-3.2.5/date-1.6.1/fh-4.0.4/r-3.0.7/datatables.min.js" integrity="sha384-6jtTLH6aKxsXlFuyQsDkbF8s+pgRmZH6EXW63HI8tsPNEmpWppc13M5k3wr3f9A/" crossorigin="anonymous"></script>
             <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/2.0.0-alpha.1/leaflet.js" integrity="sha512-QUl65f9cexykSbNrG6nS4gsG1yhNP1hyClc8qFFvTATGXBZT7r9/dlQaBocLQycXQPQgRWPayOBe01xzOsEv5w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script src="'.ASSETS_URL.DS.'js'.DS.'notification.js" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'definitions.js?base='.urlencode(URL).'" type="text/javascript"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'animate.js"></script>
             <script src="'.ASSETS_URL.DS.'js'.DS.'scanner.js" type="text/javascript"></script>
@@ -134,7 +142,6 @@ class Core extends addons{
                     <h3>{$l->load(['footer','follow_us'])}</h3>
                     <div class='d-flex flex-wrap'>
                         <a data-bs-toggle='tooltip' target='_blank' data-bs-placement='top' data-bs-title='{$l->load(['socials','github'])}' href='https://github.com/XHiddenProjects/WebOffice' class='me-2 link-dark link-underline-opacity-0 social-bubble social-github'><i class='fa-brands fa-github'></i></a>
-                        <a data-bs-toggle='tooltip' target='_blank' data-bs-placement='top' data-bs-title='{$l->load(['socials','discord'])}' href='https://discord.com/users/948025245787373608' class='me-2 link-dark link-underline-opacity-0 social-bubble social-discord'><i class='fa-brands fa-discord'></i></a>
                     </div>
                 </div>
             </div><hr class='border-2 border-dark rounded'/><p class='text-center'>&copy2025".(date('Y')==2025 ? '' : " - ".date('Y'))." XHiddenProjects</p>";

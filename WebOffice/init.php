@@ -314,7 +314,7 @@ $db->createTable('support_tickets', [
     'user_id' => 'INT NOT NULL',
     'subject' => 'VARCHAR(255) NOT NULL',
     'description' => 'TEXT NOT NULL',
-    'status' => 'ENUM(\'open\', \'in_progress\', \'resolved\', \'closed\') DEFAULT \'open\'',
+    'status' => 'ENUM(\'open\', \'in_progress\', \'resolved\', \'closed\', \'on_hold\') DEFAULT \'open\'',
     'category'=>'VARCHAR(255) NOT NULL',
     'priority' => 'ENUM(\'low\', \'medium\', \'high\', \'urgent\') DEFAULT \'medium\'',
     'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',

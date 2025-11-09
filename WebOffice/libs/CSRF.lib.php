@@ -16,17 +16,27 @@ class CSRF{
 
     /**
      * Generates a random token
+     * @param bool $force Forces a new generate key
      * @return null
      */
-    public function generate(): null{
+    public function generate($force=false): null{
         $n = $this->c->read('security','csrf_name');
-        if(empty($this->s->session(name: $n,action: 'get'))){
+        if($force){
             $timestamp = time();
             $token = "{$this->salt()}|$timestamp";
             $this->s->session($n, [
                 'token'=>bin2hex($token),
                 'expire'=>$timestamp+(int)$this->c->read('security','csrf_token_expiry')
             ]);
+        }else{
+            if(empty($this->s->session(name: $n,action: 'get'))){
+                $timestamp = time();
+                $token = "{$this->salt()}|$timestamp";
+                $this->s->session($n, [
+                    'token'=>bin2hex($token),
+                    'expire'=>$timestamp+(int)$this->c->read('security','csrf_token_expiry')
+                ]);
+            }
         }
         return null;
     }

@@ -369,3 +369,95 @@ footer .social-bubble i{
     z-index: 1;
     font-weight: 800;
 }
+#supportTickets-table tbody tr td:nth-child(3){
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+p{white-space: pre-line;}
+
+.ticket-container{
+    padding: 1em;
+    box-shadow: 0 0 5px var(--lightgray);
+    border-radius: 5px;
+    max-height: 470px;
+    overflow-y: auto;
+}
+.ticket-container .ticket-title{
+    margin-bottom: 1.5em;
+}
+.ticket-container .ticket-title .ticket-subject{
+    font-weight: 800;
+    font-size: 3vh;
+    margin-bottom: 0;
+}
+.ticket-container .ticket-title .ticket-author{
+    font-style: italic;
+}
+.ticket-container .ticket-description{
+    height: 360px;
+    overflow-y: auto;
+    box-shadow: 0 0 5px var(--gray);
+    padding: 3px 5px;
+    border-radius: 5px;
+}
+.ticket-container .ticket-attachments{
+    margin-top: 1rem;
+}
+.ticket-container .ticket-attachments-label{
+    font-size: 2.5vh;
+    font-weight: 900;
+}
+.ticket-container .ticket-attachments-gallery{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+
+/* Hide the dropdown by default */
+[data-select] + div {
+    opacity: 0;
+    height: 0;
+    overflow-y: auto;
+    transition: all 0.2s;
+}
+
+/* Show the dropdown when input or its container is focused */
+[data-select]:focus + div,
+.select-list:has([data-select]):focus-within,
+.select-list:has([data-select]):focus-within div:focus-within{
+    opacity: 1;
+    height: auto;
+}
+
+/* Style for options */
+[data-select] + div .select-options {
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 0 5px;
+}
+
+/* Hover effect for options */
+[data-select] + div .select-options:hover {
+    background-color: rgba(var(--gray-rgb), var(--opacity-50));
+}
+
+/* Positioning for container div when it has a [data-select] element inside */
+.select-list:has([data-select]) {
+    position: relative;
+}
+
+.randomAssetTag{
+    position: absolute;
+    top:55%;
+    right: 25px;
+    cursor: pointer;
+}
+
+.disabled{
+    background-color: var(--bs-secondary-bg);
+    opacity: 1;
+    pointer-events: none;
+}

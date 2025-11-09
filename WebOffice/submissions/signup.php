@@ -97,6 +97,7 @@ else{
                 if(empty($res)&&!isset($res))
                     echo json_encode(['status'=>'error','msg'=>$lang->load(['errors','failedCreatedUser'])],JSON_UNESCAPED_SLASHES);
                 else{
+                    $security->CSRF(action: 'generate',forceGenerate: true);
                     $storage->session('weboffice_auth',base64_encode($username));
                     echo json_encode(['status'=>'success', 'msg'=>$res],JSON_UNESCAPED_SLASHES);
                 }

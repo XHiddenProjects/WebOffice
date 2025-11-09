@@ -7,6 +7,7 @@ WebOffice\Utils,
 WebOffice\Database,
 WebOffice\Config,
 WebOffice\Security;
+use PDO;
 class Device {
     private DeviceDetector $dd;
     private Utils $utils;
@@ -399,40 +400,57 @@ class Device {
             $output = shell_exec('getmac');
             if ($output) {
                 // Extract MAC address from output
-                if (preg_match('/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/', $output, $matches)) {
-                    $mac = $matches[0];
+                if (preg_match_all('/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/', $output, $matches)) {
+                    $mac = end($matches[0]);
                 }
             }
         } elseif (stripos($os, 'DAR') !== false || stripos($os, 'LIN') !== false) {
             // macOS or Linux
             $output = shell_exec('ifconfig -a');
             if ($output) {
-                if (preg_match('/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/', $output, $matches)) {
-                    $mac = $matches[0];
+                if (preg_match_all('/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/', $output, $matches)) {
+                    $mac = end($matches[0]);
                 }
             }
         }
 
         return $mac;
     }
-    public function addDevice(string $location, int $purchase_date, int $warranty_expiry, string $status, string $asset_tag, array $history, string $notes=''){
-        $this->db->insert('devices',[
-            'name'=>$this->deviceName(),
-            'type'=>$this->is('mobile') ? 'mobile' : ($this->is('tablet') ? 'tablet' : ($this->is('desktop') ? 'desktop' : 'unknown')),
-            'brand'=>$this->deviceBrand(),
-            'model'=>$this->deviceModel(),
-            'os'=>$this->getOs('name'),
-            'serial'=>$this->getSerial(),
-            'manufacturer'=>$this->getManufacturer(),
-            'status'=>$status,
-            'purchase_date'=>date('Y-m-d H:i:s',$purchase_date),
-            'warranty_expiry'=>date('Y-m-d H:i:s',$warranty_expiry),
-            'asset_tag'=>$this->security->sanitize($asset_tag,Security::SANITIZE_STRING),
-            'history'=>json_encode($history,JSON_UNESCAPED_SLASHES),
-            'notes'=>$this->security->filter(htmlspecialchars($notes),$this->security::FILTER_DEFAULT),
-            'mac_address'=>$this->macAddress(),
-            'location'=>htmlspecialchars($location)
-        ]);
+    public function addDevice(string $name='', string $type='', string $brand='', string $model='', string $os='', string $serial='', string $manufacturer='', string $location='', string $ip, int $purchase_date=0, int $warranty_expiry=0, string $status='', string $asset_tag='', array $history=[], string $notes=''): bool{
+        $results = $this->db->fetch('SELECT * FROM devices WHERE serial_number=:serial_number OR asset_tag=:asset_tag',['serial_number'=>$serial, 'asset_tag'=>$asset_tag],PDO::FETCH_ASSOC);
+        if(empty($results)){
+            $this->db->insert('devices',[
+                'name'=>$this->security->preventXSS($name)??$this->deviceName(),
+                'type'=>$this->security->preventXSS($type)??($this->is('mobile') ? 'mobile' : ($this->is('tablet') ? 'tablet' : ($this->is('desktop') ? 'desktop' : 'unknown'))),
+                'brand'=>$this->security->preventXSS($brand)??$this->deviceBrand(),
+                'model'=>$this->security->preventXSS($model)??$this->deviceModel(),
+                'os'=>$this->security->preventXSS($os)??$this->getOs('name'),
+                'serial_number'=>$this->security->preventXSS($serial)??$this->getSerial(),
+                'manufacturer'=>$this->security->preventXSS($manufacturer)??$this->getManufacturer(),
+                'status'=>$this->security->preventXSS($status),
+                'purchase_date'=>$purchase_date ? date('Y-m-d H:i:s',$purchase_date) : null,
+                'warranty_expiry'=>$warranty_expiry ? date('Y-m-d H:i:s',$warranty_expiry) : null,
+                'asset_tag'=>$this->security->sanitize($asset_tag,Security::SANITIZE_STRING),
+                'history'=>json_encode($history,JSON_UNESCAPED_SLASHES),
+                'notes'=>$this->security->filter(htmlspecialchars($notes),$this->security::FILTER_DEFAULT),
+                'ip_address'=>$this->security->filter($ip,Security::FILTER_IPV4),
+                'mac_address'=>$this->macAddress(),
+                'location'=>htmlspecialchars($location)
+            ]);
+            return true;
+        }else return false;
+    }
+    /**
+     * Fetches the devices information
+     * @param string $serial_number Devices serial number
+     * @return array|bool Device(s) information
+     */
+    public function getRegisterDevices(string $serial_number=''): array|bool{
+        if($serial_number){
+            return $this->db->fetch("SELECT * FROM devices WHERE serial_number=:serial_number",['serial_number'=>$serial_number],PDO::FETCH_ASSOC);
+        }else{
+            return $this->db->fetchAll("SELECT * FROM devices",[],PDO::FETCH_ASSOC);
+        }
     }
 }
 
