@@ -24,10 +24,7 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 * mySQL
 
 **Software**
-* SSH
-  * OpenSSH
-  * KiTTY
-  * WinSCP
+* OpenSSH
 * [speedtest-cli](https://github.com/sivel/speedtest-cli) 
 ***
 ## Features
@@ -57,4 +54,16 @@ _The software does use:_
 - Terminal/Command scripts
 - Network connections
 - Browser history
+
+**Note:** Also this may require you to give _daemon_ priviages if you are on Linux
+```bash
+sudo visudo
+```
+inside of _sudoers.tmp_
+```bash
+# Local server permissions
+daemon ALL=(ALL) NOPASSWD: /usr/sbin/dmidecode
+daemon ALL=(ALL) NOPASSWD: /sbin/shutdown
+daemon ALL=(ALL) NOPASSWD: /sbin/reboot
+```
 
