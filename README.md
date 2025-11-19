@@ -67,3 +67,6 @@ daemon ALL=(ALL) NOPASSWD: /sbin/shutdown
 daemon ALL=(ALL) NOPASSWD: /sbin/reboot
 ```
 
+## Diagram
+<img width="2066" height="3500" alt="image" src="https://github.com/user-attachments/assets/0c2eec7d-c2b0-4a6b-831b-d195ca055648" />
+
