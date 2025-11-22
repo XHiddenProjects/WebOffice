@@ -18,6 +18,7 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 * [PSUtil](https://github.com/giampaolo/psutil)
 * [GPUtil](https://github.com/anderskm/gputil)
 * [setuptools](https://github.com/pypa/setuptools)
+* [smtplib](https://docs.python.org/3/library/smtplib.html)
 
 **PHP (8.2+)**
 * PDO
