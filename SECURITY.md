@@ -6,7 +6,7 @@ Welcome to the WebOffice security policy. We are committed to maintaining the se
 
 | Version       | Status          | Release Date    |
 |---------------|-----------------|-----------------|
-| 1.0.x         | Supported       | TBD             |
+| 0.0.x         | Supported       | TBD             |
 
 *Note: Only the latest supported versions receive security updates and fixes.*
 
