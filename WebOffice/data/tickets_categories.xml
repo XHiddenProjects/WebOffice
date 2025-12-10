@@ -1,8 +1,0 @@
-<?xml version='1.0'?>
-<TicketCategories>
-    <Category name="authentication" color="#ADD8E6" title="Authentication"/>
-    <Category name="payments" color="#FFA07A" title="Payments"/>
-    <Category name="ui-ux" color="#90EE90" title="UI/UX"/>
-    <Category name="bug" color="#FF6347" title="Bug"/>
-    <Category name="account" color="#FFD700" title="Account"/>
-</TicketCategories>
