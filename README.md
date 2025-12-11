@@ -24,6 +24,9 @@ WebOffice is an all-in-one adminstrative/network/server tool including high secu
 **PHP (8.2+)**
 * PDO
 * mySQL
+* GD
+* OpenSSL
+* YAML
 
 **Software**
 * OpenSSH
